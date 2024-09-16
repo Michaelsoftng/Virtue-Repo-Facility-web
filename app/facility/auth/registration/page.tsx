@@ -10,7 +10,7 @@ import { IRegister } from '@/src/reuseable/interfaces/register.interface'
 import Link from 'next/link';
 import { FcGoogle } from "react-icons/fc";
 import { IoIosWarning } from "react-icons/io";
-
+import FooterNav from '@/src/reuseable/components/FooterNav';
 const Registration: React.FC = () => {
     const [formData, setFormData] = useState<IRegister>();
     const [formValidationErrors, setFormValidationErrors] = useState({
@@ -52,16 +52,16 @@ const Registration: React.FC = () => {
 
     const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        // switch (name) {
-        // 	case 'password':
-        // 		passwordValidation(value)
-        // 		break;
-        // 	case 'password_confirmation':
-        // 		passwordConfirmation(value, formData?.password)
-        // 		break;
-        // 	default:
-        // 		break;
-        // }
+        switch (name) {
+        	case 'password':
+        		passwordValidation(value)
+        		break;
+        	case 'password_confirmation':
+        		passwordConfirmation(value, formData?.password)
+        		break;
+        	default:
+        		break;
+        }
         setFormData({ ...formData, [name]: value })
     }
 
@@ -78,17 +78,17 @@ const Registration: React.FC = () => {
                 <Logo />
             </div>
         </div>
-        <div className="w-full md:w-[400px] mx-auto">
+        <div className="w-full md:w-[350px] lg:w-[400px] mx-auto md:mt-3 lg:mt-0">
             <div className="">
                 <Form.Root className="w-full mx-auto">
-                    <h3 className="text-black font-bold text-[20px]">Sign Up</h3>
+                    <h3 className="text-black font-bold text-[20px] lg:text-[24px]">Sign up</h3>
                     <Form.Field name="facilityname" className="block mb-4 mt-2">
                         <Form.Label className="block font-semibold text-[14px]">Facility Name</Form.Label>
                         <Form.Control onChange={handleFormChange}
                             type="text"
                             required
                             placeholder='Facility name'
-                            className="focus:outline focus:outline-offset-0 focus:outline-green-500 px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto"
+                              className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0] px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto"
                         />
                         <Form.Message className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold" match="valueMissing">
                            
@@ -103,7 +103,7 @@ const Registration: React.FC = () => {
                             required
                             type="email"
                             placeholder='Email address'
-                            className="outline-offset-0 outline-[#a673ef] px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" />
+                            className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0]  px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" />
                         <Form.Message 
                             className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
                               match={(error) => error === "typeMismatch" || error === "valueMissing"}
@@ -120,7 +120,7 @@ const Registration: React.FC = () => {
                             required
                             placeholder='Password'
                             type={passwordVisibility ? "text" : "password"}
-                            className="outline-offset-0 outline-[#a673ef] px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" 
+                            className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0]  px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" 
                         />
              
                         <span
@@ -151,7 +151,7 @@ const Registration: React.FC = () => {
                             required
                               type={passwordVisibility ? "text" : "password"}
                               placeholder='Re-type Password'
-                            className="outline-offset-0 outline-[#a673ef] px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto"
+                              className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0]  px-[15px] py-[10px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto"
                         />
                 
                         <span
@@ -173,39 +173,41 @@ const Registration: React.FC = () => {
                         </Form.Message>
                     </Form.Field>
 
-                    <div className="flex items-center">
+                    <div className="grid grid-cols-[35px_calc(100%-35px)]">
                           <Checkbox.Root
-                              className="w-6 h-6 rounded-md border-2 border-gray-300 flex items-center 
-                              justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-5 h-5 rounded-xs border-2 border-[#09CFA0] flex items-center 
+                              justify-center appearance-none
+                               checked:bg-[#09CFA0] focus:outline-none focus:ring-0
+                               focus:ring-[#09CFA0] focus:border-[#09CFA0]"
                               defaultChecked
                               id="c1">
-                            <Checkbox.Indicator>
+                              <Checkbox.Indicator className="text-[#09CFA0]">
                                 <CheckIcon />
                             </Checkbox.Indicator>
                         </Checkbox.Root>
-                        <label className="Label" htmlFor="c1">
+                        <label className="Label text-[14px]" htmlFor="c1">
                             I agree with the terms and conditions
                         </label>
                     </div>
                     
-                    <Form.Submit className="mt-4 w-full bg-green-600 px-4 py-2 fond-semi-bold text-lg text-white rounded-sm">Sign up</Form.Submit>
+                      <Form.Submit className="mt-8 w-full bg-[#08AC85] px-4 py-2 fond-semi-bold text-lg text-white rounded-sm" disabled={disableSubmitBtn()}>Sign up</Form.Submit>
 
                     <div className="w-full mt-3">
                         <Link href={'#'} className="text-green-400 text-[12px] font-semibold">Forgot password ?</Link>
                     </div>
-                    <div className="w-full text-center mt-3">
+                    <div className="w-full text-center mt-1">
                         <p>Or</p>
                     </div>
                     
-                    <div className="w-full">
-                        <Link href={'#'} className="inline-grid w-full rounded-sm border-green-400 border-solid text-green-600 "> <span>Continue with Google</span> <FcGoogle /></Link>
+                    <div className="w-full mt-2">
+                        <Link href={'#'} className="bg-white inline-flex space-x-2 justify-center py-2 w-full rounded-sm border-2 border-green-400 border-solid text-green-600 "> <span>Continue with Google</span> <FcGoogle className="text-[25px]"/></Link>
                     </div>
 
                     {/* disabled={disableSubmitBtn()} */}
                 </Form.Root>
             </div>
-            <div>
-
+            <div className="mt-6">
+                  <FooterNav />
             </div>  
         </div>
         
