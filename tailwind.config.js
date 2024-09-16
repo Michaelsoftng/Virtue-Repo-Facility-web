@@ -1,7 +1,6 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
-   content: [
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -26,12 +25,7 @@ const config: Config = {
       '2xl': '1536px',
       // => @media (min-width: 1536px) { ... }
     },
-    extend: {
-      fontFamily: {
-        sans: ['General Sans', 'sans-serif'], // Add the font here
-      },
-    },
+    extend: {},
   },
   plugins: [],
-};
-export default config;
+}
