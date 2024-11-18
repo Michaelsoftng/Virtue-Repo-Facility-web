@@ -108,7 +108,7 @@ const sampleMedicalTests = [
     }
 ];
 
-useGetAllTest
+
 const sampleCompletedData: TableData[] = [
     {
         patients: [null, 'John Doe', 'egeregav@gmail.com'],

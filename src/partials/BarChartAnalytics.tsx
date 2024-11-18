@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, { useState } from 'react'
 // import { TrendingUp } from "lucide-react"
@@ -40,7 +41,8 @@ const chartConfig = {
 const BarChartAnalytics = () => {
     const [activeIndex, setActiveIndex] = useState(null);
 
-    const handleMouseEnter = (data, index) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleMouseEnter = (data: any, index: any) => {
         setActiveIndex(index);
     };
 
@@ -93,13 +95,11 @@ const BarChartAnalytics = () => {
                         />
                         <Bar
                             dataKey="requests"
-                            fill={data => data.fill}
+                            fill={activeIndex !== null ? "#08AC85" : "#08AC851A"} // Static default fill for compatibility
+                            radius={[40, 40, 0, 0]} // Border radius
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={handleMouseLeave}
-                            radius={[40, 40, 0, 0]}  // Border radius
-                            
-                         
-                        />                        
+                        />                      
                     </BarChart>
                 </ChartContainer>
             </div>

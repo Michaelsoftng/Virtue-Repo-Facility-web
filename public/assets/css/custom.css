@@ -18,7 +18,7 @@
     
 }
 
-.received, .sent, .verified, .approved {
+.received, .sent, .verified, .approved, .published {
     display: inline-block;
     width:100px;
     text-align: center;

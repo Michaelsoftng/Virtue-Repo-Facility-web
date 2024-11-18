@@ -8,7 +8,23 @@ export const GetUserById = gql`
         email
         id
         phoneNumber
-        approvalToken
+        approvedAt
+        approvedBy
+        streetAddress
+        streetAddress2
+        city
+        state
+        country
+        postal
+        latitude
+        longitude
+        referralBonus
+        createdAt
+        facilityAdmin{
+          id
+          facilityName
+          facilityType
+        }
     }
   }
 `;
@@ -106,6 +122,42 @@ export const GetAllTest = gql`
           description
       }
 
+    }
+  }
+
+`;
+
+export const GetAvailableTestByFacility = gql`
+  query getAvailableTestByFacility($facilityId: ID!, $limit: Int
+  ) {
+      getAvailableTestByFacility(facilityId: $facilityId, limit: $limit) {
+          facilityTestCount
+          facilityTests{
+              test{
+                  id
+                  name
+                  code
+                  group
+                  testType
+
+              }
+              price
+              preparation
+              duration
+              facility{
+                  id  
+                  facilityName
+                  facilityType
+                  
+                  user{
+                      id
+                      email
+                      phoneNumber
+                  }
+              }
+          
+          }
+    
     }
   }
 

@@ -21,8 +21,8 @@ export type NewRequestTableProps = {
     searchBoxPosition: string,
     showTableHeadDetails: boolean,
     showActions: boolean
-    activeTab?: string,
-    setActiveTab?: (tab: string) => void
+    activeTab: string,
+    setActiveTab: (tab: string) => void
     testPage?: string
 };
 
@@ -61,7 +61,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
-    const [activeDataId, setActiveDataId] = useState<string | null>(null);
+    // const [activeDataId, setActiveDataId] = useState<string | null>(null);
     const [activeData, setActiveData] = useState<TestModalProps|null> (null)
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -94,9 +94,6 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
 
     const showModalFunc = (dataIndex: number, modalType: string) => {
         const dataToDisplay = tableData[dataIndex]
-        const dataId = dataToDisplay?.id
-        
-        setActiveDataId(dataId)
         switch (modalType) {
             case 'edit':
                 setShowEditModal(true)
@@ -310,7 +307,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                     Next
                 </button>
             </div>
-            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} />
+            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('cllosed')} />
         </div>

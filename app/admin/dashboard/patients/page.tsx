@@ -78,7 +78,6 @@ const Patients = () => {
         console.log("error is saying true", error)
         // logout()
     }
-    const [activeTab, setActiveTab] = useState<string>('facilityTest')
     return (
         <div>
             <AdminHeader />
@@ -107,13 +106,14 @@ const Patients = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                deleteAction={() => { }}
+                                setItemToDelete={() => { }}
                                 tableHeadText='Requests'
                                 tableData={updatedPatientData}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
+                                showPagination={true}
                                 showActions={true}
-                                activeTab={activeTab}
-                                setActiveTab={setActiveTab}
                                 testPage='patients'
                                 marginTop='mt-4'
                             />

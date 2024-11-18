@@ -60,6 +60,9 @@ function formatDateTime(dateString: string): string {
     return `${formattedDate} ${formattedTime}`;
 }
 
+function formatWord(word: string) {
+    return word.replace(/_/g, " ");
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, dataCount,
@@ -131,7 +134,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
         deleteAction()
         
     }
-
+    console.log('tableData', tableData)
     return (
         <div className={`${marginTop ? marginTop : "mt-[-20px]"} container mx-auto `}>
 
@@ -173,7 +176,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                             key={column}
                                             className="first:pl-4 px-2 py-6 capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
                                         >
-                                            {column}
+                                            {formatWord(column)}
                                         </th>
                                     )
                                 )}
@@ -337,6 +340,13 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <Link href={`facilities/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
+
+                                            {testPage === 'singleFacility' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
                                                 </div>
                                             }
                                         </td>
