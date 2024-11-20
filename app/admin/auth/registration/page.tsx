@@ -95,6 +95,7 @@ const Registration: React.FC = () => {
     });
 
     const handleFormSubmit = async (e: React.FormEvent) => {
+        console.log(formData)
         e.preventDefault();
         setIsLoading(true);
 
@@ -102,9 +103,9 @@ const Registration: React.FC = () => {
             console.log("Form is not valid");
             return;
         }
-        Cookies.remove('user');
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
+        Cookies.remove('user', { path: '/' });
+        Cookies.remove('accessToken', { path: '/' });
+        Cookies.remove('refreshToken', { path: '/' });
         try {
             await register({
                 onCompleted(data) {
@@ -183,7 +184,7 @@ const Registration: React.FC = () => {
                                 onClick={() => setPasswordVisibility(!passwordVisibility)}
                                 data-testid='confirmToggleButton'
                                 id='confirmtoggleButton'
-                                className='absolute top-[54%] bottom-[100%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
+                                className='absolute top-[2rem] bottom-[100%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
                             >
                                 {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
                             </span>
@@ -212,7 +213,7 @@ const Registration: React.FC = () => {
                                 onClick={() => setPasswordVisibility(!passwordVisibility)}
                                 data-testid='confirmToggleButton'
                                 id='confirmtoggleButton'
-                                className='absolute top-[54%] bottom-[100%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
+                                className='absolute top-[2rem] bottom-[100%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
                             >
                                 {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
                             </span>

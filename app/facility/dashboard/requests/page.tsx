@@ -188,12 +188,12 @@ const Requests = () => {
                             {
                                 activeTab === 'newRequest'
                                     ? (
-                                        <NewRequestTable tableData={sampleNewData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
+                                        <NewRequestTable activeTab={activeTab} setActiveTab={setActiveTab} tableData={sampleNewData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
 
                                         
                                     )
                                     : (
-                                        <NewRequestTable tableData={sampleCompletedData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
+                                        <NewRequestTable activeTab={activeTab} setActiveTab={setActiveTab}  tableData={sampleCompletedData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
                                     
                                     )
                             }

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
@@ -67,7 +67,7 @@ const sampleCompletedData: TableData[] = [
 
 
 const Facilities = () => {
-    const [activeTab, setActiveTab] = useState<string>('facilityTest')
+
     return (
         <div>
             <AdminHeader />
@@ -83,8 +83,9 @@ const Facilities = () => {
                             searchBoxPosition='justify-start'
                             showTableHeadDetails={true}
                             showActions={false}
-                            activeTab={activeTab}
-                            setActiveTab={setActiveTab}
+                            deleteAction={() => { }}
+                            setItemToDelete={() => { }}
+                            showPagination={true}
                             testPage='facilityTest'
                         />
 

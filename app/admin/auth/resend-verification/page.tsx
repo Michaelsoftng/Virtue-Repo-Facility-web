@@ -20,7 +20,7 @@ import Cookies from 'js-cookie';
 
 const ResendVerification: React.FC = () => {
     const router = useRouter();
-    const [formData, setFormData] = useState<IResendVerification>();
+    const [formData, setFormData] = useState<IResendVerification>({ email: '' });
     const [passwordVisibility, setPasswordVisibility] = useState(false);
     const [isloading, setIsLoading] = useState<boolean>(false)
     const [buttonMessage, setButtonMessage] = useState<string>('Resend Code');

@@ -13,18 +13,18 @@ import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 // import { PatientType } from '@/src/interface'
 
-const Patients = () => {
+const Staffs = () => {
     const { data, error, loading: patientDataLoading } = useGetUsersByType('patient')
     const patientCount = data?.getUserByUserType?.usersCount
-    const patientData = data?.getUserByUserType?.users as TableData[] 
+    const patientData = data?.getUserByUserType?.users as TableData[]
     let name: string
     let status: string
-    let verifiedUsers=0
+    let verifiedUsers = 0
     let newPatients = 0
     let unverifedPatients = 0
     // Check if patientData is available before mapping
     const updatedPatientData = patientData?.map((singlePatient) => {
-        
+
         const {
             __typename,
             approvalToken,
@@ -69,10 +69,10 @@ const Patients = () => {
             status: status
 
         };
-        
+
         return newPatientData
     }) || []; // Default to an empty array if patientData is undefined
-    
+
 
     if (error) {
         console.log("error is saying true", error)
@@ -118,7 +118,7 @@ const Patients = () => {
                                 marginTop='mt-4'
                             />
                         }
-                        
+
 
                     </div>
                 </div>
@@ -127,4 +127,4 @@ const Patients = () => {
     )
 }
 
-export default Patients
+export default Staffs

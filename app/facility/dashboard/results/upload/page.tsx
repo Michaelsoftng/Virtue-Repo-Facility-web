@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, { ChangeEvent, useState } from 'react'
 import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
@@ -25,9 +26,10 @@ const sampleCompletedData: TableData[] = [
     }
     
 ];
+
 const Requests = () => {
     // const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
-    const [newPatientFormData, setNewPatientFormData] = useState<{}>()
+    const [newPatientFormData, setNewPatientFormData] = useState<{ referralSource?: string}>()
 
 
     const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

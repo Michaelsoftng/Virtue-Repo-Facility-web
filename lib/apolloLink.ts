@@ -1,4 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { ApolloLink, FetchResult } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
@@ -7,7 +8,7 @@ import client from './apolloClient';
 import { RefreshLogin } from '../src/graphql/mutations';
 import { Observable, from } from 'rxjs';
 
-let isRefreshing = false;
+const isRefreshing = false;
 let pendingRequests: (() => void)[] = [];
 
 const resolvePendingRequests = () => {
@@ -51,44 +52,44 @@ export const authLink = setContext(async (_, { headers }) => {
 });
 
 
-export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
-    if (graphQLErrors?.some(e => e.message === 'INVALID_ACCESS_TOKEN')) {
-        if (!isRefreshing) {
-            isRefreshing = true;
-            const refreshObservable = from(
-                refreshToken().then(newToken => {
-                    operation.setContext(({ headers = {} }) => ({
-                        headers: {
-                            ...headers,
-                            authorization: `Bearer ${newToken}`,
-                        },
-                    }));
-                    isRefreshing = false;
-                    resolvePendingRequests();
-                    return forward(operation);
-                })
-                .catch(error => {
-                    isRefreshing = false;
-                    pendingRequests = [];
-                    console.error(error);
-                })
-            );
+// export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+//     if (graphQLErrors?.some(e => e.message === 'INVALID_ACCESS_TOKEN')) {
+//         if (!isRefreshing) {
+//             isRefreshing = true;
+//             const refreshObservable = from(
+//                 refreshToken().then(newToken => {
+//                     operation.setContext(({ headers = {} }) => ({
+//                         headers: {
+//                             ...headers,
+//                             authorization: `Bearer ${newToken}`,
+//                         },
+//                     }));
+//                     isRefreshing = false;
+//                     resolvePendingRequests();
+//                     return forward(operation);
+//                 })
+//                 .catch(error => {
+//                     isRefreshing = false;
+//                     pendingRequests = [];
+//                     console.error(error);
+//                 })
+//             );
 
-            return refreshObservable;
-        }
+//             return refreshObservable;
+//         }
 
-        // Return an Observable that emits the result of the forward call once the refresh is complete
-        return new Observable((observer) => {
-            pendingRequests.push(() => {
-                forward(operation).subscribe({
-                    next: result => observer.next(result),
-                    error: err => observer.error(err),
-                    complete: () => observer.complete(),
-                });
-            });
-        });
-    }
+//         // Return an Observable that emits the result of the forward call once the refresh is complete
+//         return new Observable((observer) => {
+//             pendingRequests.push(() => {
+//                 forward(operation).subscribe({
+//                     next: result => observer.next(result),
+//                     error: err => observer.error(err),
+//                     complete: () => observer.complete(),
+//                 });
+//             });
+//         });
+//     }
 
-    // In other cases, just forward the operation
-    return forward(operation);
-});
+//     // In other cases, just forward the operation
+//     return forward(operation);
+// });

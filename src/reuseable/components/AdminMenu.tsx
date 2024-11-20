@@ -6,7 +6,7 @@ import LogoutIcon from '../icons/LogoutIcon'
 import RequestIcon from '../icons/RequestIcon'
 import SettingsIcon from '../icons/SettingIcon'
 import ResultsIcon from '../icons/ResultsIcon'
-import TestIcon from '../icons/TestIcon'
+// import TestIcon from '../icons/TestIcon'
 import { usePathname } from 'next/navigation';
 
 
@@ -24,6 +24,18 @@ const AdminMenu = () => {
                             />
                             <span className={`font-semibold ${currentRoute === '/admin/dashboard/home' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
                                 Dashboard
+                            </span>
+
+                        </Link>
+                    </li>
+                    <li className="mt-8">
+
+                        <Link href='/admin/dashboard/staffs' className="flex gap-4 ">
+                            <DashboardIcon
+                                stroke={currentRoute === '/admin/dashboard/staffs' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/staffs' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
+                                Staffs
                             </span>
 
                         </Link>

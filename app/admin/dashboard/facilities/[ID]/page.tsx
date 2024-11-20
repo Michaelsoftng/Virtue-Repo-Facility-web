@@ -140,7 +140,6 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
         }
     }, [fetchFacilityTests, facilityId]);
 
-
     if (pageLoading ) {
         return <Loading />;
     }
@@ -160,7 +159,11 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                         <div className="flex justify-between">
                             <div>
                                 <h2 className="text-lg font-bold">{facilityData.getUserById.facilityAdmin.facilityName}</h2>
-                                <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiLocationOn style={{ width: '25px', height: '25px' }} /><span>{facilityData.getUserById.streetAddress} {facilityData.getUserById.city}, {facilityData.getUserById.state}</span></p>
+                                <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiLocationOn style={{ width: '25px', height: '25px' }} />
+                                    <span>
+                                        {facilityData.getUserById.streetAddress ? `${facilityData.getUserById.streetAddress} ${facilityData.getUserById.city}, ${facilityData.getUserById.state}` : 'Not set'}
+                                    </span>
+                                </p>
                                 <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiClock2 style={{ width: '25px', height: '25px' }} /><span>Opening hours : MON-SAT 6:00 AM , SUN 8:00 AM</span></p>
                                 <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiPhone style={{ width: '25px', height: '25px' }} /><span>Contact line : {facilityData.getUserById.phoneNumber}</span></p>
                             </div>

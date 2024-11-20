@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, { useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -53,7 +54,7 @@ const sampleCompletedData: TableData[] = [
 
 
 const Patients = () => {
-    const [activeTab, setActiveTab] = useState<string>('facilityTest')
+    const [activeTab, setActiveTab] = useState<string>("phlebotomist")
     return (
         <div>
             <AdminHeader />
@@ -70,15 +71,24 @@ const Patients = () => {
 
                         </div>
                         <div className="">
-                            <TotalPatients />
+                            <TotalPatients
+                                loading={false}
+                                totalusers={13}
+                                newUsers={14}
+                                verifiedUsers={10}
+                                unverifedPatients={90}
+                           
+
+                            />
                             <AdminFacilitiesTable
+                                deleteAction={() => { }}
+                                setItemToDelete={() => { }}
                                 tableHeadText=''
                                 tableData={sampleCompletedData}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showActions={true}
-                                activeTab={activeTab}
-                                setActiveTab={setActiveTab}
+                                showPagination={false}
                                 testPage='phlebotomies'
                                 marginTop='mt-4'
                             />
