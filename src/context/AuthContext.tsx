@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,7 +32,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     login: (userData: User) => void;
-    refreshSignin: () => void,
+    // refreshSignin: () => void,
     logout: () => void;
     loading: boolean;
 }
@@ -48,11 +49,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     const [refToken, setRefToken] = useState<string | null>(null)
 
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     const [refreshLogin, { loading: newAccessTokenLoading }] = useMutation(RefreshLogin, {
         variables: {
             refreshToken: refToken,
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         client,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    
     const { data: getUser, loading: userLoading, error: userError } = useQuery(GetUserByEmail, {
         variables: {
             email: userEmail,
@@ -109,60 +110,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // sessionStorage.setItem('user', JSON.stringify(userData));
     };
 
-    const refreshSignin = async () => {
-        if (userEmail !== null){
-            try {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { data, errors } = await refreshLogin({
-                    onCompleted: async (refreshData) => {
-                        if (refreshData.RefreshToken.success) {
-                            const token = refreshData.RefreshToken.token;
-                            const refreshToken = refreshData.RefreshToken.refreshToken;
-                            setUserEmail(refreshData.RefreshToken.payload.email);
+    // const refreshSignin = async () => {
+    //     if (userEmail !== null){
+    //         try {
+                
+    //             const { data, errors } = await refreshLogin({
+    //                 onCompleted: async (refreshData) => {
+    //                     if (refreshData.RefreshToken.success) {
+    //                         const token = refreshData.RefreshToken.token;
+    //                         const refreshToken = refreshData.RefreshToken.refreshToken;
+    //                         setUserEmail(refreshData.RefreshToken.payload.email);
 
-                            // Remove old cookies
-                            Cookies.remove('user');
-                            Cookies.remove('accessToken');
-                            Cookies.remove('refreshToken');
+    //                         // Remove old cookies
+    //                         Cookies.remove('user');
+    //                         Cookies.remove('accessToken');
+    //                         Cookies.remove('refreshToken');
 
-                            // Set new cookies with expiration
-                            const expiresIn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-                            Cookies.set('accessToken', token, { expires: expiresIn, path: '/' });
-                            Cookies.set('refreshToken', refreshToken, { expires: 7, path: '/', secure: true });
+    //                         // Set new cookies with expiration
+    //                         const expiresIn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    //                         Cookies.set('accessToken', token, { expires: expiresIn, path: '/' });
+    //                         Cookies.set('refreshToken', refreshToken, { expires: 7, path: '/', secure: true });
 
-                            // Fetch user details
-                            await getUser({
-                                onCompleted: (userData: { getUserByEmail: User; }) => {
-                                    if (userData.getUserByEmail) {
-                                        const user = { ...userData.getUserByEmail };
-                                        login(user);
+    //                         // Fetch user details
+    //                         await getUser({
+    //                             onCompleted: (userData: { getUserByEmail: User; }) => {
+    //                                 if (userData.getUserByEmail) {
+    //                                     const user = { ...userData.getUserByEmail };
+    //                                     login(user);
                                         
-                                    } else {
-                                        logout();
-                                    }
-                                },
-                                onError: (e: Error) => {
-                                    console.error(e.message)
-                                    logout();
+    //                                 } else {
+    //                                     logout();
+    //                                 }
+    //                             },
+    //                             onError: (e: Error) => {
+    //                                 console.error(e.message)
+    //                                 logout();
                                         
-                                },
-                            });
-                        } else {
-                            logout();
-                        }
-                    },
-                    onError: (e) => console.error(e.message),
-                });
-            } catch (err) {
-                console.error('Error refreshing user login in:', err);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
+    //                             },
+    //                         });
+    //                     } else {
+    //                         logout();
+    //                     }
+    //                 },
+    //                 onError: (e) => console.error(e.message),
+    //             });
+    //         } catch (err) {
+    //             console.error('Error refreshing user login in:', err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+    // };
 
     const logout = () => {
         const user_type = user?.userType;
+        console.log(user_type)
         setUser(null);
         Cookies.remove('user');
         Cookies.remove('accessToken');
@@ -181,7 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, refreshSignin, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

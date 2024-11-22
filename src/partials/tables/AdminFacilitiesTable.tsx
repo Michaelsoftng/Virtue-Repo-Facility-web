@@ -8,6 +8,7 @@ import EditTestModal from '@/src/reuseable/components/EditTestModal';
 import AddTestModal from '@/src/reuseable/components/AddTestModal';
 import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
 import Link from 'next/link';
+import ConfirmApproveModal from '@/src/reuseable/components/ApproveModal';
 
 export interface TestModalProps {
     id?: string
@@ -18,6 +19,7 @@ export interface TestModalProps {
 
 export type AdminFacilitiesTableProps = {
     deleteAction: () => void
+    approveAction: () =>void,
     setItemToDelete: (id: string) => void
     tableData: TableData[];
     dataCount?: number,
@@ -67,7 +69,7 @@ function formatWord(word: string) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, dataCount,
     marginTop, showPagination, showActions, 
-    deleteAction, setItemToDelete, searchBoxPosition,
+    deleteAction, setItemToDelete, searchBoxPosition, approveAction,
     showTableHeadDetails, children,
     testPage, tableHeadText
 }) => {
@@ -76,6 +78,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [activeData, setActiveData] = useState<TestModalProps | null>(null)
@@ -119,6 +122,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                 setItemToDelete(id as string)
                 setShowDeleteModal(true)
                 break;
+            case 'approve':
+                setItemToDelete(id as string)
+                setShowApproveModal(true)
+                break;
             case 'addTest':
                 setActiveData(dataToDisplay)
                 setShowAddModal(true)
@@ -130,10 +137,16 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
     }
 
     const handleDelete = () => {
-            setShowDeleteModal(false)
+        setShowDeleteModal(false)
         deleteAction()
         
     }
+
+    const handleApprovaal = () => {
+        setShowApproveModal(false)
+        approveAction()
+    }
+
     console.log('tableData', tableData)
     return (
         <div className={`${marginTop ? marginTop : "mt-[-20px]"} container mx-auto `}>
@@ -222,6 +235,31 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'staff':
+
+                                                return (
+                                                    <td key={column} className=" px-2 py-2 whitespace-no-wrap border-b border-gray-100 text-sm font-light">
+                                                        <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
+                                                            <div>
+                                                                {row[column][0] ? (
+                                                                    <RoundedImage userimage={row[column][0]} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
+                                                                ) : (
+                                                                    <RoundedNoImage
+                                                                        text={row[column][1]
+                                                                            .split(' ')
+                                                                            .map((word: string) => word[0].toUpperCase())
+                                                                            .join('')}
+                                                                        classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="text-[#231935bd]">
+                                                                {row[column][1]}
+                                                                <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                );
                                             case 'amount':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -280,6 +318,15 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </span>
                                                     </td>
                                                 );
+                                                
+                                            case 'verified':
+                                                return (
+                                                    <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
+                                                            {row[column].toLowerCase()}
+                                                        </span>
+                                                    </td>
+                                                );
                                             case 'status':
                                                 return (
                                                     <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -318,6 +365,21 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
                                                 </div>
                                                 
+                                                // <div className="flex justify-between gap-2 w-[150px]">
+                                                //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                // </div>
+                                            }
+
+                                            {testPage === 'staffs' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    {row["status"] !== "approved" &&
+                                                        < button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'approve', row.id)}>Approve</button>
+                                                    }
+                                                    
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
+                                                </div>
+
                                                 // <div className="flex justify-between gap-2 w-[150px]">
                                                 //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
                                                 // </div>
@@ -387,6 +449,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
             <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />
+            <ConfirmApproveModal isOpen={showApproveModal} onClose={() => setShowApproveModal(false)} onConfirm={handleApprovaal} />
         </div>
     );
 };

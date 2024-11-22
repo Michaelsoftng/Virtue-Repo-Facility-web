@@ -84,6 +84,7 @@ const Facilities = () => {
                             showTableHeadDetails={true}
                             showActions={false}
                             deleteAction={() => { }}
+                            approveAction={() => { }} 
                             setItemToDelete={() => { }}
                             showPagination={true}
                             testPage='facilityTest'

@@ -85,9 +85,37 @@ export const LoginAccount = gql`
       }
     }
 }
+`;
 
+export const RevokeToken = gql`
+  mutation revokeToken($refreshToken: String !){
+    RevokeToken(
+      refreshToken: $refreshToken
+    ) {
+      success,
+      errors,
 
+    }
+  }
+`;
 
+export const ApproveAccount = gql`
+  mutation ApproveAccount($approvingAdmin: String!, $userForApproval: String!) {
+    ApproveAccount(approvingAdmin: $approvingAdmin, userForApproval: $userForApproval) {
+          success {
+        message
+        code
+      }
+      errors {
+        message
+        code
+      }
+      user {
+        id,
+        userType
+      }
+    }
+  }
 `;
 
 export const RefreshLogin = gql`
@@ -179,3 +207,4 @@ mutation DeleteTest(
 }
 }
 `;
+

@@ -96,7 +96,8 @@ const Facilities = () => {
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showActions={true}
-                                deleteAction={ () => {}}
+                                deleteAction={() => { }}
+                                approveAction={() => { }} 
                                 setItemToDelete={() => { }}
                                 showPagination={true}
                                 // setActiveTab={setActiveTab}

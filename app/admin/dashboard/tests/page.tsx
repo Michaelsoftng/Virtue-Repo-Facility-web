@@ -257,6 +257,7 @@ const Requests = () => {
                                     ? (
 
                                         <AdminFacilitiesTable
+                                            approveAction={() => { }} 
                                             deleteAction={handleDeleteTest}
                                             setItemToDelete={setDeleteTestWithId}
                                             tableHeadText='Tests'
@@ -276,7 +277,8 @@ const Requests = () => {
 
                                         <AdminFacilitiesTable
                                             setItemToDelete={setDeleteTestWithId}
-                                            deleteAction={()=> {}}
+                                            deleteAction={() => { }}
+                                            approveAction={() => { }} 
                                             tableHeadText='Results'
                                             tableData={sampleCompletedData}
                                             showActions={false}

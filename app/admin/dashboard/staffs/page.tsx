@@ -11,23 +11,57 @@ import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
 import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
+import { useMutation } from '@apollo/client'
+import { ApproveAccount } from '@/src/graphql/mutations'
+import client from '@/lib/apolloClient';
+import { toast } from 'react-toastify';
+import Loading from '../loading'
+import Cookies from 'js-cookie'
+import { useAuth } from '@/src/context/AuthContext'
+
 // import { PatientType } from '@/src/interface'
+const decodeJwtEncodedId = (encodedId: string | undefined): string => {
+    if (!encodedId) {
+        console.error('Invalid input: encodedId is undefined or null');
+        return ''; // Return fallback or handle it appropriately
+    }
+
+    try {
+        const base64 = encodedId.replace(/-/g, '+').replace(/_/g, '/');
+        const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
+        const decoded = atob(paddedBase64);
+        return decoded.replace(/^UserNode:/, '');
+    } catch (error) {
+        console.error('Error decoding JWT-encoded ID:', error);
+        return '';
+    }
+};
+
 
 const Staffs = () => {
-    const { data, error, loading: patientDataLoading } = useGetUsersByType('patient')
-    const patientCount = data?.getUserByUserType?.usersCount
-    const patientData = data?.getUserByUserType?.users as TableData[]
+    const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
+    const { data, error, loading: staffDataLoading } = useGetUsersByType('staff')
+    const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
+    const { user } = useAuth()
+    const Id = user?.id
+    console.log("logged in user from staff", user?.id)
+    const staffCount = data?.getUserByUserType?.usersCount
+    const staffData = data?.getUserByUserType?.users as TableData[]
+    
     let name: string
     let status: string
     let verifiedUsers = 0
-    let newPatients = 0
-    let unverifedPatients = 0
-    // Check if patientData is available before mapping
-    const updatedPatientData = patientData?.map((singlePatient) => {
-
+    let newStaffs = 0
+    let unverifedStaffs = 0
+    
+    // Check if StaffData is available before mapping
+    const updatedStaffData = staffData?.map((singleStaff) => {
+        
         const {
             __typename,
             approvalToken,
+            approvedAt,
+            facilityAdmin,
             staff,
             firstName,
             streetAddress,
@@ -44,77 +78,160 @@ const Staffs = () => {
             emailVerifiedAt,
             createdAt,
             ...rest
-        } = singlePatient;
+        } = singleStaff;
 
         if (emailVerifiedAt) {
             verifiedUsers += 1;
         } else {
-            unverifedPatients += 1;
+            unverifedStaffs += 1;
         }
         name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
-        const status = emailVerifiedAt ? 'verified' : 'unverified'
+        const active = emailVerifiedAt ? 'verified' : 'unverified'
+        const status = approvedAt ? 'approved' : 'not approved'
         const patientCity = city ? city : 'Not set'
         const patientState = state ? state : 'Not set'
         const createdDate = new Date(createdAt);
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         if (createdDate >= oneWeekAgo) {
-            newPatients += 1;
+            newStaffs += 1;
         }
         const newPatientData = {
-            patients: [null, name, singlePatient.email],
+            staff: [null, name, singleStaff.email],
             ...rest,
             city: patientCity,
             state: patientState,
-            status: status
-
+            verified: active,
+            status: status,
+            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}): 'Not approved'
         };
 
         return newPatientData
-    }) || []; // Default to an empty array if patientData is undefined
+    }) || [];
 
 
     if (error) {
         console.log("error is saying true", error)
-        // logout()
     }
+
+    const [approveStaff, { loading: approveStaffLoading }] = useMutation(ApproveAccount, {
+        variables: {
+            userForApproval: staffWithId,
+            approvingAdmin: decodeJwtEncodedId(user?.id as string),
+            
+        },
+        client,
+    });
+
+    const handleApproveStaff = async () => {
+        setPageLoadingFromClick(true)
+        try {
+            const { data } = await approveStaff({
+                variables: {
+                    userForApproval: staffWithId,
+                    approvingAdmin: decodeJwtEncodedId(Id as string), // Pass decoded ID here
+                },
+                async onCompleted(data) {
+                    if (data.ApproveAccount.success) {
+                        toast.success(data?.ApproveAccount?.success?.message);
+                        window.location.reload();
+                    } else {
+                        toast.error(data?.ApproveAccount?.errors?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error approving account:', err);
+        } finally {
+            setPageLoadingFromClick(false)
+
+        }
+
+    }
+
+    // const [deleteStaff, { loading: deleteTestLoading }] = useMutation(ApproveAccount, {
+    //     variables: {
+    //         id: staffWithId,
+
+    //     },
+    //     client,
+    // });
+
+    // const handleDeleteTest = async () => {
+    //     setPageLoadingFromClick(true)
+    //     try {
+    //         const { data } = await deleteStaff({
+    //             async onCompleted(data) {
+    //                 console.log(data)
+    //                 if (data.DeleteTest.test.deletedStatus) {
+    //                     toast.success(data?.DeleteTest?.test?.message);
+    //                     window.location.reload();
+    //                 } else {
+    //                     toast.error(data?.DeleteTest?.test?.message);
+    //                 }
+
+    //             },
+    //             onError(e) {
+    //                 toast.error(e.message);
+
+    //             },
+    //         });
+
+    //     } catch (err) {
+    //         console.error('Error deleting test:', err);
+    //     } finally {
+    //         setPageLoadingFromClick(false)
+
+    //     }
+
+    // }
+
+
     return (
         <div>
+
             <AdminHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard" pageTitle="Patients" showExportRecord={true} />
                     <div className="px-8 py-4 ">
-                        {patientDataLoading
+                        {staffDataLoading
 
                             ?
                             'loading'
                             :
                             <TotalPatients
-                                loading={patientDataLoading}
-                                totalusers={patientCount}
-                                newUsers={newPatients}
+                                loading={staffDataLoading}
+                                totalusers={staffCount}
+                                newUsers={newStaffs}
                                 verifiedUsers={verifiedUsers}
-                                unverifedPatients={unverifedPatients}
+                                unverifedPatients={unverifedStaffs}
 
                             />
                         }
-                        {patientDataLoading
+                        {staffDataLoading
 
                             ?
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
                                 deleteAction={() => { }}
-                                setItemToDelete={() => { }}
+                                approveAction={handleApproveStaff} 
+                                setItemToDelete={setStafftWithId}
                                 tableHeadText='Requests'
-                                tableData={updatedPatientData}
+                                tableData={updatedStaffData}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showPagination={true}
                                 showActions={true}
-                                testPage='patients'
+                                testPage='staffs'
                                 marginTop='mt-4'
                             />
                         }
@@ -123,6 +240,13 @@ const Staffs = () => {
                     </div>
                 </div>
             </div>
+            {
+                pageLoadingFromClick &&
+                <div className="flex items-center justify-center min-h-screen fixed w-full bg-[#ffffff54] top-0 left-0">
+                    <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-t-green-500 border-green-200 rounded-full"></div>
+                </div>
+            }
+            
         </div>
     )
 }

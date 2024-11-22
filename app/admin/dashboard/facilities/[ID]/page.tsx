@@ -191,6 +191,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
                         <div className="grid grid-cols-[calc(100%-25rem)_23rem] gap-x-8 mt-8">
                             <AdminFacilitiesTable
+                                approveAction={() => { }} 
                                 tableHeadText='53 Facilities'
                                 tableData={sampleCompletedData}
                                 searchBoxPosition='hidden'
@@ -244,6 +245,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                
                                 <AdminFacilitiesTable
                                 marginTop={'mt-6'}
+                                approveAction={() => { }} 
                                 tableHeadText='53 Facilities'
                                 tableData={updatedTestData.current}
                                 searchBoxPosition='justify-start'

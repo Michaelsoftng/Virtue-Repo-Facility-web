@@ -28,6 +28,8 @@ const Patients = () => {
         const {
             __typename,
             approvalToken,
+            approvedAt,	
+            facilityAdmin,
             staff,
             firstName,
             streetAddress,
@@ -107,6 +109,7 @@ const Patients = () => {
                             :
                             <AdminFacilitiesTable
                                 deleteAction={() => { }}
+                                approveAction={() => { }} 
                                 setItemToDelete={() => { }}
                                 tableHeadText='Requests'
                                 tableData={updatedPatientData}

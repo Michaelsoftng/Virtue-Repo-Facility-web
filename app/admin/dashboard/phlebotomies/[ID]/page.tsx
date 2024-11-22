@@ -323,6 +323,7 @@ const Singlefacility = () => {
                         <div className="mt-10">
                             <AdminFacilitiesTable
                                 deleteAction={() => { }}
+                                approveAction={() => { }} 
                                 setItemToDelete={() => { }}
                                 tableHeadText='Activity information'
                                 tableData={sampleCompletedData}

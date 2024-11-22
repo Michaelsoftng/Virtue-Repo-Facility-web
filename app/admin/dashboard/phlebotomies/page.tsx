@@ -82,6 +82,7 @@ const Patients = () => {
                             />
                             <AdminFacilitiesTable
                                 deleteAction={() => { }}
+                                approveAction={() => { }} 
                                 setItemToDelete={() => { }}
                                 tableHeadText=''
                                 tableData={sampleCompletedData}

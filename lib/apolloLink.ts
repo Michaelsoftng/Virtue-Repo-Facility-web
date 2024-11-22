@@ -7,8 +7,10 @@ import Cookies from 'js-cookie';
 import client from './apolloClient';
 import { RefreshLogin } from '../src/graphql/mutations';
 import { Observable, from } from 'rxjs';
+// import 
 
-const isRefreshing = false;
+
+let isRefreshing = false;
 let pendingRequests: (() => void)[] = [];
 
 const resolvePendingRequests = () => {
@@ -40,56 +42,56 @@ export const refreshToken = async () => {
     }
 };
 
-// Link to handle setting Authorization header
-export const authLink = setContext(async (_, { headers }) => {
+
+export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+
     const token = Cookies.get('accessToken');
-    return {
-        headers: {
-            ...headers,
-            authorization: token ? `Bearer ${token}` : '',
-        },
-    };
+    if (!token || graphQLErrors?.some(e => e.message === 'Your accessToken is invalid')) {
+        if (!isRefreshing) {
+            isRefreshing = true;
+            const refreshObservable = new Observable<FetchResult>((observer) => {
+                refreshToken()
+                    .then(newToken => {
+                        operation.setContext(({ headers = {} }) => ({
+                            headers: {
+                                ...headers,
+                                authorization: `Bearer ${newToken}`,
+                            },
+                        }));
+                        resolvePendingRequests();
+                        forward(operation).subscribe({
+                            next: result => observer.next(result),
+                            error: err => observer.error(err),
+                            complete: () => observer.complete(),
+                        });
+                    })
+                    .catch(error => {
+                        isRefreshing = false;
+                        pendingRequests = [];
+                        observer.error(error);
+                    })
+                    .finally(() => {
+                        isRefreshing = false;
+                    });
+            });
+
+            return refreshObservable;
+        }
+
+        // Queue the request until the refresh token operation is resolved
+        return new Observable<FetchResult>((observer) => {
+            pendingRequests.push(() => {
+                forward(operation).subscribe({
+                    next: result => observer.next(result),
+                    error: err => observer.error(err),
+                    complete: () => observer.complete(),
+                });
+            });
+        });
+    }
+
+    // In other cases, just forward the operation
+    return forward(operation);
 });
 
 
-// export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
-//     if (graphQLErrors?.some(e => e.message === 'INVALID_ACCESS_TOKEN')) {
-//         if (!isRefreshing) {
-//             isRefreshing = true;
-//             const refreshObservable = from(
-//                 refreshToken().then(newToken => {
-//                     operation.setContext(({ headers = {} }) => ({
-//                         headers: {
-//                             ...headers,
-//                             authorization: `Bearer ${newToken}`,
-//                         },
-//                     }));
-//                     isRefreshing = false;
-//                     resolvePendingRequests();
-//                     return forward(operation);
-//                 })
-//                 .catch(error => {
-//                     isRefreshing = false;
-//                     pendingRequests = [];
-//                     console.error(error);
-//                 })
-//             );
-
-//             return refreshObservable;
-//         }
-
-//         // Return an Observable that emits the result of the forward call once the refresh is complete
-//         return new Observable((observer) => {
-//             pendingRequests.push(() => {
-//                 forward(operation).subscribe({
-//                     next: result => observer.next(result),
-//                     error: err => observer.error(err),
-//                     complete: () => observer.complete(),
-//                 });
-//             });
-//         });
-//     }
-
-//     // In other cases, just forward the operation
-//     return forward(operation);
-// });
