@@ -12,7 +12,7 @@ import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
-import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
+import { CreateAssignment, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
@@ -41,9 +41,6 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
     const { data, error, loading: phlebotomiesDataLoading } = useGetUsersByType('phlebotomist')
     const [phlebotomiesWithId, setPhlebotomiesWithId] = useState<string | null>(null) // id of phlebotomies to delete
-    const { user } = useAuth()
-    const Id = user?.id
-    console.log("logged in user from phlebotomies", user?.id)
     const phlebotomiesCount = data?.getUserByUserType?.usersCount
     const phlebotomiesData = data?.getUserByUserType?.users as TableData[]
 
@@ -119,22 +116,20 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
         console.log("error is saying true", error)
     }
 
-    const [approvePhlebotomies, { loading: approvePhlebotomiesLoading }] = useMutation(ApproveAccount, {
-        variables: {
-            userForApproval: phlebotomiesWithId,
-            approvingAdmin: decodeJwtEncodedId(user?.id as string),
-
-        },
+    const [assignPhlebotomies, { loading: assignPhlebotomiesLoading }] = useMutation(CreateAssignment, {
         client,
     });
 
     const handleAssignPhlebotomies = async () => {
         setPageLoadingFromClick(true)
         try {
-            const { data } = await approvePhlebotomies({
+            const { data } = await assignPhlebotomies({
                 variables: {
-                    userForApproval: phlebotomiesWithId,
-                    approvingAdmin: decodeJwtEncodedId(Id as string), // Pass decoded ID here
+                    assigned: phlebotomiesWithId,
+                    assignmentDate: new Date().toISOString(),
+                    taskType: 'REQUEST',
+                    task: ID
+
                 },
                 async onCompleted(data) {
                     if (data.ApproveAccount.success) {
@@ -166,7 +161,7 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard" pageTitle="Phlebotomies" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard&nbsp;&nbsp;/&nbsp;&nbsp;Requests" pageTitle="Assign Phlebotomies" showExportRecord={true} />
 
                     <div className="px-8 py-4">
                         

@@ -122,7 +122,7 @@ const Facilities = () => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageTitle="Facilities" showExportRecord={true} />
+                    <BreadCrump pageTitle="Requests" showExportRecord={true} />
                     <div className="px-8 py-4">
                         {
                             requestDataLoading

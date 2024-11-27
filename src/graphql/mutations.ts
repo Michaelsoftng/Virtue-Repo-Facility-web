@@ -223,3 +223,50 @@ mutation DeleteTest(
 }
 `;
 
+export const CreateAssignment = gql`
+  mutation CreateAssignment(
+      $assigned: ID!,
+      $assignmentDate: DateTime!,
+      $taskType: TaskTypeEnums!,
+      $task: String!,
+  ){
+      CreateAssignment(
+          assigned: $assigned, 
+          assignmentDate: $assignmentDate,
+          taskType: $taskType,
+          task: $task,
+      ){
+          success{
+              code
+              message
+          }
+          errors{
+              message
+              code
+          }
+          assignment{
+              assignedBy{
+                  id
+                  staff{
+                      id
+                  }
+              }
+              assigned{
+                  id
+                  doctor{
+                      id
+                  }
+                  phlebotomist{
+                      id
+                  }
+              }
+              assignmentDate
+              lastAssignmentTime
+              taskObjectId
+              
+              
+          }
+    
+      }
+  }
+`;

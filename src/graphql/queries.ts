@@ -18,7 +18,7 @@ export const GetUserById = gql`
         postal
         latitude
         longitude
-        referralBonus
+        referral_bonus
         createdAt
         facilityAdmin{
           id

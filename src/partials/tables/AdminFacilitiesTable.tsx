@@ -471,7 +471,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                             {testPage === 'assignPhlebotomist' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => showModalFunc(index, 'remove', row.id)}>Assign</button>
+                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => approveAction()}>Assign</button>
                                                 </div>
                                             }
                                             
