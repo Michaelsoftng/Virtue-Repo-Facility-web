@@ -23,6 +23,8 @@ const Facilities = () => {
         const {
             __typename,
             approvalToken,
+            doctor,
+            phlebotomist,
             approvedAt,	
             referralCode,
             referralBonus,

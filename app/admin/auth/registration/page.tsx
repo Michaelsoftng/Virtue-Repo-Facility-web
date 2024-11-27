@@ -139,8 +139,38 @@ const Registration: React.FC = () => {
                 <div className="">
                     <Form.Root className="w-full mx-auto" method='post' onSubmit={handleFormSubmit}>
                         <h3 className="text-black font-bold text-[20px] lg:text-[24px]">Staff Registration</h3>
-
-
+                        
+                        
+                        <Form.Field name="first_name" className="block my-4">
+                            <Form.Label className="block font-semibold text-[14px]">First Name</Form.Label>
+                            <Form.Control
+                                onChange={handleFormChange}
+                                required
+                                type="text"
+                                placeholder='First Name'
+                                className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0] px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" />
+                            <Form.Message
+                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
+                                match={(error) => error === "typeMismatch" || error === "valueMissing"}
+                            >
+                                <IoIosWarning className="text-[19px]" /> <span>Enter a your first name</span>
+                            </Form.Message>
+                        </Form.Field>
+                        <Form.Field name="last_name" className="block my-4">
+                            <Form.Label className="block font-semibold text-[14px]">Last Name</Form.Label>
+                            <Form.Control
+                                onChange={handleFormChange}
+                                required
+                                type="text"
+                                placeholder='Last Name'
+                                className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0] px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" />
+                            <Form.Message
+                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
+                                match={(error) => error === "typeMismatch" || error === "valueMissing"}
+                            >
+                                <IoIosWarning className="text-[19px]" /> <span>Enter your last name</span>
+                            </Form.Message>
+                        </Form.Field>
                         <Form.Field name="email" className="block my-4">
                             <Form.Label className="block font-semibold text-[14px]">Staff Email</Form.Label>
                             <Form.Control

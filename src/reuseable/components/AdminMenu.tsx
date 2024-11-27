@@ -46,6 +46,19 @@ const AdminMenu = () => {
                     </li>
                     <li className="mt-8">
 
+                        <Link href='/admin/dashboard/doctors' className="flex gap-4 ">
+                            <DashboardIcon
+                                stroke={currentRoute === '/admin/dashboard/doctors' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/doctors' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
+                                Doctors
+                            </span>
+
+                        </Link>
+                    </li>
+                   
+                    <li className="mt-8">
+
                         <Link href='/admin/dashboard/patients' className="flex gap-4 ">
                             <DashboardIcon
                                 stroke={currentRoute === '/admin/dashboard/patients' ? '#08AD85' : '#4F475E'}
@@ -94,6 +107,18 @@ const AdminMenu = () => {
                                 stroke={currentRoute === '/admin/dashboard/facilities' ? '#08AD85' : '#4F475E'}
                             />
                             <span className={`font-semibold ${currentRoute === '/admin/dashboard/facilities' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Facilities</span>
+                        </Link>
+                    </li>
+                    <li className="mt-8">
+
+                        <Link href='/admin/dashboard/consultations' className="flex gap-4 ">
+                            <DashboardIcon
+                                stroke={currentRoute === '/admin/dashboard/consultations' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/consultations' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
+                                Consultations
+                            </span>
+
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">

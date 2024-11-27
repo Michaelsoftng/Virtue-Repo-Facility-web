@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
+import { useGetAllRequest } from '@/src/hooks/useGetAllRequest'
+import TablePreloader from '@/src/preLoaders/TablePreloader'
+
 
 const sampleCompletedData: TableData[] = [
     {
@@ -67,6 +71,50 @@ const sampleCompletedData: TableData[] = [
 
 
 const Facilities = () => {
+    const [pageLoading, setPageLoading] = useState(false)
+    const [offset, setOffset] = useState(0)
+    const { data, error, loading:requestDataLoading } = useGetAllRequest(10, offset)
+    const requestCount = data?.getAllRequests.length
+    const requestData = data?.getAllRequests as TableData[]
+    const [deleteRequestWithId, setDeleteRequestWithId] = useState<string | null>(null)
+
+    const updatedRequestData = requestData?.map((request) => {
+        const {
+            __typename,
+            phlebotomist,
+            patient,
+            requestDate,
+            facility,
+            samplePickUpAddress,
+            requestStatus,
+            sampleStatus,
+            isPaid,
+            balance,
+            total,
+            tests,
+            createdAt,
+            ...rest
+        } = request;
+        const patientname = (patient.user.firstName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
+        const phlebotomistname = (phlebotomist && phlebotomist.user.firstName) ? `${phlebotomist.user.firstName} ${phlebotomist.user.lastName}` : 'Not Set'
+        const newRequestData = {
+            patients: [null, patientname, patient.user.email],
+            // test: `${tests.length} tests`,
+            amount: total,
+            paid: 1234,
+            balance: balance ? balance : 0,
+            phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.email] : [null, phlebotomistname, "info@labtraca.com"],
+            // address: samplePickUpAddress,
+            requestDate: requestDate,
+            sample_status: sampleStatus,
+            status: requestStatus,
+            
+            ...rest,
+
+        };
+
+        return newRequestData
+    }) || []; // Default to an empty array if patientData is undefined
 
     return (
         <div>
@@ -76,20 +124,26 @@ const Facilities = () => {
                 <div className="bg-gray-100">
                     <BreadCrump pageTitle="Facilities" showExportRecord={true} />
                     <div className="px-8 py-4">
-
+                        {
+                            requestDataLoading
+                            ?
+                                <TablePreloader />
+                                
+                                :
+                        
                         <AdminFacilitiesTable
                             tableHeadText='Requests'
-                            tableData={sampleCompletedData}
+                            tableData={updatedRequestData}
                             searchBoxPosition='justify-start'
                             showTableHeadDetails={true}
-                            showActions={false}
+                            showActions={true}
                             deleteAction={() => { }}
                             approveAction={() => { }} 
                             setItemToDelete={() => { }}
                             showPagination={true}
-                            testPage='facilityTest'
+                            testPage='requests'
                         />
-
+                        }
                     </div>
                 </div>
             </div>

@@ -3,6 +3,8 @@ import { gql } from '@apollo/client';
 
 export const CreateUser = gql`
   mutation CreateUser(
+    $first_name: String!,
+    $last_name: String!,
     $email: String!,
     $phone_number: String!,
     $password: String!,
@@ -13,6 +15,8 @@ export const CreateUser = gql`
     
   ) {
     CreateUser(
+      firstName: $first_name,
+      lastName: $last_name,
       email: $email,
       password: $password,
       phoneNumber: $phone_number,
@@ -98,6 +102,17 @@ export const RevokeToken = gql`
     }
   }
 `;
+
+export const DeleteUser = gql`
+  mutation DeleteUser($id: String!) {
+    DeleteUser(id: $id) {
+          deleted
+
+    }
+  }
+
+`;
+
 
 export const ApproveAccount = gql`
   mutation ApproveAccount($approvingAdmin: String!, $userForApproval: String!) {

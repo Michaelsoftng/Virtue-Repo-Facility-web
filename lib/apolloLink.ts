@@ -42,8 +42,15 @@ export const refreshToken = async () => {
     }
 };
 
-
+// @ts-expect-error this is a type error and i am yet to figure it out
 export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+    // List of public operations that don't require tokens
+    const publicOperations = ['CreateUser', 'VerifyAccount', 'ResendVerificationCode'];
+
+    // Skip token refresh logic for public operations
+    if (publicOperations.includes(operation.operationName)) {
+        return forward(operation);
+    }
 
     const token = Cookies.get('accessToken');
     if (!token || graphQLErrors?.some(e => e.message === 'Your accessToken is invalid')) {

@@ -159,6 +159,7 @@ const VerifyUserAccount: React.FC = () => {
                 <div className="">
                     <Form.Root className="w-full mx-auto" method='post' onSubmit={handleFormSubmit}>
                         <h3 className="text-black font-bold text-[20px] lg:text-[24px]">Verify Your Account</h3>
+                        <p className="text-red-500">check your registered email or phone for verification code </p>
                         <div className="flex space-x-2 my-4">
                             {['digit1', 'digit2', 'digit3', 'digit4'].map((digit, index) => (
                                 <Form.Field key={index} name={digit} className="flex-1">

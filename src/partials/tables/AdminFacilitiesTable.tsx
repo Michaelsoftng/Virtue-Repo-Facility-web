@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import React, { ChangeEvent, useState } from 'react';
 import { TableData } from '@/src/types/TableData.type';
@@ -9,6 +10,7 @@ import AddTestModal from '@/src/reuseable/components/AddTestModal';
 import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
 import Link from 'next/link';
 import ConfirmApproveModal from '@/src/reuseable/components/ApproveModal';
+import TestRequestModal from '@/src/reuseable/components/TestRequestModal';
 
 export interface TestModalProps {
     id?: string
@@ -19,7 +21,8 @@ export interface TestModalProps {
 
 export type AdminFacilitiesTableProps = {
     deleteAction: () => void
-    approveAction: () =>void,
+    approveAction: () => void,
+    viewMoreAction?: () => void,
     setItemToDelete: (id: string) => void
     tableData: TableData[];
     dataCount?: number,
@@ -33,7 +36,7 @@ export type AdminFacilitiesTableProps = {
     children?: React.ReactNode
 };
 
-const colorCombination = [
+export const colorCombination = [
     'bg-red-500 text-white',
     'bg-blue-800 text-yellow-500',
     'bg-yellow-500 text-black',
@@ -47,7 +50,7 @@ function formatMoney(amount: number) {
     }).format(amount);
 }
 
-function formatDateTime(dateString: string): string {
+export function formatDateTime(dateString: string): string {
     const date = new Date(dateString);
 
     const formattedDate = date.toLocaleDateString('en-GB'); // 12/10/1990 format (dd/mm/yyyy)
@@ -66,10 +69,12 @@ function formatWord(word: string) {
     return word.replace(/_/g, " ");
 }
 
+
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, dataCount,
     marginTop, showPagination, showActions, 
-    deleteAction, setItemToDelete, searchBoxPosition, approveAction,
+    deleteAction, setItemToDelete, searchBoxPosition, approveAction, viewMoreAction,
     showTableHeadDetails, children,
     testPage, tableHeadText
 }) => {
@@ -79,6 +84,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
     const rowsPerPage = 10;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
+    const [showTestRequestModal, setShowTestRequestModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [activeData, setActiveData] = useState<TestModalProps | null>(null)
@@ -129,6 +135,9 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
             case 'addTest':
                 setActiveData(dataToDisplay)
                 setShowAddModal(true)
+                break;
+            case 'viewTestRequest':
+                setShowTestRequestModal(true)
                 break;
 
             default:
@@ -207,6 +216,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                             {currentData.map((row, index) => (
                                 <tr key={index} className="border-solid border-2 border-gray-100">
                                     {columns.map((column) => {
+                                        
                                         switch (column) {
                                             
                                             
@@ -268,7 +278,23 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </div>
                                                     </td>
                                                 );
-                                                
+                                            case 'balance':
+                                                return (
+                                                    <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <div>
+                                                            <span className="text-[#434D64]">{formatMoney(row[column])}</span>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'paid':
+                                                return (
+                                                    <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <div>
+                                                            <span className="text-[#434D64]">{formatMoney(row[column])}</span>
+                                                        </div>
+                                                    </td>
+                                                );
+
                                             case 'referralBonus':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -301,7 +327,16 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </div>
                                                     </td>
                                                 );
-                                            case 'date':
+                                                
+                                            case 'request_date':
+                                                return (
+                                                    <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
+                                                            {formatDateTime(row[column])}
+                                                        </span>
+                                                    </td>
+                                                );    
+                                            case 'date' :
                                                 return (
                                                     <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
                                                         <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
@@ -309,6 +344,17 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </span>
                                                     </td>
                                                 );
+                                            case 'requestDate':
+                                                return (
+                                                    <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
+                                                            {formatDateTime(row[column])}
+                                                        </span>
+                                                    </td>
+                                                );
+                                            
+                                                
+                                                
                                             case 'sample_status':
                                             case 'result_status':
                                                 return (
@@ -335,6 +381,15 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                         </span>
                                                     </td>
                                                 );
+                                            case 'is_active':
+                                                return (
+                                                    <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
+                                                            {row[column].toLowerCase()}
+                                                        </span>
+                                                    </td>
+                                                );
+                                                
                                             case 'approval':
                                                 return (
                                                     <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -391,10 +446,17 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                 </div>
                                             }
 
+                                            {testPage === 'requests' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
+
                                             {testPage === 'phlebotomies' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <Link href={`phlebotomies/${index}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                    <Link href={`phlebotomies/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
 
@@ -405,6 +467,14 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                 </div>
                                             }
 
+
+                                            {testPage === 'assignPhlebotomist' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => showModalFunc(index, 'remove', row.id)}>Assign</button>
+                                                </div>
+                                            }
+                                            
                                             {testPage === 'singleFacility' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
@@ -450,6 +520,38 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />
             <ConfirmApproveModal isOpen={showApproveModal} onClose={() => setShowApproveModal(false)} onConfirm={handleApprovaal} />
+            
+            <TestRequestModal
+                isOpen={showTestRequestModal}
+                onClose={() => setShowTestRequestModal(false)}
+                data={{
+                    patientImage: "male.jpg",
+                    firstName: "John",
+                    lastName: "Doe",
+                    email: "john.doe@example.com",
+                    request: "Blood test for diabetes and cholesterol",
+                    address: "123 Test Street, Sample City, Country",
+                    tests: [
+                        {
+                            test: "Complete Blood Count",
+                            patientName: "John Doe",
+                            patientAge: 35,
+                            resultStatus: "Completed",
+                            resultFile: "/results/cbc.pdf"
+                        },
+                        {
+                            test: "Lipid Profile",
+                            patientName: "John Doe",
+                            patientAge: 35,
+                            resultStatus: "Pending",
+                            resultFile: "/results/lipid.pdf"
+                        },
+                        // Add more tests as needed
+                    ],
+                    phlebotomistName: "Jane Smith",
+                    facilityName: "Sample Health Lab",
+                }}
+            />
         </div>
     );
 };

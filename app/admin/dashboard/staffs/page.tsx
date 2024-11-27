@@ -8,18 +8,14 @@ import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
 import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
-import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
-import { ApproveAccount } from '@/src/graphql/mutations'
+import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
-import Loading from '../loading'
-import Cookies from 'js-cookie'
 import { useAuth } from '@/src/context/AuthContext'
 
-// import { PatientType } from '@/src/interface'
 const decodeJwtEncodedId = (encodedId: string | undefined): string => {
     if (!encodedId) {
         console.error('Invalid input: encodedId is undefined or null');
@@ -62,6 +58,8 @@ const Staffs = () => {
             approvalToken,
             approvedAt,
             facilityAdmin,
+            doctor,
+            phlebotomist,
             staff,
             firstName,
             streetAddress,
@@ -76,6 +74,7 @@ const Staffs = () => {
             latitude,
             longitude,
             emailVerifiedAt,
+            isDeleted,
             createdAt,
             ...rest
         } = singleStaff;
@@ -85,24 +84,27 @@ const Staffs = () => {
         } else {
             unverifedStaffs += 1;
         }
-        name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
+        name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
         const active = emailVerifiedAt ? 'verified' : 'unverified'
-        const status = approvedAt ? 'approved' : 'not approved'
+        const status = approvedAt ? 'approved' : 'pending approval'
         const patientCity = city ? city : 'Not set'
         const patientState = state ? state : 'Not set'
+        const activity = isDeleted ? "deleted" : "active"
         const createdDate = new Date(createdAt);
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         if (createdDate >= oneWeekAgo) {
+            firstName
             newStaffs += 1;
         }
         const newPatientData = {
-            staff: [null, name, singleStaff.email],
+            staff: [null, name, singleStaff.email.trim()],
             ...rest,
             city: patientCity,
             state: patientState,
             verified: active,
             status: status,
+            is_active: activity,
             approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}): 'Not approved'
         };
 
@@ -155,43 +157,45 @@ const Staffs = () => {
 
     }
 
-    // const [deleteStaff, { loading: deleteTestLoading }] = useMutation(ApproveAccount, {
-    //     variables: {
-    //         id: staffWithId,
+    const [deleteStaff, { loading: deleteTestLoading }] = useMutation(DeleteUser, {
+        variables: {
+            id: staffWithId,
 
-    //     },
-    //     client,
-    // });
+        },
+        client,
+    });
 
-    // const handleDeleteTest = async () => {
-    //     setPageLoadingFromClick(true)
-    //     try {
-    //         const { data } = await deleteStaff({
-    //             async onCompleted(data) {
-    //                 console.log(data)
-    //                 if (data.DeleteTest.test.deletedStatus) {
-    //                     toast.success(data?.DeleteTest?.test?.message);
-    //                     window.location.reload();
-    //                 } else {
-    //                     toast.error(data?.DeleteTest?.test?.message);
-    //                 }
+    const handleDeleteTest = async () => {
+        console.log(staffWithId)
+        setPageLoadingFromClick(true)
+        try {
+            const { data } = await deleteStaff({
+                async onCompleted(data) {
+                    console.log(data)
+                    if (data.DeleteUser.deleted) {
+                        toast.success(data.DeleteUser.deleted);
+                        window.location.reload();
+                    } else {
+                        toast.error(data.DeleteUser.errors.message);
+                    }
 
-    //             },
-    //             onError(e) {
-    //                 toast.error(e.message);
+                },
+                onError(e) {
+                    toast.error(e.message);
 
-    //             },
-    //         });
+                },
+            });
 
-    //     } catch (err) {
-    //         console.error('Error deleting test:', err);
-    //     } finally {
-    //         setPageLoadingFromClick(false)
+        } catch (err) {
+            console.error('Error deleting test:', err);
+        } finally {
+            setPageLoadingFromClick(false)
 
-    //     }
+        }
 
-    // }
+    }
 
+    
 
     return (
         <div>
@@ -200,7 +204,7 @@ const Staffs = () => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard" pageTitle="Patients" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard" pageTitle="Staffs" showExportRecord={true} />
                     <div className="px-8 py-4 ">
                         {staffDataLoading
 
@@ -222,7 +226,7 @@ const Staffs = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
-                                deleteAction={() => { }}
+                                deleteAction={handleDeleteTest}
                                 approveAction={handleApproveStaff} 
                                 setItemToDelete={setStafftWithId}
                                 tableHeadText='Requests'

@@ -1,6 +1,6 @@
 @import url('https: //fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-.pending{
+.pending, .unpaid{
     background-color: #FFF5CE;
     color: #DB8C09;
     border: 1px solid #DB8C09;
@@ -27,6 +27,24 @@
     border: 1px solid #44AC21;
 }
 
+.active {
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+
+    color: #059920;
+
+}
+
+
+.deleted{
+    display: inline-block;
+    width:100px;
+    text-align: center;
+    background-color: #f78d8d;
+    color: #ff0000;
+    border: 1px solid #44AC21;   
+}
 .completed{
     background-color: rgba(179, 230, 250, 0.897);
     color: rgb(0, 102, 255);

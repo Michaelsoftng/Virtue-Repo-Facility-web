@@ -8,7 +8,6 @@ import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
 import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
-import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
@@ -16,7 +15,6 @@ import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
-
 
 const decodeJwtEncodedId = (encodedId: string | undefined): string => {
     if (!encodedId) {
@@ -35,11 +33,10 @@ const decodeJwtEncodedId = (encodedId: string | undefined): string => {
     }
 };
 
-const Phlebotomies = () => {
-    const [activeTab, setActiveTab] = useState<string>("phlebotomist")
 
+const Doctors = () => {
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
-    const { data, error, loading: staffDataLoading } = useGetUsersByType('phlebotomist')
+    const { data, error, loading: staffDataLoading } = useGetUsersByType('doctor')
     const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
     const { user } = useAuth()
     const Id = user?.id
@@ -198,64 +195,63 @@ const Phlebotomies = () => {
     }
 
 
+
     return (
         <div>
+
             <AdminHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard" pageTitle="Phlebotomies" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard" pageTitle="Doctors" showExportRecord={true} />
+                    <div className="px-8 py-4 ">
+                        {staffDataLoading
 
-                    <div className="px-8 py-4">
-                        <div className="mb-4">
-                            <button className="px-4 py-2 bg-[#B2B7C2] w-[200px] mr-2 rounded" onClick={() => setActiveTab('phlebotomist')}>Phlebotomist</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] mr-2 rounded" onClick={() => setActiveTab('audit')}>Audit</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] rounded" onClick={() => setActiveTab('assignment')}>assignment</button>
+                            ?
+                            'loading'
+                            :
+                            <TotalPatients
+                                loading={staffDataLoading}
+                                totalusers={staffCount}
+                                newUsers={newStaffs}
+                                verifiedUsers={verifiedUsers}
+                                unverifedPatients={unverifedStaffs}
 
-                        </div>
-                        <div className="">
-                            {staffDataLoading
+                            />
+                        }
+                        {staffDataLoading
 
-                                ?
-                                'loading'
-                                :
-                                <TotalPatients
-                                    loading={staffDataLoading}
-                                    totalusers={staffCount}
-                                    newUsers={newStaffs}
-                                    verifiedUsers={verifiedUsers}
-                                    unverifedPatients={unverifedStaffs}
-                                    type="phlebotomies"
-                                />
-                            }
-                            
-                            {staffDataLoading
+                            ?
+                            <TablePreloader />
+                            :
+                            <AdminFacilitiesTable
+                                deleteAction={handleDeleteTest}
+                                approveAction={handleApproveStaff}
+                                setItemToDelete={setStafftWithId}
+                                tableHeadText='Requests'
+                                tableData={updatedStaffData}
+                                searchBoxPosition='justify-start'
+                                showTableHeadDetails={true}
+                                showPagination={true}
+                                showActions={true}
+                                testPage='staffs'
+                                marginTop='mt-4'
+                            />
+                        }
 
-                                ?
-                                <TablePreloader />
-                                :
-                                <AdminFacilitiesTable
-                                    deleteAction={handleDeleteTest}
-                                    approveAction={handleApproveStaff}
-                                    setItemToDelete={setStafftWithId}
-                                    tableHeadText=''
-                                    tableData={updatedStaffData}
-                                    searchBoxPosition='justify-start'
-                                    showTableHeadDetails={true}
-                                    showActions={true}
-                                    showPagination={false}
-                                    testPage='phlebotomies'
-                                    marginTop='mt-4'
-                                />
-                            }
-                        </div>
 
                     </div>
-                    
                 </div>
             </div>
+            {
+                pageLoadingFromClick &&
+                <div className="flex items-center justify-center min-h-screen fixed w-full bg-[#ffffff54] top-0 left-0">
+                    <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-t-green-500 border-green-200 rounded-full"></div>
+                </div>
+            }
+
         </div>
     )
 }
 
-export default Phlebotomies
+export default Doctors

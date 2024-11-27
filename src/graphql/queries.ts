@@ -70,6 +70,7 @@ query getUserByUserType($userType: String!) {
         referralBonus
         approvedAt
         createdAt
+        isDeleted
         staff{
             id
             
@@ -82,6 +83,15 @@ query getUserByUserType($userType: String!) {
             facilityName
             facilityType
         }  
+
+        doctor{
+          id
+          
+        }
+
+        phlebotomist{
+          id
+        }
       }
   }
 }
@@ -161,4 +171,197 @@ export const GetAvailableTestByFacility = gql`
     }
   }
 
+`;
+
+export const GetAllRequest = gql`
+  query getAllRequests($limit: Int, $offset: Int,){
+        getAllRequests(limit: $limit, offset: $offset){
+            id
+            samplePickUpAddress
+            requestStatus
+            requestDate
+            sampleStatus
+            total
+            createdAt
+            isPaid
+            balance
+            phlebotomist{
+              id
+              user{
+                   firstName  
+                   lastName
+                   email
+
+                }
+            }
+            patient{
+                id
+                user{
+                   firstName  
+                   lastName
+                   email
+
+                }
+            }
+            tests{
+                id
+                name
+            }
+        }
+
+}
+
+`;
+
+export const GetRequest = gql`
+query getRequest($id: ID, $patienId: ID,){
+        getRequest(id: $id, patienId: $patienId){
+            id
+            samplePickUpAddress
+            requestStatus
+            sampleStatus
+            samepleDropOffDate
+            sampleCollectionDate
+            requestDate
+            isPaid
+            total
+            balance
+            patient{
+                id
+                user{
+                   firstName  
+                   lastName
+                   email
+                   phoneNumber
+
+                }
+            }
+            phlebotomist{
+                id
+                user{
+                    id
+                    firstName  
+                   lastName
+                   email
+                   phoneNumber
+                }
+            }
+            tests{
+                id
+                name
+                code
+            }
+            payment{
+                id
+                amountPaid
+                amountCharged
+            }
+            testRequest{
+                id
+                test{
+                   id
+                    name
+                    code 
+                }
+                facility{
+                    id
+                    facilityName
+                    user{
+                      id
+                      firstName  
+                    lastName
+                    email
+                  }
+                }
+                patientName
+                patientAge
+                package{
+                    id
+                }
+                testResult
+                resultDate
+            }
+        }
+
+}
+
+
+`;
+
+
+export const GetFilteredConsultations = gql`
+  query getFilteredConsultations($filterStatus: String!, $limit: Int, $offset: Int){
+      getFilteredConsultations(filterStatus: $filterStatus, limit: $limit, offset: $offset){
+          consultationCount
+          consultations {
+              status
+              patient{
+                  id
+                  user{
+                  firstName  
+                  lastName
+                  email
+
+                  }
+              }
+              doctor{
+                  id
+                  user{
+                  firstName  
+                  lastName
+                  email
+
+                  }
+              }
+              purpose
+              medicalhistory
+              attachments
+              otherdetails
+              requestedDoctorType
+              requestedDuration
+              consultationTime
+              consultationStartedAt
+              consultationEndedAt
+              total
+          }
+      }
+  }
+`;
+
+
+export const GetMinimalFilteredConsultations = gql`
+  query getFilteredConsultations($filterStatus: String!, $limit: Int, $offset: Int){
+      getFilteredConsultations(filterStatus: $filterStatus, limit: $limit, offset: $offset){
+          consultationCount
+          consultations {
+              status
+              patient{
+                  id
+                  user{
+                  firstName  
+                  lastName
+                  email
+
+                  }
+              }
+              doctor{
+                  id
+                  user{
+                  firstName  
+                  lastName
+                  email
+
+                  }
+              }
+             
+              createdAt
+              requestedDoctorType
+              requestedDuration
+              consultationTime
+              consultationStartedAt
+              consultationEndedAt
+              total
+          }
+      }
+  }
 `;

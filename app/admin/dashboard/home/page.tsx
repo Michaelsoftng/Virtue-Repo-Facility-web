@@ -103,7 +103,7 @@ const Page: React.FC = () => {
 										?
 										<NumberPreloader />
 										:
-										<p className="font-bold text-3xl">{userCount.users}</p>
+										<p className="font-bold text-3xl">{userCount.users - 1}</p>
 									}
 										
 									</div>

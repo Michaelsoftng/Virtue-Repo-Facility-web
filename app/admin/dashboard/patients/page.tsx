@@ -28,6 +28,8 @@ const Patients = () => {
         const {
             __typename,
             approvalToken,
+            doctor,
+            phlebotomist,
             approvedAt,	
             facilityAdmin,
             staff,

@@ -35,26 +35,26 @@ const decodeJwtEncodedId = (encodedId: string | undefined): string => {
     }
 };
 
-const Phlebotomies = () => {
+const Phlebotomies = ({ params }: { params: { ID: string } }) => {
     const [activeTab, setActiveTab] = useState<string>("phlebotomist")
-
+    const { ID } = params;
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
-    const { data, error, loading: staffDataLoading } = useGetUsersByType('phlebotomist')
-    const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
+    const { data, error, loading: phlebotomiesDataLoading } = useGetUsersByType('phlebotomist')
+    const [phlebotomiesWithId, setPhlebotomiesWithId] = useState<string | null>(null) // id of phlebotomies to delete
     const { user } = useAuth()
     const Id = user?.id
-    console.log("logged in user from staff", user?.id)
-    const staffCount = data?.getUserByUserType?.usersCount
-    const staffData = data?.getUserByUserType?.users as TableData[]
+    console.log("logged in user from phlebotomies", user?.id)
+    const phlebotomiesCount = data?.getUserByUserType?.usersCount
+    const phlebotomiesData = data?.getUserByUserType?.users as TableData[]
 
     let name: string
     let status: string
     let verifiedUsers = 0
-    let newStaffs = 0
-    let unverifedStaffs = 0
+    let newPhlebotomiess = 0
+    let unverifedPhlebotomiess = 0
 
-    // Check if StaffData is available before mapping
-    const updatedStaffData = staffData?.map((singleStaff) => {
+    // Check if PhlebotomiesData is available before mapping
+    const updatedPhlebotomiesData = phlebotomiesData?.map((singlePhlebotomies) => {
 
         const {
             __typename,
@@ -62,8 +62,9 @@ const Phlebotomies = () => {
             approvedAt,
             facilityAdmin,
             doctor,
-            phlebotomist,
             staff,
+            phlebotomist,
+            phlebotomies,
             firstName,
             streetAddress,
             streetAddress2,
@@ -73,6 +74,8 @@ const Phlebotomies = () => {
             country,
             postal,
             city,
+            referralBonus,
+            referralCode,
             state,
             latitude,
             longitude,
@@ -80,12 +83,12 @@ const Phlebotomies = () => {
             isDeleted,
             createdAt,
             ...rest
-        } = singleStaff;
-
+        } = singlePhlebotomies;
+        console.log("the rest data ",{...rest})
         if (emailVerifiedAt) {
             verifiedUsers += 1;
         } else {
-            unverifedStaffs += 1;
+            unverifedPhlebotomiess += 1;
         }
         name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
         const active = emailVerifiedAt ? 'verified' : 'unverified'
@@ -97,17 +100,15 @@ const Phlebotomies = () => {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         if (createdDate >= oneWeekAgo) {
-            newStaffs += 1;
+            newPhlebotomiess += 1;
         }
         const newPatientData = {
-            staff: [null, name, singleStaff.email],
+            phlebotomist: [null, name, singlePhlebotomies.email],
             ...rest,
-            city: patientCity,
-            state: patientState,
+            address: `${streetAddress} ${patientCity} ${patientState}`,
             verified: active,
             status: status,
             is_active: activity,
-            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
         };
 
         return newPatientData
@@ -118,21 +119,21 @@ const Phlebotomies = () => {
         console.log("error is saying true", error)
     }
 
-    const [approveStaff, { loading: approveStaffLoading }] = useMutation(ApproveAccount, {
+    const [approvePhlebotomies, { loading: approvePhlebotomiesLoading }] = useMutation(ApproveAccount, {
         variables: {
-            userForApproval: staffWithId,
+            userForApproval: phlebotomiesWithId,
             approvingAdmin: decodeJwtEncodedId(user?.id as string),
 
         },
         client,
     });
 
-    const handleApproveStaff = async () => {
+    const handleAssignPhlebotomies = async () => {
         setPageLoadingFromClick(true)
         try {
-            const { data } = await approveStaff({
+            const { data } = await approvePhlebotomies({
                 variables: {
-                    userForApproval: staffWithId,
+                    userForApproval: phlebotomiesWithId,
                     approvingAdmin: decodeJwtEncodedId(Id as string), // Pass decoded ID here
                 },
                 async onCompleted(data) {
@@ -159,45 +160,6 @@ const Phlebotomies = () => {
 
     }
 
-    const [deleteStaff, { loading: deleteTestLoading }] = useMutation(DeleteUser, {
-        variables: {
-            id: staffWithId,
-
-        },
-        client,
-    });
-
-    const handleDeleteTest = async () => {
-        console.log(staffWithId)
-        setPageLoadingFromClick(true)
-        try {
-            const { data } = await deleteStaff({
-                async onCompleted(data) {
-                    console.log(data)
-                    if (data.DeleteUser.deleted) {
-                        toast.success(data.DeleteUser.deleted);
-                        window.location.reload();
-                    } else {
-                        toast.error(data.DeleteUser.errors.message);
-                    }
-
-                },
-                onError(e) {
-                    toast.error(e.message);
-
-                },
-            });
-
-        } catch (err) {
-            console.error('Error deleting test:', err);
-        } finally {
-            setPageLoadingFromClick(false)
-
-        }
-
-    }
-
-
     return (
         <div>
             <AdminHeader />
@@ -207,51 +169,53 @@ const Phlebotomies = () => {
                     <BreadCrump pageWrapper="Dashboard" pageTitle="Phlebotomies" showExportRecord={true} />
 
                     <div className="px-8 py-4">
-                        <div className="mb-4">
-                            <button className="px-4 py-2 bg-[#B2B7C2] w-[200px] mr-2 rounded" onClick={() => setActiveTab('phlebotomist')}>Phlebotomist</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] mr-2 rounded" onClick={() => setActiveTab('audit')}>Audit</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] rounded" onClick={() => setActiveTab('assignment')}>assignment</button>
-
-                        </div>
-                        <div className="">
-                            {staffDataLoading
+                        
+                            {phlebotomiesDataLoading
 
                                 ?
                                 'loading'
                                 :
                                 <TotalPatients
-                                    loading={staffDataLoading}
-                                    totalusers={staffCount}
-                                    newUsers={newStaffs}
+                                    loading={phlebotomiesDataLoading}
+                                    totalusers={phlebotomiesCount}
+                                    newUsers={newPhlebotomiess}
                                     verifiedUsers={verifiedUsers}
-                                    unverifedPatients={unverifedStaffs}
+                                    unverifedPatients={unverifedPhlebotomiess}
                                     type="phlebotomies"
                                 />
                             }
-                            
-                            {staffDataLoading
+
+                            {phlebotomiesDataLoading
 
                                 ?
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
-                                    deleteAction={handleDeleteTest}
-                                    approveAction={handleApproveStaff}
-                                    setItemToDelete={setStafftWithId}
+                                    deleteAction={() => {}}
+                                    approveAction={handleAssignPhlebotomies}
+                                    setItemToDelete={setPhlebotomiesWithId}
                                     tableHeadText=''
-                                    tableData={updatedStaffData}
+                                    tableData={updatedPhlebotomiesData}
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}
                                     showPagination={false}
-                                    testPage='phlebotomies'
+                                    testPage='assignPhlebotomist'
                                     marginTop='mt-4'
-                                />
-                            }
-                        </div>
+                            >
+                                <div className="mx-4 mt-6 flex justify-between">
+                                    <h2 className="text-[#0F1D40] font-bold text-xl">Phlebotomies { }</h2>
 
+                                        {/* <Link href='tests/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
+                                            <PlusIcon />
+                                            <span >Add Test</span>
+                                        </Link> */}
+                                </div>
+                            </AdminFacilitiesTable>
+                            }
+                      
                     </div>
-                    
+
                 </div>
             </div>
         </div>
