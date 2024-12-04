@@ -18,7 +18,7 @@ export const GetUserById = gql`
         postal
         latitude
         longitude
-        referral_bonus
+        referralBonus
         createdAt
         facilityAdmin{
           id
@@ -362,6 +362,68 @@ export const GetMinimalFilteredConsultations = gql`
               consultationEndedAt
               total
           }
+      }
+  }
+`;
+
+export const GetPayments = gql`
+  query getAllPayment($limit: Int!, $offset: Int!){
+      getAllPayment(limit: $limit, offset: $offset){
+          paymentsCount
+          payments{
+              id
+              paidby{
+              id
+              email
+              firstName
+              lastName
+          }
+              paidFor
+              paymentPlan
+              paymentType
+              amountPaid
+              amountCharged
+              paymentChannel
+              paymentId
+              referrence
+              invoice
+              paymentDetails
+              description
+              }
+
+
+
+      }
+  }
+`;
+
+export const GetPayouts = gql`
+  query getAllPayment($limit: Int!, $offset: Int!){
+      getAllPayment(limit: $limit, offset: $offset){
+          paymentsCount
+          payments{
+              id
+              paidby{
+                id
+                email
+                firstName
+                lastName
+              }
+              paidFor
+              paymentPlan
+              paymentType
+              amountPaid
+              amountCharged
+              paymentChannel
+              paymentId
+              referrence
+              invoice
+              paymentDetails
+              description
+              }
+
+
+
       }
   }
 `;

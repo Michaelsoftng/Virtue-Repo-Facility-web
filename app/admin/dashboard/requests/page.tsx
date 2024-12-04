@@ -9,67 +9,6 @@ import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import { useGetAllRequest } from '@/src/hooks/useGetAllRequest'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 
-
-const sampleCompletedData: TableData[] = [
-    {
-        patients: [null, 'John Doe', 'egeregav@gmail.com'],
-        test: 'Covid 19',
-        amount: 30000,
-        phlebotomist: ['female.jpg', 'John Doe', 'egeregav@gmail.com'],
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        payment: 'cash',
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Jane Smith', 'janesmith@example.com'],
-        test: 'Malaria',
-        amount: 20000,
-        phlebotomist: ['male.jpg', 'David Clark', 'davidclark@example.com'],
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        payment: 'online',
-        package: 'coperate (12)',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Robert Brown', 'robertbrown@example.com'],
-        test: 'Typhoid',
-        amount: 15000,
-        phlebotomist: ['female.jpg', 'Emily White', 'emilywhite@example.com'],
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        payment: 'cash',
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-        test: 'Blood Test',
-        amount: 25000,
-        phlebotomist: ['male.jpg', 'Michael Scott', 'michaelscott@example.com'],
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-11 18:11:57.866863+00",
-        payment: 'cash',
-        package: 'single',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Mark Johnson', 'markjohnson@example.com'],
-        test: 'HIV Test',
-        amount: 10000,
-        phlebotomist: ['female.jpg', 'Sophia Turner', 'sophiaturner@example.com'],
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-14 18:11:57.866863+00",
-        payment: 'cash',
-        package: 'single',
-        result_status: 'pending'
-    },
-    
-];
-
-
 const Facilities = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [offset, setOffset] = useState(0)

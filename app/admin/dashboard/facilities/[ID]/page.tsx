@@ -261,7 +261,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                     <div className="mx-4 mt-6 flex justify-between">
                                         <h2 className="text-[#0F1D40] font-bold text-xl">Available tests</h2>
 
-                                        <Link href='tests/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
+                                        <Link href={`${ID}/add-test`} className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
                                             <PlusIcon />
                                             <span >Add Test</span>
                                         </Link>

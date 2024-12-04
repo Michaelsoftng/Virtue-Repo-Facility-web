@@ -11,6 +11,9 @@ import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
 import Link from 'next/link';
 import ConfirmApproveModal from '@/src/reuseable/components/ApproveModal';
 import TestRequestModal from '@/src/reuseable/components/TestRequestModal';
+import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
+import Loading from '@/app/admin/dashboard/loading';
+import { IFacilityTest } from '@/src/interface';
 
 export interface TestModalProps {
     id?: string
@@ -21,7 +24,8 @@ export interface TestModalProps {
 
 export type AdminFacilitiesTableProps = {
     deleteAction: () => void
-    approveAction: () => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    approveAction: (data?:  any) => void,
     viewMoreAction?: () => void,
     setItemToDelete: (id: string) => void
     tableData: TableData[];
@@ -33,7 +37,8 @@ export type AdminFacilitiesTableProps = {
     showPagination: boolean
     searchBoxPosition?: string,
     showTableHeadDetails?: boolean,
-    children?: React.ReactNode
+    children?: React.ReactNode,
+    queryId?: string;
 };
 
 export const colorCombination = [
@@ -72,13 +77,13 @@ function formatWord(word: string) {
 
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, dataCount,
+const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, dataCount,
     marginTop, showPagination, showActions, 
     deleteAction, setItemToDelete, searchBoxPosition, approveAction, viewMoreAction,
     showTableHeadDetails, children,
-    testPage, tableHeadText
+    testPage, tableHeadText, queryId
 }) => {
-    
+
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10;
@@ -87,7 +92,9 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
     const [showTestRequestModal, setShowTestRequestModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [showAddFacilityTestModal, setShowAddFacilityTestModal] = useState<boolean>(false);
     const [activeData, setActiveData] = useState<TestModalProps | null>(null)
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -136,6 +143,11 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                 setActiveData(dataToDisplay)
                 setShowAddModal(true)
                 break;
+            case 'addFacilityTest':
+                console.log("data to display",dataToDisplay)
+                setActiveData(dataToDisplay)
+                setShowAddFacilityTestModal(true)
+                break;
             case 'viewTestRequest':
                 setShowTestRequestModal(true)
                 break;
@@ -156,7 +168,11 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
         approveAction()
     }
 
-    console.log('tableData', tableData)
+    // console.log('tableData', tableData)
+    if (isLoading) {
+
+        return <Loading />;
+    }
     return (
         <div className={`${marginTop ? marginTop : "mt-[-20px]"} container mx-auto `}>
 
@@ -231,7 +247,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                                 ) : (
                                                                     <RoundedNoImage
                                                                         text={row[column][1]
-                                                                            .split(' ')
+                                                                            .split('  ')
                                                                             .map((word: string) => word[0].toUpperCase())
                                                                             .join('')}
                                                                         classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
@@ -475,6 +491,13 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
                                                 </div>
                                             }
                                             
+                                            {testPage === 'addfacilityTests' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => showModalFunc(index, 'addFacilityTest', row.id)}>Add</button>
+                                                </div>
+                                            }
+                                            
                                             {testPage === 'singleFacility' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
@@ -518,6 +541,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({ tableData, 
             
             <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
+            <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddFacilityTestModal} onClose={() => setShowAddFacilityTestModal(false)} test={activeData} facilityId={queryId as string}/>
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />
             <ConfirmApproveModal isOpen={showApproveModal} onClose={() => setShowApproveModal(false)} onConfirm={handleApprovaal} />
             

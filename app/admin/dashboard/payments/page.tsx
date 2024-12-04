@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
@@ -8,12 +8,10 @@ import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import { useGetUnpaidConsultation } from '@/src/hooks/useGetUnpaidConsultation'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
-import { useMutation, useQuery } from '@apollo/client'
-import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
-import { GetMinimalFilteredConsultations } from '@/src/graphql/queries'
+import { GetPayments, GetPayouts } from '@/src/graphql/queries'
 
 
 const decodeJwtEncodedId = (encodedId: string | undefined): string => {
@@ -34,23 +32,21 @@ const decodeJwtEncodedId = (encodedId: string | undefined): string => {
 };
 
 const Consultations = () => {
-    const [activeTab, setActiveTab] = useState<string>("completed")
+    const [activeTab, setActiveTab] = useState<string>("incoming")
     const [offsets, setOffsets] = useState<{ [key: string]: number }>({
-        completed: 0,
-        pendingassignment: 0,
-        pendingpayment: 0,
+        incoming: 0,
+        outgoing: 0,
+
     });
 
     const [dataCount, setDataCount] = useState<{ [key: string]: number }>({
-        completed: 0,
-        pendingassignment: 0,
-        pendingpayment: 0,
+        incoming: 0,
+        outgoing: 0,
     });
 
     const [data, setData] = useState<{ [key: string]: TableData[] }>({
-        completed: [],
-        pendingassignment: [],
-        pendingpayment: [],
+        incoming: [],
+        outgoing: [],
     });
 
 
@@ -60,120 +56,124 @@ const Consultations = () => {
     const Id = user?.id
 
 
-    const fetchData = async (filterStatus: string, offset: number, tab: string) => {
+    const fetchData = async (offset: number, tab: string) => {
         setPageLoadingFromClick(true);
         try {
-            // Dynamically refetch the data with updated variables
-            const { data: newData, error: fetchError } = await client.query({
-                query: GetMinimalFilteredConsultations,
+        
+            const query = tab === "incoming" ? GetPayments : GetPayouts;
+            
+            const { data: newPaymentData, error: fetchError } = await client.query({
+                query,
                 variables: {
-                    filterStatus,
                     limit: 10, // Adjust as needed
                     offset,
                 },
                 fetchPolicy: 'network-only', // Ensure fresh data is fetched
-            });
+            }); 
+            
+            // Dynamically refetch the data with updated variables
+            
 
             if (fetchError) {
                 throw fetchError;
             }
 
-            const completedConsultationCount = newData.getFilteredConsultations?.consultationCount
-            const consultations = newData?.getFilteredConsultations?.consultations || [] as TableData[];
+            const paymentCount = newPaymentData?.getAllPayment?.paymentsCount
+            const payments = newPaymentData?.getAllPayment?.payments || [] as TableData[];
 
             let patientName: string
             let doctorName: string
             // Check if ConsultationData is available before mapping
-            const updatedConsultationData = consultations?.map((singleConsultation: TableData) => {
+            const updatedPaymentData = payments?.map((singlepPayments: TableData) => {
 
                 const {
                     __typename,
-                    requestedDoctorType,
-                    patient,
-                    doctor,
-                    status,
-                    attachments,
-                    requestedDuration,
-                    consultationStartedAt,
+                    
+                    paidby,
+                    paidFor,
+                    paymentPlan,
+                    paymentType,
+                    amountPaid,
+                    amountCharged,
+                    paymentChannel,
+                    paymentId,
+                    paymentDetails,
                     isDeleted,
                     createdAt,
-                    total,
                     ...rest
-                } = singleConsultation;
+                } = singlepPayments;
 
 
-                patientName = (patient.user.firstName && patient.user.lastName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
-                doctorName = (doctor && doctor.user.firstName && doctor.user.lastName) ? `${doctor.user.firstName} ${doctor.user.lastName}` : 'Not Set'
-                const consultationData = {
-                    patient: [null, patientName, patient.user.email],
-                    doctor: doctor ? [null, doctorName, doctor.user.email] : [null, 'Not Set', 'example@example.com'],
+                patientName = (paidby.firstName && paidby.lastName) ? `${paidby.firstName.trim()} ${paidby.lastName.trim()}` : 'Not Set'
+                const paymentData = {
+                    patient: [null, patientName, paidby.email],
+                    paid_for: paidFor,
+                    payment_Plan: paymentPlan,
+                    payment_type: paymentType,
+                    amount_paid: amountPaid,
+                    amount_charged: amountCharged,
+                    payment_channel: paymentChannel,
+                    payment_id: paymentId,
                     ...rest,
-                    requested_doctor: requestedDoctorType,
-                    request_date: createdAt,
-                    consutation_duration: requestedDuration,
-                    consultation_date: consultationStartedAt,
-                    amount: total,
-                    status: status,
-
                 };
 
-                return consultationData
+                return paymentData
             }) || [];
 
 
             setData((prevData) => {
-                let modifiedConsultationData = [...updatedConsultationData];
+                // let modifiedPaymentData = [...updatedPaymentData];
 
                 // Perform editing if the tab matches a specific condition
-                if (tab === "pendingpayment") {
-                    modifiedConsultationData = modifiedConsultationData.map((consultation) => {
-                        const {
-                            consultationTime,
-                            consultationStartedAt,
-                            ...rest
-                        } = consultation
-                            ;
-                        return {
-                            ...rest
-                        };
-                    });
-                } else if (tab === "completed") {
-                    modifiedConsultationData = modifiedConsultationData.map((consultation) => {
-                        const {
-                            consultationTime,
-                            consultationStartedAt,
-                            ...rest
-                        } = consultation
-                            ;
-                        return {
-                            ...rest
-                        };
-                    });
-                }
+                // if (tab === "pendingpayment") {
+                //     modifiedPaymentData = modifiedPaymentData.map((payment) => {
+                //         const {
+                //             consultationTime,
+                //             consultationStartedAt,
+                //             ...rest
+                //         } = payment
+                //             ;
+                //         return {
+                //             ...rest
+                //         };
+                //     });
+                // } else if (tab === "completed") {
+                //     modifiedConsultationData = modifiedConsultationData.map((consultation) => {
+                //         const {
+                //             consultationTime,
+                //             consultationStartedAt,
+                //             ...rest
+                //         } = consultation
+                //             ;
+                //         return {
+                //             ...rest
+                //         };
+                //     });
+                // }
 
                 return {
                     ...prevData,
-                    [tab]: [...(prevData[tab] || []), ...modifiedConsultationData],
+                    [tab]: [...(prevData[tab] || []), ...updatedPaymentData],
                 };
             });
 
 
             setDataCount((prevData) => ({
                 ...prevData,
-                [tab]: completedConsultationCount,
+                [tab]: paymentCount,
             }));
 
         } catch (error) {
-            console.error(`Error fetching ${filterStatus} data:`, error);
+            console.error(`Error fetching ${tab} payment data:`, error);
         } finally {
             setPageLoadingFromClick(false);
         }
     };
 
 
-    const handleTabClick = (tab: string, filterStatus: string) => {
+    const handleTabClick = (tab: string) => {
         setActiveTab(tab);
-        fetchData(filterStatus, offsets[tab], tab);
+        fetchData(offsets[tab], tab);
 
     };
 
@@ -183,19 +183,12 @@ const Consultations = () => {
             ...prevOffsets,
             [activeTab]: currentOffset,
         }));
-        let filterStatus: string
-        if (activeTab == '') {
-            filterStatus = ''
-        } else if (activeTab == '') {
-            filterStatus = ''
-        } else if (activeTab == '') {
-            filterStatus = ''
-        } else {
-            filterStatus = ''
-        }
-        fetchData(filterStatus, currentOffset, activeTab);
+        fetchData(currentOffset, activeTab);
     };
-
+    useEffect(() => {
+        // Fetch data for the default active tab on initial load
+        fetchData(0, "incoming");
+    }, []); // Only run on mount
 
     return (
         <div>
@@ -207,13 +200,12 @@ const Consultations = () => {
 
                     <div className="px-8 py-4">
                         <div className="mb-4">
-                            <button className={`px-4 py-2 ${activeTab === 'completed' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('completed', 'complete')}>Completed</button>
-                            <button className={`px-4 py-2 ${activeTab === 'pendingassignment' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('pendingassignment', 'pending')}>Pending Assignment</button>
-                            <button className={`px-4 py-2 ${activeTab === 'pendingpayment' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('pendingpayment', 'unpaid')}>Pending Payment</button>
+                            <button className={`px-4 py-2 ${activeTab === 'incoming' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick( 'incoming')}>Incoming</button>
+                            <button className={`px-4 py-2 ${activeTab === 'outgoing' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('outgoing')}>Outgoing</button>
 
                         </div>
                         <div className="">
-                            {activeTab === 'completed' && (
+                            {activeTab === 'incoming' && (
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
@@ -221,8 +213,8 @@ const Consultations = () => {
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
                                         setItemToDelete={setConsultationtWithId}
-                                        tableHeadText='Completed consultaions (50)'
-                                        tableData={data['completed']}
+                                        tableHeadText='Incoming Payments (50)'
+                                        tableData={data['incoming']}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
                                         showActions={true}
@@ -236,8 +228,8 @@ const Consultations = () => {
                                 )
                             )}
 
-                            {/* ppending assignment */}
-                            {activeTab === 'pendingassignment' && (
+                            {/* outgoing payments */}
+                            {activeTab === 'outgoing' && (
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
@@ -245,8 +237,8 @@ const Consultations = () => {
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
                                         setItemToDelete={setConsultationtWithId}
-                                        tableHeadText="Consultations pending doctor (50)"
-                                        tableData={data['pendingassignment']}
+                                        tableHeadText="Outgoing Payments (50)"
+                                        tableData={data['outgoing']}
                                         searchBoxPosition="justify-start"
                                         showTableHeadDetails={true}
                                         showActions={true}
@@ -258,27 +250,6 @@ const Consultations = () => {
                             )}
 
 
-                            {/* consulutations pending payment */}
-                            {activeTab === 'pendingpayment' && (
-                                pageLoadingFromClick ? (
-                                    <TablePreloader />
-                                ) : (
-                                    <AdminFacilitiesTable
-                                        deleteAction={() => { }}
-                                        approveAction={() => { }}
-                                        setItemToDelete={setConsultationtWithId}
-                                        tableHeadText='Consultaions pending payment (50)'
-                                        tableData={data['pendingpayment']}
-                                        searchBoxPosition='justify-start'
-                                        showTableHeadDetails={true}
-                                        showActions={true}
-                                        showPagination={false}
-                                        testPage='phlebotomies'
-                                        marginTop='mt-4'
-                                    />
-
-                                )
-                            )}
                         </div>
 
                     </div>

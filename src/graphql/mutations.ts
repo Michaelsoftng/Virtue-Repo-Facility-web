@@ -270,3 +270,39 @@ export const CreateAssignment = gql`
       }
   }
 `;
+
+export const CreateFacilityTest = gql`
+  mutation CreateFacilityTestManual(
+      $test: String!, 
+      $facility: String!, 
+      $price: Int!, 
+      $duration: String,
+          $preparation: String,
+      ) {
+    CreateFacilityTestManual(
+    test: $test, 
+      facility: $facility, 
+    price: $price, 
+      preparation: $preparation, 
+    duration:$duration
+    ) {
+      facilityTest {
+        id
+        test{
+          id
+          name
+          code
+          description
+        }
+        facility{
+          id
+          facilityName
+          facilityType
+        }
+        price
+        preparation
+        duration
+      }
+  }
+  }
+`

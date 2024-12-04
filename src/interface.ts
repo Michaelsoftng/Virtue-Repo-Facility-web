@@ -23,6 +23,36 @@ export interface IRegister {
     facility_type?: string
     country: string
 }
+
+
+export interface IUpdateAccount {
+    first_name?: string,
+    last_name?: string,
+    phone_number?: string,
+    role?: Role,
+    password?: string,
+    facility_name?: string
+    facility_type?: string
+    country?: string,
+    state?: string,
+    city?: string,
+    postal?: string,
+    street_address?: string,
+    street_address_2?: string,
+    latitude: number,
+    longitude: number,
+}
+
+export interface IFacilityTest {
+    test: string,
+    facility: string,
+    price?: number,
+    duration?: string,
+    preparation?: string,
+    
+}
+
+
 export interface IResendVerification{
     email: string
 }

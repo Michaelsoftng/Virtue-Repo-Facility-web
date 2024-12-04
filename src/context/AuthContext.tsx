@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             try {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser as User);
-                console.log('this is cookies user', parsedUser)
+                // console.log('this is cookies user', parsedUser)
             } catch (error) {
                 console.error('Error parsing authUser cookie:', error);
                 Cookies.remove('authUser'); // Remove the invalid cookie on the client side
