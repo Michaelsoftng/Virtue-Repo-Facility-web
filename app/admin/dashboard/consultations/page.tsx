@@ -16,7 +16,7 @@ import { useAuth } from '@/src/context/AuthContext'
 import { GetMinimalFilteredConsultations } from '@/src/graphql/queries'
 
 
-const decodeJwtEncodedId = (encodedId: string | undefined): string => {
+export const decodeJwtEncodedId = (encodedId: string | undefined): string => {
     if (!encodedId) {
         console.error('Invalid input: encodedId is undefined or null');
         return ''; // Return fallback or handle it appropriately
@@ -95,7 +95,8 @@ const Consultations = () => {
                     attachments,
                     requestedDuration,
                     consultationStartedAt,
-                    isDeleted,
+                    deletedAt,
+                    deletedBy,
                     createdAt,
                     total,
                     ...rest

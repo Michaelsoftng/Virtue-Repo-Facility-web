@@ -22,8 +22,14 @@ export const GetUserById = gql`
         createdAt
         facilityAdmin{
           id
+          role
           facilityName
           facilityType
+          facilityPercentage
+        }
+        staff{
+          id
+          role
         }
     }
   }
@@ -70,7 +76,8 @@ query getUserByUserType($userType: String!) {
         referralBonus
         approvedAt
         createdAt
-        isDeleted
+        deletedAt
+        deletedBy
         staff{
             id
             
@@ -138,9 +145,9 @@ export const GetAllTest = gql`
 `;
 
 export const GetAvailableTestByFacility = gql`
-  query getAvailableTestByFacility($facilityId: ID!, $limit: Int
+  query getAvailableTestByFacility($facilityId: ID!, $limit: Int, $offset: Int
   ) {
-      getAvailableTestByFacility(facilityId: $facilityId, limit: $limit) {
+      getAvailableTestByFacility(facilityId: $facilityId, limit: $limit, offset: $offset) {
           facilityTestCount
           facilityTests{
               test{
@@ -288,6 +295,25 @@ query getRequest($id: ID, $patienId: ID,){
 
 `;
 
+export const getAllTestRequestsByFacility = gql`
+  query getAllRequestsByFacility($facilityId: ID!, $limit: Int, $offset: Int) {
+      getAllRequestsByFacility(facilityId: $facilityId, limit: $limit, offset: $offset) {
+          testRequestCount
+          testRequests {
+              id
+              test{
+                  id
+                  name
+              }
+              facility{
+                  id
+                  facilityName
+              }}
+    }
+  }
+
+
+`;
 
 export const GetFilteredConsultations = gql`
   query getFilteredConsultations($filterStatus: String!, $limit: Int, $offset: Int){

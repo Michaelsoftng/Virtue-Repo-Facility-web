@@ -8,16 +8,17 @@ export const useGetAvailableTestByFacility = (facilityId: string, limit: number)
         variables: {
             facilityId,
             limit
+            
         },
         client,
     });
 };
 
 
-export const getFacilityTests = async (facilityId: string, limit: number) => {
+export const getFacilityTests = async (facilityId: string, limit: number, offset?: number) => {
     return await client.query({
         query: GetAvailableTestByFacility,
-        variables: { facilityId, limit },
+        variables: { facilityId, limit, offset },
     });
 };
 

@@ -94,14 +94,17 @@ const Registration: React.FC = () => {
     });
 
     const handleFormSubmit = async (e: React.FormEvent) => {
+        console.log(formData)
         e.preventDefault();
         setIsLoading(true);
 
         if (disableSubmitBtn()) {
-            toast.error("Fill all input boxes in the form");
+            console.log("Form is not valid");
             return;
         }
-        console.log(formData)
+        Cookies.remove('user', { path: '/' });
+        Cookies.remove('accessToken', { path: '/' });
+        Cookies.remove('refreshToken', { path: '/' });
         try {
             await register({
                 onCompleted(data) {
@@ -179,6 +182,19 @@ const Registration: React.FC = () => {
                             </Form.Message>
                         </Form.Field>
                         
+                        <Form.Field name="facility_percentage" className="block mb-4 mt-2">
+                            <Form.Label className="block font-semibold text-[14px]">Facility Percentage Off</Form.Label>
+                            <Form.Control onChange={handleFormChange}
+                                type="number"
+                                required
+                                placeholder='Facility percentage off test'
+                                className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0] px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto"
+                            />
+                            <Form.Message className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold" match="valueMissing">
+
+                                <IoIosWarning className="text-[19px]" /> <span>Facility percentage off is required</span>
+                            </Form.Message>
+                        </Form.Field>
 
                         <Form.Field name="email" className="block my-4">
                             <Form.Label className="block font-semibold text-[14px]">Facility Email</Form.Label>

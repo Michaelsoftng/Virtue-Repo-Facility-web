@@ -2,9 +2,8 @@
 "use client"
 import React, { ChangeEvent, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
-import AdminHeader from '@/src/reuseable/components/AdminHeader'
-import AdminMenu from '@/src/reuseable/components/AdminMenu'
-import TablePreloader from '@/src/preLoaders/TablePreloader'
+import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
+import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 import { useMutation, useQuery } from '@apollo/client'
 import { UpdateAccount, ChangePassword } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
@@ -17,10 +16,11 @@ import AddressSearch from '@/src/reuseable/map/AddressSelect'
 import { IUpdateAccount, IPasswordData } from '@/src/interface'
 import { FiUpload } from 'react-icons/fi'
 import { GetUserById } from '@/src/graphql/queries'
-import { CiLocationOn } from 'react-icons/ci'
-import Loading from '../loading'
-import { decodeJwtEncodedId } from '../consultations/page'
-
+import { GiPositionMarker } from "react-icons/gi";
+import { RiAdminFill } from "react-icons/ri";
+import Loading from '@/app/admin/dashboard/loading'
+import { decodeJwtEncodedId } from '@/app/admin/dashboard/consultations/page'
+import { FaHospitalUser } from "react-icons/fa";
 const Settings = () => {
     const [activeTab, setActiveTab] = useState<string>("account")
     const [FormData, setFormData] = useState<IUpdateAccount | null >(null)
@@ -153,9 +153,9 @@ const Settings = () => {
     
     return (
         <div>
-            <AdminHeader />
+            <FacilityHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
-                <AdminMenu />
+                <FacilityMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard&nbsp;&nbsp;/&nbsp;&nbsp;settings" pageTitle="account" showExportRecord={true} />
 
@@ -186,22 +186,35 @@ const Settings = () => {
                                         <div className="text-center sm:text-left sm:ml-6 mt-5">
                                             <div className="text-xl font-semibold text-gray-800">
                                                 {
-                                                userDataLoading ?
-                                                    <NumberPreloader /> :
-                                                        `${userData.getUserById?.firstName} ${userData.getUserById?.lastName }`
-                                             }
-                                            </div>
-                                            <p className="mt-4 text-[14px] font-semibold text-gray-800">Role</p>
-                                            <div className="text-md text-[#8C93A3]">
-                                                {
                                                     userDataLoading ?
-                                                    <NumberPreloader/>:
-                                                        userData.getUserById?.staff.role
+                                                        <NumberPreloader /> :
+                                                        userData.getUserById?.facilityAdmin.facilityName
                                                 }
                                             </div>
                                             
-                                            <div className="flex gap-1 text-[#8C93A3] text-[16px] mt-2">
-                                                <CiLocationOn className="text-black" style={{ width: '25px', height: '25px' }} />
+                                    
+                                            <div className="flex gap-[6px] text-[#8C93A3] text-[16px] mt-2">
+                                                <FaHospitalUser className="text-black" style={{ width: '25px', height: '25px' }} />
+                                                <span>
+                                                    {
+                                                        userDataLoading ?
+                                                            <NumberPreloader /> :
+                                                            `${userData.getUserById?.firstName} ${userData.getUserById?.lastName}`
+                                                    }
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-[6px] text-[#8C93A3] text-[16px] mt-2">
+                                                <RiAdminFill className="text-black" style={{ width: '25px', height: '25px' }} />
+                                                <span>
+                                                    {
+                                                        userDataLoading ?
+                                                            <NumberPreloader /> :
+                                                            userData.getUserById?.facilityAdmin.role
+                                                    }
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-[6px] text-[#8C93A3] text-[16px] mt-2">
+                                                <GiPositionMarker className="text-black" style={{ width: '25px', height: '25px' }} />
                                                 <span>
                                                     {
                                                         userDataLoading ?

@@ -286,7 +286,6 @@ const Requests = () => {
                                             testPage='results'
                                             marginTop='mt-4'
                                         />
-                                        // <NewRequestTable tableData={sampleCompletedData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
                                     
                                     )
                             }

@@ -152,7 +152,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                 <div className="bg-gray-100">
                     <BreadCrump pageTitle="Facilities" showExportRecord={true} />
                     {
-                        !facilityData?.getUserById.approvedAt && <Approval />
+                        !facilityData?.getUserById.approvedAt && <Approval setLoading={setIsLoading} accountId={ID} />
                     }
                     
                     <div className="px-8 py-4">

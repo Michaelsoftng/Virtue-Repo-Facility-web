@@ -18,23 +18,6 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
 
 
-const decodeJwtEncodedId = (encodedId: string | undefined): string => {
-    if (!encodedId) {
-        console.error('Invalid input: encodedId is undefined or null');
-        return ''; // Return fallback or handle it appropriately
-    }
-
-    try {
-        const base64 = encodedId.replace(/-/g, '+').replace(/_/g, '/');
-        const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
-        const decoded = atob(paddedBase64);
-        return decoded.replace(/^UserNode:/, '');
-    } catch (error) {
-        console.error('Error decoding JWT-encoded ID:', error);
-        return '';
-    }
-};
-
 const Phlebotomies = ({ params }: { params: { ID: string } }) => {
     const [activeTab, setActiveTab] = useState<string>("phlebotomist")
     const { ID } = params;
@@ -77,7 +60,8 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
             latitude,
             longitude,
             emailVerifiedAt,
-            isDeleted,
+            deletedAt,
+            deletedBy,
             createdAt,
             ...rest
         } = singlePhlebotomies;
@@ -92,7 +76,7 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
         const status = approvedAt ? 'approved' : 'pending approval'
         const patientCity = city ? city : 'Not set'
         const patientState = state ? state : 'Not set'
-        const activity = isDeleted ? "deleted" : "active"
+        const activity = deletedAt ? "deleted" : "active"
         const createdDate = new Date(createdAt);
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);

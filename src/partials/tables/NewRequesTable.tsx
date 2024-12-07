@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import React, { ChangeEvent, useState } from 'react';
 import { TableData } from '@/src/types/TableData.type';
@@ -8,6 +9,8 @@ import  PlusIcon from '../../reuseable/icons/PlusIcon';
 import EditTestModal from '@/src/reuseable/components/EditTestModal';
 import AddTestModal from '@/src/reuseable/components/AddTestModal';
 import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
+import { formatWord } from './AdminFacilitiesTable';
+import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
 
 export interface TestModalProps{
     id?: string
@@ -24,6 +27,9 @@ export type NewRequestTableProps = {
     activeTab: string,
     setActiveTab: (tab: string) => void
     testPage?: string
+    facilityId?: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    approveAction: (data?: any) => void,
 };
 
 const colorCombination = [
@@ -54,7 +60,7 @@ function formatDateTime(dateString: string): string {
     return `${formattedDate} ${formattedTime}`;
 }
 
-const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxPosition, showTableHeadDetails, showActions, activeTab, setActiveTab, testPage }) => {
+const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxPosition, showTableHeadDetails, showActions, activeTab, setActiveTab, testPage, facilityId, approveAction  }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10; 
@@ -112,7 +118,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
     }
     return (
         <div className="mt-[-20px] container mx-auto ">
-            <div className={`mt-4 flex ${searchBoxPosition}  mb-4`}>
+            <div className={`mt-8 flex ${searchBoxPosition}  mb-4`}>
                 <div className="flex space-x-4">
                     <input
                         type="text"
@@ -154,140 +160,144 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                         
                     </div>
                 }
-                
-                <table className="w-full">
-                    <thead>
-                        <tr>
-                            {columns.map((column) =>
-                                column === 'id' ? null : (
+                {tableData.length == 0
+                    ?
+                    <div className="w-full text-center flex justify-center  text-black font-semibold text-2xl  shadow-md h-[300px] pr-4 rounded-lg bg-white"> <p className="mt-[130px]">No data to show</p></div>
+                    :
+                    <table className="w-full">
+                        <thead>
+                            <tr>
+                                {columns.map((column) =>
+                                    column === 'id' ? null : (
+                                        <th
+                                            key={column}
+                                            className="px-6 py-8 capitalize border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
+                                        >
+                                            {formatWord(column)}
+                                        </th>
+                                    )
+                                )}
+                                {showActions && (
                                     <th
-                                        key={column}
+                                        key="actions"
                                         className="px-6 py-8 capitalize border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
                                     >
-                                        {column}
+                                        Action
                                     </th>
-                                )
-                            )}
-                            {showActions && (
-                                <th
-                                    key="actions"
-                                    className="px-6 py-8 capitalize border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
-                                >
-                                    Action
-                                </th>
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentData.map((row, index) => (
-                            <tr key={index} className="border-solid border-2">
-                                {columns.map((column) => {
-                                    switch (column) {
-                                        case 'patients':
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-light">
-                                                    <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
-                                                        <div>
-                                                            {row[column][0] ? (
-                                                                <RoundedImage userimage={row[column][0]} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
-                                                            ) : (
-                                                                <RoundedNoImage
-                                                                    text={row[column][1]
-                                                                        .split(' ')
-                                                                        .map((word: string) => word[0].toUpperCase())
-                                                                        .join('')}
-                                                                    classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                        <div className="text-[#231935bd]">
-                                                            {row[column][1]}
-                                                            <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            );
-                                        case 'amount':
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
-                                                    <div>
-                                                        <span className="text-[#434D64]">{formatMoney(row[column])}</span>
-                                                    </div>
-                                                </td>
-                                            );
-                                        case 'phlebotomist':
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm ">
-                                                    <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
-                                                        <div>
-                                                            {row[column][0] ? (
-                                                                <RoundedImage userimage={row[column][0]} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
-                                                            ) : (
-                                                                <RoundedNoImage
-                                                                    text={row[column][1]
-                                                                        .split(' ')
-                                                                        .map((word: string) => word[0].toUpperCase())
-                                                                        .join('')}
-                                                                    classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                        <div className="text-[#231935bd]">
-                                                            {row[column][1]}
-                                                            <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            );
-                                        case 'date':
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
-                                                    <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
-                                                        {formatDateTime(row[column])}
-                                                    </span>
-                                                </td>
-                                            );
-                                        case 'sample_status':
-                                        case 'result_status':
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
-                                                    <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
-                                                        {row[column]}
-                                                    </span>
-                                                </td>
-                                            );
-                                        case 'id':
-                                            break;
-                                        default:
-                                            return (
-                                                <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
-                                                    <span className="text-[#434D64]">{row[column]}</span>
-                                                </td>
-                                            );
-                                    }
-                                })}
-                                {showActions && (
-                                    
-                                    <td key="actions" className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm">
-                                        {testPage === 'facilityTest'
-                                            ? 
-                                            <div className="flex justify-between gap-2 w-[150px]">
-                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
-                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove')}>Remove</button>
-                                            </div>
-                                            : 
-                                            <div className="flex justify-between gap-2 w-[150px]">
-                                                <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
-                                            </div>
-                                        }   
-                                        
-                                        
-                                    </td>
                                 )}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {currentData.map((row, index) => (
+                                <tr key={index} className="border-solid border-2">
+                                    {columns.map((column) => {
+                                        switch (column) {
+                                            case 'patients':
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-light">
+                                                        <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
+                                                            <div>
+                                                                {row[column][0] ? (
+                                                                    <RoundedImage userimage={row[column][0]} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
+                                                                ) : (
+                                                                    <RoundedNoImage
+                                                                        text={row[column][1]
+                                                                            .split(' ')
+                                                                            .map((word: string) => word[0].toUpperCase())
+                                                                            .join('')}
+                                                                        classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="text-[#231935bd]">
+                                                                {row[column][1]}
+                                                                <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'amount':
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <div>
+                                                            <span className="text-[#434D64]">{formatMoney(row[column])}</span>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'phlebotomist':
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm ">
+                                                        <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
+                                                            <div>
+                                                                {row[column][0] ? (
+                                                                    <RoundedImage userimage={row[column][0]} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
+                                                                ) : (
+                                                                    <RoundedNoImage
+                                                                        text={row[column][1]
+                                                                            .split(' ')
+                                                                            .map((word: string) => word[0].toUpperCase())
+                                                                            .join('')}
+                                                                        classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                            <div className="text-[#231935bd]">
+                                                                {row[column][1]}
+                                                                <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'date':
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
+                                                            {formatDateTime(row[column])}
+                                                        </span>
+                                                    </td>
+                                                );
+                                            case 'sample_status':
+                                            case 'result_status':
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
+                                                            {row[column]}
+                                                        </span>
+                                                    </td>
+                                                );
+                                            case 'id':
+                                                break;
+                                            default:
+                                                return (
+                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                        <span className="text-[#434D64]">{row[column]}</span>
+                                                    </td>
+                                                );
+                                        }
+                                    })}
+                                    {showActions && (
+                                    
+                                        <td key="actions" className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm">
+                                            {testPage === 'facilityTest'
+                                                ?
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove')}>Remove</button>
+                                                </div>
+                                                :
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                </div>
+                                            }
+                                        
+                                        
+                                        </td>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                }
             </div>
 
             {/* Pagination Controls */}
@@ -308,7 +318,8 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                 </button>
             </div>
             <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
-            <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
+            {/* <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} /> */}
+            <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddModal} onClose={() => setShowAddModal(false)} test={activeData} facilityId={facilityId as string} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('cllosed')} />
         </div>
     );

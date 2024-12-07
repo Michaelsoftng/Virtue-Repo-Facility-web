@@ -70,7 +70,7 @@ export function formatDateTime(dateString: string): string {
     return `${formattedDate} ${formattedTime}`;
 }
 
-function formatWord(word: string) {
+export function formatWord(word: string) {
     return word.replace(/_/g, " ");
 }
 

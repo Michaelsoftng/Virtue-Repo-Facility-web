@@ -28,25 +28,21 @@ const AddressSearch: React.FC<AddressProps> = ({
 
     // Handle address change
 
+    const handleAdditionalChange = (event: React.ChangeEvent<HTMLInputElement>) => { 
+        setBuilding(event.target.value)
+    }
+    
     const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFullAddress(event.target.value);
        
     };
 
-    // Handle place selection from autocomplete
-    // const handlePlaceSelect = () => {
-    //     if (autocomplete) {
-    //         const place = autocomplete.getPlace();
-    //         if (place.formatted_address) {
-    //             setFullAddress(place.formatted_address);  // Show the selected address
-    //         }
-    //     }
-    // };
-
     const handlePlaceSelect = () => {
         if (autocomplete) {
             const place = autocomplete.getPlace();
             if (place.address_components) {
+                
+                let cityDetails = "";
                 let street = '';
                 let postalCode = '';
                 let state = '';
@@ -58,31 +54,44 @@ const AddressSearch: React.FC<AddressProps> = ({
                 place.address_components.forEach((component) => {
                     const types = component.types;
 
-                    // Extract the street name (route)
-                    if (types.includes('route')) {
-                        street = component.long_name;  // Street name (not full address)
-                    }
-
-                    // Extract postal code
                     if (types.includes('postal_code')) {
                         postalCode = component.long_name;  // Postal code
                     }
 
-                    // Extract state (administrative_area_level_1)
                     if (types.includes('administrative_area_level_1')) {
-                        state = component.long_name;  // State/Province
+                        state = component.long_name;  // State or province
                     }
 
-                    // Extract country
                     if (types.includes('country')) {
                         country = component.long_name;  // Country
                     }
 
-                    // Extract locality (region)
-                    if (types.includes('locality')) {
-                        region = component.long_name;  // Region (city or locality)
+                    if (types.includes("administrative_area_level_3")) {
+                        cityDetails = component.long_name;  // City or locality
                     }
+
+                    if (types.includes('locality')) {
+                        region = component.long_name;  // City or locality
+                    }
+
+                  
+
                 });
+
+                // Construct the full street address at the end
+                street = place.formatted_address as string;
+
+                if (region && street.includes(region)) {
+                    // Find where the text equal to `region` starts in `street`
+                    const regionStartIndex = street.indexOf(region);
+
+                    // Remove everything from `region` to the end of `street`
+                    street = street.slice(0, regionStartIndex).trim();
+                }
+                
+                region = (cityDetails ? `${cityDetails}, ` : '') + region;
+                  
+                    
 
                 // Get latitude and longitude from geometry.location
                 if (place.geometry && place.geometry.location) {
@@ -91,7 +100,8 @@ const AddressSearch: React.FC<AddressProps> = ({
                 }
 
                 const name = place.name || '';
-                const customAddress = `${name}, ${street}, ${region} ${country}`;
+                const customAddress = place.formatted_address as string;
+
                 // Update the state with extracted components
                 setAddress(street);
                 setPostalCode(postalCode);
@@ -100,7 +110,6 @@ const AddressSearch: React.FC<AddressProps> = ({
                 setCity(region);
                 setLatitude(lat as number);
                 setLongitude(lat as number);
-                // Set full address
                 setFullAddress(customAddress);
             }
         }
@@ -108,20 +117,37 @@ const AddressSearch: React.FC<AddressProps> = ({
 
     return (
         <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''} libraries={['places']}>
-            <div>
-                <label className="text-sm font-medium text-gray-600">Enter your address</label>
-                <Autocomplete
-                    onLoad={(loadedAutocomplete) => setAutocomplete(loadedAutocomplete)} // Store the Autocomplete instance
-                    onPlaceChanged={handlePlaceSelect}  // Handle when a place is selected
-                >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+            
+                <div>
+                    <label className="text-sm font-medium text-gray-600">Enter your address</label>
+                    <Autocomplete
+                        onLoad={(loadedAutocomplete) => setAutocomplete(loadedAutocomplete)} // Store the Autocomplete instance
+                        onPlaceChanged={handlePlaceSelect}  // Handle when a place is selected
+                    >
+                        <input
+                            type="text"
+                            value={fulladdress}
+                            onChange={handleAddressChange}
+                            placeholder="Enter address"
+                            style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+                        />
+                    </Autocomplete>
+                </div>
+
+                <div>
+                    <label className="text-sm font-medium text-gray-600">Enter apartment</label>
+                    
                     <input
                         type="text"
-                        value={fulladdress}
-                        onChange={handleAddressChange}
-                        placeholder="Enter address"
+                        placeholder='apartment, building ....'
+                        onChange={handleAdditionalChange}
+                        
                         style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                     />
-                </Autocomplete>
+                    
+                </div>
             </div>
         </LoadScript>
     );

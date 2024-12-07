@@ -12,7 +12,7 @@ export const CreateUser = gql`
     $role: String!
     $facility_name: String
     $facility_type: String
-    
+    $facility_percentage: Int!
   ) {
     CreateUser(
       firstName: $first_name,
@@ -23,6 +23,7 @@ export const CreateUser = gql`
       userType: $user_type,
       facilityName: $facility_name,
       facilityType: $facility_type,
+      facilityPercentage: $facility_percentage,
       role: $role
     ) {
       user {
@@ -88,6 +89,53 @@ export const LoginAccount = gql`
         
       }
     }
+}
+`;
+
+export const ChangePassword = gql`
+  mutation ChangeUserPassword(
+      $old_password: String!, 
+      $new_password1: String!, 
+      $new_password2: String!) {
+    ChangeUserPassword(
+      oldPassword: $old_password, 
+      newPassword1: $new_password1, 
+      newPassword2: $new_password2) {
+      
+      success
+      errors
+    }
+  }
+`;
+
+export const UpdateAccount = gql`
+mutation UpdateUser($userId: String, $updateData: UpdateUserDataInput!) {
+  UpdateUser(userId: $userId, updateData:$updateData
+  ) {
+    user {
+      id
+      firstName
+      lastName
+      email
+      streetAddress
+      streetAddress2
+      city
+      state
+      country 
+      postal
+      latitude
+      longitude
+      facilityAdmin{
+        facilityName
+        id
+    }
+      staff{
+
+            id
+        }
+    }
+
+  }
 }
 `;
 

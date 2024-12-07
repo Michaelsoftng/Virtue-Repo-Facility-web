@@ -44,6 +44,8 @@ const Facilities = () => {
             facilityAdmin,
             emailVerifiedAt,
             createdAt,
+            deletedAt,
+            deletedBy,
             ...rest
         } = singlePatient;
 

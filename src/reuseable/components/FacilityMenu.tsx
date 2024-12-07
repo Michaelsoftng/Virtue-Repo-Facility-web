@@ -8,10 +8,11 @@ import SettingsIcon from '../icons/SettingIcon'
 import ResultsIcon from '../icons/ResultsIcon'
 import TestIcon from '../icons/TestIcon'
 import { usePathname } from 'next/navigation';
-
+import { useAuth } from '@/src/context/AuthContext'
 
 const FacilityMenu = () => {
     const currentRoute = usePathname(); // Path without query parameters
+    const { logout } = useAuth()
     return (
         <div className="pl-8">
             <ul className="">
@@ -67,7 +68,7 @@ const FacilityMenu = () => {
                     </li>
                     <li className="flex gap-4 mt-8">
                         <LogoutIcon />
-                        <Link href='#'>Logout</Link>
+                        <button onClick={logout}>Logout</button>
                     </li>
                 </div>
                 

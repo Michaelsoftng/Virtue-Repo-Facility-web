@@ -1,177 +1,101 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
 import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import NewRequestTable from '@/src/partials/tables/NewRequesTable'
 import { TableData } from '@/src/types/TableData.type'
-const sampleNewData: TableData[] = [
-    {
-        patients: [null, 'John Doe', 'egeregav@gmail.com'],
-        test: 'Covid 19',
-        amount: 30000,
-        phlebotomist: ['female.jpg', 'John Doe', 'egeregav@gmail.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        sample_status: 'pending'
-    },
-    {
-        patients: ['male.jpg', 'Jane Smith', 'janesmith@example.com'],
-        test: 'Malaria',
-        amount: 20000,
-        phlebotomist: ['male.jpg', 'David Clark', 'davidclark@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        sample_status: 'received'
-    },
-    {
-        patients: ['female.jpg', 'Robert Brown', 'robertbrown@example.com'],
-        test: 'Typhoid',
-        amount: 15000,
-        phlebotomist: ['female.jpg', 'Emily White', 'emilywhite@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        sample_status: 'completed'
-    },
-    {
-        patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-        test: 'Blood Test',
-        amount: 25000,
-        phlebotomist: ['male.jpg', 'Michael Scott', 'michaelscott@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        sample_status: 'completed'
-    },
-    {
-        patients: ['female.jpg', 'Mark Johnson', 'markjohnson@example.com'],
-        test: 'HIV Test',
-        amount: 10000,
-        phlebotomist: ['female.jpg', 'Sophia Turner', 'sophiaturner@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        sample_status: 'completed'
-    },
-    // {
-    // 	patients: ['male.jpg', 'Linda Thomas', 'lindathomas@example.com'],
-    // 	test: 'Cholesterol',
-    // 	amount: 18000,
-    // 	phlebotomist: ['male.jpg', 'James Parker', 'jamesparker@example.com'],
-    // 	sample_status: '222-444-6666'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Steve Martin', 'stevemartin@example.com'],
-    // 	test: 'Blood Sugar',
-    // 	amount: 22000,
-    // 	phlebotomist: ['female.jpg', 'Isabella Lewis', 'isabellalewis@example.com'],
-    // 	sample_status: '777-888-9999'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Emily Davis', 'emilydavis@example.com'],
-    // 	test: 'Urine Test',
-    // 	amount: 12000,
-    // 	phlebotomist: ['male.jpg', 'Ryan Phillips', 'ryanphillips@example.com'],
-    // 	sample_status: '333-555-7777'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Daniel Taylor', 'danieltaylor@example.com'],
-    // 	test: 'DNA Test',
-    // 	amount: 50000,
-    // 	phlebotomist: ['female.jpg', 'Emma Wilson', 'emmawilson@example.com'],
-    // 	sample_status: '888-999-0000'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Sarah King', 'sarahking@example.com'],
-    // 	test: 'Pregnancy Test',
-    // 	amount: 8000,
-    // 	phlebotomist: ['male.jpg', 'Jacob Walker', 'jacobwalker@example.com'],
-    // 	sample_status: '666-777-8888'
-    // }
-];
+import { useAuth } from '@/src/context/AuthContext'
+import TablePreloader from '@/src/preLoaders/TablePreloader'
+import { getAllTestRequestsByFacility } from '@/src/graphql/queries'
+import client from '@/lib/apolloClient';
+import { decodeJwtEncodedId } from '@/app/admin/dashboard/consultations/page'
 
-const sampleCompletedData: TableData[] = [
-    {
-        patients: [null, 'John Doe', 'egeregav@gmail.com'],
-        test: 'Covid 19',
-        amount: 30000,
-        phlebotomist: ['female.jpg', 'John Doe', 'egeregav@gmail.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Jane Smith', 'janesmith@example.com'],
-        test: 'Malaria',
-        amount: 20000,
-        phlebotomist: ['male.jpg', 'David Clark', 'davidclark@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'coperate (12)',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Robert Brown', 'robertbrown@example.com'],
-        test: 'Typhoid',
-        amount: 15000,
-        phlebotomist: ['female.jpg', 'Emily White', 'emilywhite@example.com'],
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-        test: 'Blood Test',
-        amount: 25000,
-        phlebotomist: ['male.jpg', 'Michael Scott', 'michaelscott@example.com'],
-        date: "2024-10-11 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Mark Johnson', 'markjohnson@example.com'],
-        test: 'HIV Test',
-        amount: 10000,
-        phlebotomist: ['female.jpg', 'Sophia Turner', 'sophiaturner@example.com'],
-        date: "2024-10-14 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-    // {
-    // 	patients: ['male.jpg', 'Linda Thomas', 'lindathomas@example.com'],
-    // 	test: 'Cholesterol',
-    // 	amount: 18000,
-    // 	phlebotomist: ['male.jpg', 'James Parker', 'jamesparker@example.com'],
-    // 	sample_status: '222-444-6666'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Steve Martin', 'stevemartin@example.com'],
-    // 	test: 'Blood Sugar',
-    // 	amount: 22000,
-    // 	phlebotomist: ['female.jpg', 'Isabella Lewis', 'isabellalewis@example.com'],
-    // 	sample_status: '777-888-9999'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Emily Davis', 'emilydavis@example.com'],
-    // 	test: 'Urine Test',
-    // 	amount: 12000,
-    // 	phlebotomist: ['male.jpg', 'Ryan Phillips', 'ryanphillips@example.com'],
-    // 	sample_status: '333-555-7777'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Daniel Taylor', 'danieltaylor@example.com'],
-    // 	test: 'DNA Test',
-    // 	amount: 50000,
-    // 	phlebotomist: ['female.jpg', 'Emma Wilson', 'emmawilson@example.com'],
-    // 	sample_status: '888-999-0000'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Sarah King', 'sarahking@example.com'],
-    // 	test: 'Pregnancy Test',
-    // 	amount: 8000,
-    // 	phlebotomist: ['male.jpg', 'Jacob Walker', 'jacobwalker@example.com'],
-    // 	sample_status: '666-777-8888'
-    // }
-];
+
 const Requests = () => {
+    const { user } = useAuth()
     const [activeTab, setActiveTab] = useState<string>('newRequest')
+    const [loading, setLoading] = useState(true)
+    const [offsets, setOffsets] = useState<number >(0);
+
+    const [dataCount, setDataCount] = useState< number >(0);
+
+    const [data, setData] = useState<TableData[]>([]);
+
+    const fetchData = useCallback(async (offset: number) => {
+        setLoading(true);
+        try {
+            // Dynamically refetch the data with updated variables
+            const { data: newData, error: fetchError } = await client.query({
+                query: getAllTestRequestsByFacility,
+                variables: {
+                    facilityId: decodeJwtEncodedId(user?.id),
+                    limit: 10, // Adjust as needed
+                    offset,
+                },
+                fetchPolicy: 'network-only', // Ensure fresh data is fetched
+            });
+
+            if (fetchError) {
+                throw fetchError;
+            }
+
+            const testRequestsCount = newData.getAllRequestsByFacility?.testRequestCount
+            const testRequest = newData?.getAllRequestsByFacility?.testRequests || [] as TableData[];
+
+            
+            // Check if testRequests is available before mapping
+            const updatedtestRequestsData = testRequest?.map((singleTestRequest: TableData) => {
+
+                const {
+                    __typename,
+                    facility,
+                    test,
+                    request,
+                    deletedAt,
+                    deletedBy,
+                    createdAt,
+                    total,
+                    ...rest
+                } = singleTestRequest;
+
+                    const requestData = {
+                    ...rest,
+                    amount: total,
+                    status: status,
+
+                };
+
+                return requestData
+            }) || [];
+
+
+            setData(updatedtestRequestsData);
+
+
+            setDataCount(testRequestsCount);
+
+        } catch (error) {
+            console.error(`Error fetching  data:`, error);
+        } finally {
+            setLoading(false);
+        }
+    }, [user])
+
+
+    // const handlePagination = () => {
+    //     const currentOffset = offsets[activeTab] + 10;
+    //     setOffsets((prevOffsets) => ({
+    //         ...prevOffsets,
+    //         [activeTab]: currentOffset,
+    //     }));
+    //     fetchData(currentOffset, activeTab);
+    // };
+
+    useEffect(() => {
+        fetchData(0);
+    }, [fetchData]); // Empty dependency array ensures this runs only once
     return (
         <div>
             <FacilityHeader />
@@ -180,22 +104,24 @@ const Requests = () => {
                 <div className="bg-gray-100">
                     <BreadCrump pageTitle="requests" showExportRecord={false }  />
                     <div className="px-8 py-4">
+                        
                         <div>
-                            <button className="px-4 py-2 bg-[#B2B7C2] w-[200px] mr-2" onClick={() => setActiveTab('newRequest')}>New request</button>
-                            <button className="px-4 py-2 bg-[#b5b5b67c] w-[200px]" onClick={() => setActiveTab('completedRequest')}>Completed request</button>
-                        </div>
-                        <div>
-                            {
-                                activeTab === 'newRequest'
-                                    ? (
-                                        <NewRequestTable activeTab={activeTab} setActiveTab={setActiveTab} tableData={sampleNewData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
+                            {loading ? (
+                                <TablePreloader />
+                            ) 
+                                    :(
+                                    <NewRequestTable
+                                        approveAction={()=>{} }
+                                        activeTab={activeTab}
+                                        setActiveTab={setActiveTab}
+                                        tableData={data}
+                                        searchBoxPosition='justify-end'
+                                        showTableHeadDetails={false}
+                                        showActions={false} />
 
                                         
                                     )
-                                    : (
-                                        <NewRequestTable activeTab={activeTab} setActiveTab={setActiveTab}  tableData={sampleCompletedData} searchBoxPosition='justify-end' showTableHeadDetails={false} showActions={false} />
-                                    
-                                    )
+                                   
                             }
                         </div>
                         

@@ -98,6 +98,7 @@ const VerifyUserAccount: React.FC = () => {
             console.error('Error creating user:', err);
         } finally {
             setIsLoading(false)
+            setButtonMessage('Verify')
         }
     };
 

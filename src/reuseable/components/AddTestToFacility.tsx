@@ -25,14 +25,10 @@ const AddTestToFacility: React.FC<AddModalProps> = ({ handleSubmitFacilityTest, 
             });
         }
     }, [test, facilityId]);
-    console.log(formData)
-
-    
-    
+ 
     const handleSubmit = async (e: React.FormEvent) => {
-       e.preventDefault();
-        // // Handle form submission here
-        console.log(formData)
+        e.preventDefault();
+        onClose()
         handleSubmitFacilityTest(formData as IFacilityTest);
     };
 

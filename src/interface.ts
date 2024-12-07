@@ -18,27 +18,33 @@ export interface IRegister {
     role: Role,
     user_type: UserType,
     password: string,
-    password_confirmation: string
-    facility_name?: string
-    facility_type?: string
+    password_confirmation: string,
+    facility_name?: string,
+    facility_type?: string,
+    facility_percentage?: number,
     country: string
 }
 
+export interface IPasswordData{
+    old_password: string
+    new_password1: string
+    new_password2: string
+}
 
 export interface IUpdateAccount {
-    first_name?: string,
-    last_name?: string,
-    phone_number?: string,
+    firstName?: string,
+    lastName?: string,
+    phoneNumber?: string,
     role?: Role,
     password?: string,
-    facility_name?: string
-    facility_type?: string
+    facilityName?: string
+    facilityType?: string
     country?: string,
     state?: string,
     city?: string,
     postal?: string,
-    street_address?: string,
-    street_address_2?: string,
+    streetAddress?: string,
+    streetAddress2?: string,
     latitude: number,
     longitude: number,
 }

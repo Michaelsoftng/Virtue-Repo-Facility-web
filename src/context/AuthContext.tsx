@@ -3,10 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import client from '@/lib/apolloClient';
-import { RefreshLogin } from '../graphql/mutations';
-import { useMutation, useQuery } from '@apollo/client';
-import { GetUserByEmail } from '../graphql/queries';
+
 
 interface Staff {
     id: string;
@@ -53,22 +50,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [refToken, setRefToken] = useState<string | null>(null)
 
 
-    
-    const [refreshLogin, { loading: newAccessTokenLoading }] = useMutation(RefreshLogin, {
-        variables: {
-            refreshToken: refToken,
-        },
-        client,
-    });
-
-    
-    const { data: getUser, loading: userLoading, error: userError } = useQuery(GetUserByEmail, {
-        variables: {
-            email: userEmail,
-        },
-        client,
-    });
-
     useEffect(() => {
         const storedUser = Cookies.get('user');
         
@@ -110,57 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // sessionStorage.setItem('user', JSON.stringify(userData));
     };
 
-    // const refreshSignin = async () => {
-    //     if (userEmail !== null){
-    //         try {
-                
-    //             const { data, errors } = await refreshLogin({
-    //                 onCompleted: async (refreshData) => {
-    //                     if (refreshData.RefreshToken.success) {
-    //                         const token = refreshData.RefreshToken.token;
-    //                         const refreshToken = refreshData.RefreshToken.refreshToken;
-    //                         setUserEmail(refreshData.RefreshToken.payload.email);
-
-    //                         // Remove old cookies
-    //                         Cookies.remove('user');
-    //                         Cookies.remove('accessToken');
-    //                         Cookies.remove('refreshToken');
-
-    //                         // Set new cookies with expiration
-    //                         const expiresIn = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    //                         Cookies.set('accessToken', token, { expires: expiresIn, path: '/' });
-    //                         Cookies.set('refreshToken', refreshToken, { expires: 7, path: '/', secure: true });
-
-    //                         // Fetch user details
-    //                         await getUser({
-    //                             onCompleted: (userData: { getUserByEmail: User; }) => {
-    //                                 if (userData.getUserByEmail) {
-    //                                     const user = { ...userData.getUserByEmail };
-    //                                     login(user);
-                                        
-    //                                 } else {
-    //                                     logout();
-    //                                 }
-    //                             },
-    //                             onError: (e: Error) => {
-    //                                 console.error(e.message)
-    //                                 logout();
-                                        
-    //                             },
-    //                         });
-    //                     } else {
-    //                         logout();
-    //                     }
-    //                 },
-    //                 onError: (e) => console.error(e.message),
-    //             });
-    //         } catch (err) {
-    //             console.error('Error refreshing user login in:', err);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
-    // };
+    
 
     const logout = () => {
         const user_type = user?.userType;
