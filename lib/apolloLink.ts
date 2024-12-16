@@ -46,9 +46,9 @@ const handleRedirect = () => {
     const currentPath = window.location.pathname;
 
     if (currentPath.includes('facility')) {
-        window.location.href = '/facility/login';
+        window.location.href = '/facility/auth/signin';
     } else if (currentPath.includes('admin')) {
-        window.location.href = '/admin/login';
+        window.location.href = '/admin/auth/signin';
     } else {
         window.location.href = '/';
     }
@@ -66,7 +66,7 @@ export const errorLink = onError(({ graphQLErrors, operation, forward }) => {
     }
 
     const token = Cookies.get('accessToken');
-    if (!token || graphQLErrors?.some(e => e.message === 'Your accessToken is invalid')) {
+    if (!token) {
         if (!isRefreshing) {
             isRefreshing = true;
 

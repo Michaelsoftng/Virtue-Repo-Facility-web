@@ -15,7 +15,7 @@ import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
-import { decodeJwtEncodedId } from '../consultations/page'
+import { decodeJwtEncodedId } from '@/src/utils/decode'
 
 
 const Doctors = () => {

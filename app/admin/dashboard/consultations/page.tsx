@@ -6,32 +6,12 @@ import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
-import { useGetUnpaidConsultation } from '@/src/hooks/useGetUnpaidConsultation'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
-import { useMutation, useQuery } from '@apollo/client'
-import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
+
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
 import { GetMinimalFilteredConsultations } from '@/src/graphql/queries'
-
-
-export const decodeJwtEncodedId = (encodedId: string | undefined): string => {
-    if (!encodedId) {
-        console.error('Invalid input: encodedId is undefined or null');
-        return ''; // Return fallback or handle it appropriately
-    }
-
-    try {
-        const base64 = encodedId.replace(/-/g, '+').replace(/_/g, '/');
-        const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
-        const decoded = atob(paddedBase64);
-        return decoded.replace(/^UserNode:/, '');
-    } catch (error) {
-        console.error('Error decoding JWT-encoded ID:', error);
-        return '';
-    }
-};
 
 const Consultations = () => {
     const [activeTab, setActiveTab] = useState<string>("completed")

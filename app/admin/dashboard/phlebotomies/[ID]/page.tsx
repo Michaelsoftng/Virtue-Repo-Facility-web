@@ -1,11 +1,9 @@
 "use client"
-import React, { ChangeEvent, useState } from 'react'
+import React, {  useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import * as Form from '@radix-ui/react-form'
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { IoIosWarning } from "react-icons/io";
 import Image from 'next/image'
 import FemalePhoto from '@/public/assets/images/femalephoto.jpg'
 import ConfirmDeactivateModal from '@/src/reuseable/components/DeactivateModal'
@@ -14,14 +12,10 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import { formatMoney } from '@/src/partials/tables/NewRequesTable'
 import { DoughtPieAnalytics } from '@/src/partials/DoughtPieAnalytics'
 import Approval from '@/src/reuseable/components/Approval'
-
-type FormData = {
-    // Define the structure of your form data here
-    firstname?: string;
-    lastname?: string;
-    email?: string;
-    password?: string;
-};
+import { GetUserById } from '@/src/graphql/queries';
+import { useQuery } from '@apollo/client'
+import client from '@/lib/apolloClient';
+import Loading from '../../loading'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -99,60 +93,26 @@ const sampleCompletedData: TableData[] = [
     },
 
 ];
-const Singlefacility = () => {
+const Singlefacility = ({ params }: { params: { ID: string } }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [phlebotomistLoading, setIsLoading] = useState<boolean>(false);
+    const { ID } = params;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const [formData, setFormData] = useState<FormData>();
-    const [formValidationErrors, setFormValidationErrors] = useState({
-        isPasswordMatchRegex: false,
-        passwordError: 'Password is not strong enough, must be 10 characters long, contain at least one number and special character!',
-        isPasswordConfirmed: false,
-        confirmPasswordError: 'Passwords do not match',
-        hasError: false
+   
+   
+
+    const { data: phlebotomistData, loading: pageLoading } = useQuery(GetUserById, {
+            variables: {
+                id: ID
+            },
+            client,
     });
-    const [passwordVisibility, setPasswordVisibility] = useState(false);
-    const passwordValidation = (passwordValue: string) => {
-        const pattern = new RegExp('^(?=.*[0-9])(?=.*[!@#$%^&*,.])[a-zA-Z0-9!@#$%^&*,.]{10,}$', 'gmi');
-        const isMatch = pattern.test(passwordValue);
-        if (isMatch) {
-            setFormValidationErrors({
-                ...formValidationErrors,
-                isPasswordMatchRegex: isMatch,
-                passwordError: ''
-            });
-        } else {
-            setFormValidationErrors({
-                ...formValidationErrors,
-                hasError: true
-            });
-
-        }
-
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const phlebotomistId = phlebotomistData?.getUserById?.phlebotomist.id;
+    if (pageLoading ) {
+            return <Loading />;
     }
-
-    const passwordConfirmation = (confirmPassword: string, password?: string) => {
-        if (confirmPassword === password) {
-            setFormValidationErrors({
-                ...formValidationErrors,
-                isPasswordConfirmed: true,
-                confirmPasswordError: ''
-            });
-        }
-    }
-    const handleFormChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        switch (name) {
-            case 'password':
-                passwordValidation(value)
-                break;
-            case 'password_confirmation':
-                passwordConfirmation(value, formData?.password)
-                break;
-            default:
-                break;
-        }
-        setFormData({ ...formData, [name]: value })
-    }
-
     return (
         <div>
             <AdminHeader />
@@ -160,7 +120,15 @@ const Singlefacility = () => {
                 <AdminMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Phlebotomies" pageTitle="User" showExportRecord={true} />
-                    <Approval />
+                    {
+                        !phlebotomistData?.getUserById.approvedAt &&
+                        <Approval
+                            accountId={ID}
+                            setLoading={setIsLoading}
+                        />
+                    }
+                    
+                    
                     <Form.Root >
                         <div className="px-8 py-4 grid grid-cols-[75%_25%] gap-8">
                             <div>
@@ -172,8 +140,9 @@ const Singlefacility = () => {
                                             <Form.Label><span className="text-sm font-semibold text-[#B2B7C2]">First name</span></Form.Label>
                                             <Form.Control
                                                 required={true}
-                                                
+                                                value={phlebotomistData?.getUserById?.firstName}
                                                 type='text'
+                                                readOnly
                                                 className="mt-2 font-bold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
 
@@ -181,32 +150,36 @@ const Singlefacility = () => {
                                             <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Last name</span></Form.Label>
                                             <Form.Control
                                                 required={true}
-                                                
+                                                readOnly
+                                                value={phlebotomistData?.getUserById?.lastName}
                                                 type='text'
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
                                         <Form.Field name='referralSource' className="mt-2">
                                             <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Address</span></Form.Label>
                                             <Form.Control
+                                                readOnly
                                                 required={true}
-                                                
+                                                placeholder={phlebotomistData?.getUserById?.streetAddress}
                                                 type='text'
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
                                         <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">DOB</span></Form.Label>
+                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">City</span></Form.Label>
                                             <Form.Control
                                                 required={true}
-                                                
-                                                type='date'
+                                                value={phlebotomistData?.getUserById?.city}
+                                                type='text'
+                                                readOnly
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
                                         <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Gender</span></Form.Label>
+                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Postal</span></Form.Label>
                                             <Form.Control
                                                 required={true}
-                                                
+                                                value={phlebotomistData?.getUserById?.postal}
                                                 type='text'
+                                                readOnly
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
                                     </div>
@@ -215,8 +188,9 @@ const Singlefacility = () => {
                                         <Form.Field name='referralSource' className="mt-2">
                                             <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Email</span></Form.Label>
                                             <Form.Control
+                                                readOnly
                                                 required={true}
-                                                
+                                                value={phlebotomistData?.getUserById?.email}
                                                 type='email'
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
@@ -224,86 +198,45 @@ const Singlefacility = () => {
                                         <Form.Field name='referralSource' className="mt-2">
                                             <Form.Label><span className="text-sm font-bold text-[#B2B7C2]">Phone no</span></Form.Label>
                                             <Form.Control
+                                                readOnly
                                                 required={true}
-                                                
+                                                value={phlebotomistData?.getUserById?.phoneNumber}
                                                 type='text'
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                         </Form.Field>
                                         
                                         <Form.Field name="password_confirmation" className="relative block mt-3">
-                                            <Form.Label className="text-sm font-bold text-[#B2B7C2] block ">Current password</Form.Label>
+                                            <Form.Label className="text-sm font-bold text-[#B2B7C2] block ">Apartment </Form.Label>
                                             <Form.Control
-                                                onChange={handleFormChange}
+                                               
                                                 required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
+                                                value={phlebotomistData?.getUserById?.streetAddress2}
+                                                readOnly
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
                                             />
 
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
                                         </Form.Field>
                                         <Form.Field name="password_confirmation" className="relative block mt-3">
-                                            <Form.Label className="text-[#B2B7C2] block font-bold text-[14px]">New password</Form.Label>
+                                            <Form.Label className="text-[#B2B7C2] block font-bold text-[14px]">State</Form.Label>
                                             <Form.Control
-                                                onChange={handleFormChange}
+                                                
                                                 required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
+                                                value={phlebotomistData?.getUserById?.state}
+                                                readOnly
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
                                             />
 
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
                                         </Form.Field>
                                         <Form.Field name="password_confirmation" className="relative block mt-2">
-                                            <Form.Label className="text-[#B2B7C2] block font-semibold text-[14px]">Confirm password</Form.Label>
+                                            <Form.Label className="text-[#B2B7C2] block font-semibold text-[14px]">Country</Form.Label>
                                             <Form.Control
-                                                onChange={handleFormChange}
+                                               
                                                 required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
+                                                readOnly
+                                                value='Nigeria'
                                                 className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
                                             />
 
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
                                         </Form.Field>
                                     </div>
                                 </div>

@@ -209,7 +209,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                         <thead>
                             <tr>
                                 {columns.map((column) =>
-                                    column === 'id' ? null : (
+                                    (column === 'id' || column === 'userTypeId') ? null : (
                                         <th
                                             key={column}
                                             className="first:pl-4 px-2 py-6 capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
@@ -372,6 +372,8 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 
                                                 
                                             case 'sample_status':
+                                            
+                                                
                                             case 'result_status':
                                                 return (
                                                     <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -415,7 +417,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     </td>
                                                 );
                                             
-                                                
+                                            case 'userTypeId':    
                                             case 'id':
                                                 break;
                                             default:
@@ -487,7 +489,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                             {testPage === 'assignPhlebotomist' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => approveAction()}>Assign</button>
+                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => showModalFunc(index, 'approve', row.userTypeId)}>Assign</button>
                                                 </div>
                                             }
                                             

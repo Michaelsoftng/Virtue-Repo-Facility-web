@@ -14,7 +14,7 @@ import { useAuth } from '@/src/context/AuthContext'
 import { GetPayments, GetPayouts } from '@/src/graphql/queries'
 
 
-const Consultations = () => {
+const Payments = () => {
     const [activeTab, setActiveTab] = useState<string>("incoming")
     const [offsets, setOffsets] = useState<{ [key: string]: number }>({
         incoming: 0,
@@ -71,7 +71,9 @@ const Consultations = () => {
 
                 const {
                     __typename,
-                    
+                    invoice,
+                    description,
+                  
                     paidby,
                     paidFor,
                     paymentPlan,
@@ -88,15 +90,17 @@ const Consultations = () => {
                 } = singlepPayments;
 
 
-                patientName = (paidby.firstName && paidby.lastName) ? `${paidby.firstName.trim()} ${paidby.lastName.trim()}` : 'Not Set'
+                patientName = (paidby.firstName && paidby.lastName) ? `${paidby.firstName.trim()}  ${paidby.lastName.trim()}` : 'Not Set'
+                const paid_For = paidFor === 'TESTREQUEST' ? 'tests' : 'consultation'
+                const payment_plan = paymentPlan == 'LUMP_SUM' ? 'full payment' :'installment'
                 const paymentData = {
-                    patient: [null, patientName, paidby.email],
-                    paid_for: paidFor,
-                    payment_Plan: paymentPlan,
-                    payment_type: paymentType,
+                    patients: [null, patientName, paidby.email],
+                    paid_for: paid_For,
+                    payment_Plan: payment_plan,
+                    payment_type: paymentType.toLowerCase(),
                     amount_paid: amountPaid,
                     amount_charged: amountCharged,
-                    payment_channel: paymentChannel,
+                    payment_channel: paymentChannel.toLowerCase(),
                     payment_id: paymentId,
                     ...rest,
                 };
@@ -180,7 +184,7 @@ const Consultations = () => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard" pageTitle="Consultations" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard" pageTitle="payment" showExportRecord={true} />
 
                     <div className="px-8 py-4">
                         <div className="mb-4">
@@ -197,7 +201,7 @@ const Consultations = () => {
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
                                         setItemToDelete={setConsultationtWithId}
-                                        tableHeadText='Incoming Payments (50)'
+                                        tableHeadText={`Incoming Payments (${dataCount.incoming})`}
                                         tableData={data['incoming']}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
@@ -244,4 +248,4 @@ const Consultations = () => {
     )
 }
 
-export default Consultations
+export default Payments

@@ -19,11 +19,11 @@ import { GetUserById } from '@/src/graphql/queries'
 import { GiPositionMarker } from "react-icons/gi";
 import { RiAdminFill } from "react-icons/ri";
 import Loading from '@/app/admin/dashboard/loading'
-import { decodeJwtEncodedId } from '@/app/admin/dashboard/consultations/page'
+import { decodeJwtEncodedId } from '@/src/utils/decode'
 import { FaHospitalUser } from "react-icons/fa";
 const Settings = () => {
     const [activeTab, setActiveTab] = useState<string>("account")
-    const [FormData, setFormData] = useState<IUpdateAccount | null >(null)
+    const [FormData, setFormData] = useState<IUpdateAccount | null>(null)
     const [address, setAddress] = useState<IUpdateAccount['streetAddress']>('');
     const [building, setBuilding] = useState<IUpdateAccount['streetAddress2']>('');
     const [postalCode, setPostalCode] = useState<IUpdateAccount['postal']>('');
@@ -47,7 +47,7 @@ const Settings = () => {
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
     };
-    
+
     const handleFormDataChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         console.log(name, value)
@@ -77,11 +77,11 @@ const Settings = () => {
         latitude,
         longitude,
     }
-    
+
     const [updateAccount] = useMutation(UpdateAccount, {
         variables: {
             userId: decodeJwtEncodedId(user?.id as string),
-            updateData: {...completeData as IUpdateAccount}
+            updateData: { ...completeData as IUpdateAccount }
         },
         client,
     });
@@ -113,7 +113,7 @@ const Settings = () => {
         },
         client,
     });
-    
+
     const handlepasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -132,7 +132,7 @@ const Settings = () => {
                             }
                         }
                     }
-                    
+
                     toast.success('Account password changed Successful!');
                     // window.location.reload();
                 },
@@ -148,9 +148,9 @@ const Settings = () => {
     };
 
     if (isLoading) {
-        return <Loading/>
+        return <Loading />
     }
-    
+
     return (
         <div>
             <FacilityHeader />
@@ -167,14 +167,14 @@ const Settings = () => {
 
                         </div>
                         {activeTab === 'account' && (
-                            
+
                             <div className="mx-auto pt-4">
                                 {/* Profile Header */}
                                 <div className="px-5 py-5 grid grid-cols-[90%_10%] bg-white flex-col shadow-xl sm:flex-row items-center sm:items-start justify-between space-y-4 sm:space-y-0">
                                     <div className="grid grid-cols-[15%_80%] gap-x-3" >
                                         <div className="relative flex-shrink-0">
                                             <Image
-                                            
+
                                                 src={userimage}
                                                 alt="User"
                                                 className="w-[10rem] h-[10rem] rounded-lgobject-cover"
@@ -191,8 +191,8 @@ const Settings = () => {
                                                         userData.getUserById?.facilityAdmin.facilityName
                                                 }
                                             </div>
-                                            
-                                    
+
+
                                             <div className="flex gap-[6px] text-[#8C93A3] text-[16px] mt-2">
                                                 <FaHospitalUser className="text-black" style={{ width: '25px', height: '25px' }} />
                                                 <span>
@@ -225,7 +225,7 @@ const Settings = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <button className="text-teal-500 text-sm sm:text-base border font-semibold border-teal-500 px-6 py-1 rounded-[2px] hover:bg-teal-50 focus:outline-none">
                                         Edit role
                                     </button>
@@ -247,10 +247,10 @@ const Settings = () => {
                                                             name='firstName'
                                                             type="text"
                                                             placeholder={
-                                                                userDataLoading ? 'enter your first name':
-                                                                userData.getUserById?.firstName
+                                                                userDataLoading ? 'enter your first name' :
+                                                                    userData.getUserById?.firstName
                                                             }
-                                                        
+
                                                             className="mt-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                                                         />
                                                     </div>
@@ -284,9 +284,9 @@ const Settings = () => {
                                                 </div>
                                                 <AddressSearch
                                                     setAddress={setAddress}
-                                                    setBuilding={setBuilding }
-                                                    setPostalCode={setPostalCode }
-                                                    setState={setState }
+                                                    setBuilding={setBuilding}
+                                                    setPostalCode={setPostalCode}
+                                                    setState={setState}
                                                     setCountry={setCountry}
                                                     setCity={setCity}
                                                     setLongitude={setLongitude}
@@ -318,7 +318,7 @@ const Settings = () => {
 
                                                 </div>
                                             </div>
-                                            
+
                                             {/* Action Buttons */}
                                             <div className="mt-8 flex flex-col sm:flex-row sm:space-x-6">
                                                 <button className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -330,7 +330,7 @@ const Settings = () => {
                                             </div>
                                         </form>
                                     </div>
-                                
+
 
                                 </div>
                             </div>
@@ -383,7 +383,7 @@ const Settings = () => {
                                                     Save changes
                                                 </button>
                                             </form>
-                                            
+
                                         </div>
                                     </div>
 
@@ -404,10 +404,10 @@ const Settings = () => {
                                                 Enable
                                             </button>
                                         </div>
-                                        
+
                                     </div>
-                                    
-                                    
+
+
                                     <div className="mt-6">
                                         <div className="flex justify-between items-center border-t py-4">
                                             <div>

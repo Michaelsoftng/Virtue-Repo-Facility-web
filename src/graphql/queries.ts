@@ -31,6 +31,10 @@ export const GetUserById = gql`
           id
           role
         }
+        phlebotomist{
+          id
+          dob
+        }
     }
   }
 `;
@@ -451,5 +455,40 @@ export const GetPayouts = gql`
 
 
       }
+  }
+`;
+
+export const GetCharges = gql`
+  query getCharges{
+    getCharges{
+         serviceCharge
+        chargePerDistance
+        consultationCharge
+        consultationDiscount
+        partPayment
+        doctorsPercentage
+        phlebotomistPercentage
+        budgetPerDistance
+        referralBonusPercentage
+
+        lastChangedBy{
+            id
+            user{
+                id
+                email
+                firstName
+                lastName
+            }
+        }
+        admin{
+            id
+            user{
+                id
+                email
+                firstName
+                lastName
+            }       
+        }
+    }
   }
 `;

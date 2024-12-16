@@ -10,7 +10,7 @@ import { useAuth } from '@/src/context/AuthContext'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { getAllTestRequestsByFacility } from '@/src/graphql/queries'
 import client from '@/lib/apolloClient';
-import { decodeJwtEncodedId } from '@/app/admin/dashboard/consultations/page'
+import { decodeJwtEncodedId } from '@/src/utils/decode'
 
 
 const Requests = () => {

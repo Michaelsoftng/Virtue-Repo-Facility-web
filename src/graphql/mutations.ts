@@ -12,7 +12,7 @@ export const CreateUser = gql`
     $role: String!
     $facility_name: String
     $facility_type: String
-    $facility_percentage: Int!
+    $facility_percentage: Int
   ) {
     CreateUser(
       firstName: $first_name,
@@ -253,6 +253,26 @@ export const CreateTestManual = gql`
   }
 `;
 
+export const CreateTestUpload = gql`
+  mutation CreateTestUpload(
+		$file: String!, 
+		) {
+  CreateTestUpload(
+	file: $file, 
+    ) {
+    testsSkipped {
+        name
+        code
+        id
+    }
+    testsCreated {
+        name
+        code
+        id
+    }
+}
+}
+`;
 
 export const DeleteTest = gql`
 mutation DeleteTest(
@@ -354,3 +374,37 @@ export const CreateFacilityTest = gql`
   }
   }
 `
+
+export const UpdateCharges = gql`
+  mutation UpdateCharges($admin: String!, $updateData: UpdateChargesDataInput!) {
+  UpdateCharges(admin: $admin,
+	updateData: $updateData
+    ) {
+    charges {
+        serviceCharge
+        chargePerDistance
+        consultationCharge
+        consultationDiscount
+        partPayment
+        doctorsPercentage
+        phlebotomistPercentage
+        budgetPerDistance
+        referralBonusPercentage
+        lastChangedBy{
+            id
+            user{
+                id
+                email
+            }
+        }
+        admin{
+            id
+            user{
+                id
+                email
+            }       
+        }
+    }
+  }
+  }
+`;

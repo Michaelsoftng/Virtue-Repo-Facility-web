@@ -15,24 +15,23 @@ import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
 import { GetMinimalFilteredConsultations } from '@/src/graphql/queries'
 
-const Consultations = () => {
+const Referrals = () => {
     const [activeTab, setActiveTab] = useState<string>("completed")
     const [offsets, setOffsets] = useState<{ [key: string]: number }>({
         completed: 0,
-        pendingassignment: 0,
-        pendingpayment: 0,
+        pending: 0,
     });
 
     const [dataCount, setDataCount] = useState<{ [key: string]: number }>({
         completed: 0,
-        pendingassignment: 0,
-        pendingpayment: 0,
+        pending: 0,
+
     });
 
     const [data, setData] = useState<{ [key: string]: TableData[] }>({
         completed: [],
-        pendingassignment: [],
-        pendingpayment: [],
+        pending: [],
+
     });
 
 
@@ -42,14 +41,14 @@ const Consultations = () => {
     const Id = user?.id
 
 
-    const fetchData = async (filterStatus: string, offset: number, tab: string) => {
+    const fetchData = async (offset: number, tab: string) => {
         setPageLoadingFromClick(true);
         try {
             // Dynamically refetch the data with updated variables
             const { data: newData, error: fetchError } = await client.query({
                 query: GetMinimalFilteredConsultations,
                 variables: {
-                    filterStatus,
+                    tab,
                     limit: 10, // Adjust as needed
                     offset,
                 },
@@ -147,16 +146,16 @@ const Consultations = () => {
             }));
 
         } catch (error) {
-            console.error(`Error fetching ${filterStatus} data:`, error);
+            console.error(`Error fetching ${tab} data:`, error);
         } finally {
             setPageLoadingFromClick(false);
         }
     };
 
 
-    const handleTabClick = (tab: string, filterStatus: string) => {
+    const handleTabClick = (tab: string) => {
         setActiveTab(tab);
-        fetchData(filterStatus, offsets[tab], tab);
+        fetchData(offsets[tab], tab);
 
     };
 
@@ -176,7 +175,7 @@ const Consultations = () => {
         } else {
             filterStatus = ''
         }
-        fetchData(filterStatus, currentOffset, activeTab);
+        fetchData( currentOffset, activeTab);
     };
 
 
@@ -190,9 +189,8 @@ const Consultations = () => {
 
                     <div className="px-8 py-4">
                         <div className="mb-4">
-                            <button className={`px-4 py-2 ${activeTab === 'completed' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('completed', 'complete')}>Completed</button>
-                            <button className={`px-4 py-2 ${activeTab === 'pendingassignment' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('pendingassignment', 'pending')}>Pending Assignment</button>
-                            <button className={`px-4 py-2 ${activeTab === 'pendingpayment' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('pendingpayment', 'unpaid')}>Pending Payment</button>
+                            <button className={`px-4 py-2 ${activeTab === 'completed' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick( 'completed')}>Completed</button>
+                            <button className={`px-4 py-2 ${activeTab === 'pending' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('pending')}>Pending</button>
 
                         </div>
                         <div className="">
@@ -220,7 +218,7 @@ const Consultations = () => {
                             )}
 
                             {/* ppending assignment */}
-                            {activeTab === 'pendingassignment' && (
+                            {activeTab === 'pending' && (
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
@@ -240,28 +238,6 @@ const Consultations = () => {
                                 )
                             )}
 
-
-                            {/* consulutations pending payment */}
-                            {activeTab === 'pendingpayment' && (
-                                pageLoadingFromClick ? (
-                                    <TablePreloader />
-                                ) : (
-                                    <AdminFacilitiesTable
-                                        deleteAction={() => { }}
-                                        approveAction={() => { }}
-                                        setItemToDelete={setConsultationtWithId}
-                                        tableHeadText='Consultaions pending payment (50)'
-                                        tableData={data['pendingpayment']}
-                                        searchBoxPosition='justify-start'
-                                        showTableHeadDetails={true}
-                                        showActions={true}
-                                        showPagination={false}
-                                        testPage='phlebotomies'
-                                        marginTop='mt-4'
-                                    />
-
-                                )
-                            )}
                         </div>
 
                     </div>
@@ -272,4 +248,4 @@ const Consultations = () => {
     )
 }
 
-export default Consultations
+export default Referrals

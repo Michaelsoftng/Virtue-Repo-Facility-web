@@ -6,11 +6,10 @@ import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import * as Form from '@radix-ui/react-form'
 import { FiUpload } from 'react-icons/fi'
 import { useMutation } from '@apollo/client'
-import { CreateTestManual, CreateTestUpload } from '@/src/graphql/mutations'
+import { CreateTestManual } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import Loading from '../../loading'
 
 interface TestData  {
     name: string;
@@ -28,7 +27,7 @@ interface TestData  {
 
 const NewTest = () => {
     const router = useRouter();
-    const [file, setFile] = useState<File | null>(null);
+
     const [activeTab, setActiveTab] = useState<string>('manualaddtest')
     const [formData, setFormData] = useState<TestData | null>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -40,12 +39,6 @@ const NewTest = () => {
             [name]: value,
         }) as TestData);
         console.log(formData)
-    };
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
-            setFile(event.target.files[0]); // Save the file to state
-        }
     };
 
     const disableSubmitBtn = useCallback((): boolean => {
@@ -88,72 +81,6 @@ const NewTest = () => {
             setIsLoading(false);
         }
     };
-
-    const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                if (reader.result) {
-                    const binaryString = reader.result as string;
-
-                    try {
-                        // Encode the binary string as Base64
-                        const base64String = `data:text/csv;base64,${btoa(unescape(encodeURIComponent(binaryString)))}`;
-                        resolve(base64String);
-                    } catch (error) {
-                        reject(new Error("Error encoding the file to Base64"));
-                    }
-                } else {
-                    reject(new Error("FileReader result is null."));
-                }
-            };
-
-            reader.onerror = (error) => reject(error);
-            reader.readAsText(file); // Read as text to capture the CSV file content
-        });
-    };
-
-    const [newUploadTest, { loading: testUploadLoading }] = useMutation(CreateTestUpload, {
-        client,
-    });
-
-    const handleTestUpload = async (event: React.FormEvent) => {
-        event.preventDefault();
-
-        if (!file) {
-            alert("Please upload a valid csv file");
-            return;
-        }
-
-        try {
-            // Convert file to Base64
-            const base64String = await fileToBase64(file);
-            // console.log(base64String)
-            await newUploadTest({
-                variables: {
-                    file: base64String,
-                },
-                onCompleted(data) {
-                    if (data?.CreateTestUpload.testsCreated.length < 1) {
-                        toast.success('You uploaded these tests before');
-                    } else {
-                        toast.success('You uploaded new tests');
-                    }
-                    
-                    router.push('/admin/dashboard/tests');
-                },
-                onError(error) {
-                    toast.error(error.message);
-                },
-            });
-        } catch (error) {
-            // console.error("Error processing file:", error);
-            toast("There was an error processing the file.");
-        }
-    };
-    if (testUploadLoading ) {
-                return <Loading />;
-        }
     return (
         <div>
             <AdminHeader />
@@ -304,7 +231,7 @@ const NewTest = () => {
                                 )
                                 :
                                 (
-                                    <Form.Root onSubmit={handleTestUpload}>
+                                    <Form.Root >
                                         <div className="w-full gap-x-3 px-4 py-3">
 
                                             <div className="">
@@ -329,8 +256,7 @@ const NewTest = () => {
                                                         <input
                                                             id="file-upload"
                                                             type="file"
-                                                            accept=".csv"
-                                                            onChange={handleFileChange}
+
                                                             className="hidden"
                                                         />
                                                     </div>

@@ -49,6 +49,18 @@ export interface IUpdateAccount {
     longitude: number,
 }
 
+export interface ICharges{
+    serviceCharge?:number
+    chargePerDistance?: number
+    consultationCharge?: number
+    consultationDiscount?: number
+    partPayment?: number
+    doctorsPercentage?: number
+    phlebotomistPercentage?: number
+    budgetPerDistance?: number
+    referralBonusPercentage?: number
+}
+
 export interface IFacilityTest {
     test: string,
     facility: string,

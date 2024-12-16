@@ -15,7 +15,7 @@ import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
-import { decodeJwtEncodedId } from '../consultations/page'
+import { decodeJwtEncodedId } from '@/src/utils/decode'
 
 
 const Staffs = () => {
@@ -27,16 +27,16 @@ const Staffs = () => {
     console.log("logged in user from staff", user?.id)
     const staffCount = data?.getUserByUserType?.usersCount
     const staffData = data?.getUserByUserType?.users as TableData[]
-    
+
     let name: string
     let status: string
     let verifiedUsers = 0
     let newStaffs = 0
     let unverifedStaffs = 0
-    
+
     // Check if StaffData is available before mapping
     const updatedStaffData = staffData?.map((singleStaff) => {
-        
+
         const {
             __typename,
             approvalToken,
@@ -90,7 +90,7 @@ const Staffs = () => {
             verified: active,
             status: status,
             is_active: activity,
-            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}): 'Not approved'
+            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
         };
 
         return newPatientData
@@ -105,7 +105,7 @@ const Staffs = () => {
         variables: {
             userForApproval: staffWithId,
             approvingAdmin: decodeJwtEncodedId(user?.id as string),
-            
+
         },
         client,
     });
@@ -180,7 +180,7 @@ const Staffs = () => {
 
     }
 
-    
+
 
     return (
         <div>
@@ -212,7 +212,7 @@ const Staffs = () => {
                             :
                             <AdminFacilitiesTable
                                 deleteAction={handleDeleteTest}
-                                approveAction={handleApproveStaff} 
+                                approveAction={handleApproveStaff}
                                 setItemToDelete={setStafftWithId}
                                 tableHeadText='Requests'
                                 tableData={updatedStaffData}
@@ -235,7 +235,7 @@ const Staffs = () => {
                     <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-t-green-500 border-green-200 rounded-full"></div>
                 </div>
             }
-            
+
         </div>
     )
 }

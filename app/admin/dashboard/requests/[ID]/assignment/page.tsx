@@ -8,15 +8,12 @@ import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
 import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
-import { PatientType } from '@/src/interface'
-import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
 import { CreateAssignment, DeleteUser } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/src/context/AuthContext'
-
+import Loading from '../../../loading'
 
 const Phlebotomies = ({ params }: { params: { ID: string } }) => {
     const [activeTab, setActiveTab] = useState<string>("phlebotomist")
@@ -90,6 +87,7 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
             verified: active,
             status: status,
             is_active: activity,
+            userTypeId: phlebotomist.id,
         };
 
         return newPatientData
@@ -116,13 +114,13 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
 
                 },
                 async onCompleted(data) {
-                    if (data.ApproveAccount.success) {
-                        toast.success(data?.ApproveAccount?.success?.message);
-                        window.location.reload();
+                    if (data.CreateAssignment.errors) {
+                        toast.error(data?.CreateAssignment?.errors?.message);
                     } else {
-                        toast.error(data?.ApproveAccount?.errors?.message);
+                        toast.success(data?.CreateAssignment?.success?.message);
+                        toast.success("data?.CreateAssignment?.success?.message");
                     }
-
+                    
                 },
                 onError(e) {
                     toast.error(e.message);
@@ -138,7 +136,9 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
         }
 
     }
-
+    if (assignPhlebotomiesLoading || phlebotomiesDataLoading) {
+            return <Loading />
+        }
     return (
         <div>
             <AdminHeader />

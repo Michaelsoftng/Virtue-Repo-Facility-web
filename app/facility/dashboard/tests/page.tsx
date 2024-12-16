@@ -11,7 +11,7 @@ import { GetAllTest } from '@/src/graphql/queries'
 import { getFacilityTests } from '@/src/hooks/useGetAvailableTestByFacility'
 import client from '@/lib/apolloClient';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
-import { decodeJwtEncodedId } from '@/app/admin/dashboard/consultations/page'
+import { decodeJwtEncodedId } from '@/src/utils/decode'
 import { IFacilityTest } from '@/src/interface'
 import { CreateFacilityTest } from '@/src/graphql/mutations'
 import { useMutation } from '@apollo/client'
@@ -177,11 +177,11 @@ const Requests = () => {
     const transformTest = useCallback((test: any) => {
         const {
             __typename,
-           
+
             ...rest
         } = test;
         return {
-            ...rest, 
+            ...rest,
         };
     }, [])
 
@@ -190,7 +190,7 @@ const Requests = () => {
         setLoading(true);
         try {
             const isFacilityTest = tab === 'facilityTest';
-            
+
             const response = isFacilityTest
                 ? await getFacilityTests(decodeJwtEncodedId(user?.id), 10, offset)
                 : await client.query({
@@ -235,8 +235,8 @@ const Requests = () => {
             setLoading(false);
         }
     }, [user, transformFacilityTest, transformTest])
-    
-    ;
+
+        ;
 
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
@@ -260,7 +260,7 @@ const Requests = () => {
         } else {
             filterStatus = ''
         }
-        fetchData( currentOffset, activeTab);
+        fetchData(currentOffset, activeTab);
     };
 
     const [addFacilityTest] = useMutation(CreateFacilityTest, {
@@ -315,8 +315,8 @@ const Requests = () => {
                                     <TablePreloader />
                                 ) : (
                                     <NewRequestTable
-                                        approveAction={() => {}}
-                                        tableData={data['facilityTest']} 
+                                        approveAction={() => { }}
+                                        tableData={data['facilityTest']}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
                                         showActions={true}
@@ -331,7 +331,7 @@ const Requests = () => {
                                     loading ? (
                                         <TablePreloader />
                                     ) : (
-                           
+
                                         <NewRequestTable
                                             approveAction={handleAddFacilityTest}
                                             facilityId={decodeJwtEncodedId(user?.id)}
@@ -344,9 +344,9 @@ const Requests = () => {
                                             testPage='availableTest'
                                         />
                                     ))
-                            }       
+                            }
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
