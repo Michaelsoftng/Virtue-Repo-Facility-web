@@ -235,7 +235,9 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 ?
                                 <TablePreloader /> : */}
                                
-                                <AdminFacilitiesTable
+                        <AdminFacilitiesTable
+                            currentPage={1}
+                            setCurrentPage={() => { }}
                                 marginTop={'mt-6'}
                                 approveAction={() => { }} 
                                 tableHeadText='53 Facilities'
