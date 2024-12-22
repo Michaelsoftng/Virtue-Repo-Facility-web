@@ -110,6 +110,8 @@ const Patients = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 deleteAction={() => { }}
                                 approveAction={() => { }} 
                                 setItemToDelete={() => { }}
@@ -121,6 +123,7 @@ const Patients = () => {
                                 showActions={true}
                                 testPage='patients'
                                 marginTop='mt-4'
+                                changePage={() => { }}
                             />
                         }
                         

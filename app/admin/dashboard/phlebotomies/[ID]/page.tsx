@@ -255,9 +255,12 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     <div className="px-8 py-4 gap-4 grid grid-cols-[70%_30%] border-t-2 border-t-[#CACDD5] mt-4 pt-8">
                         <div className="mt-10">
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 deleteAction={() => { }}
                                 approveAction={() => { }} 
                                 setItemToDelete={() => { }}
+                                changePage={() => { }}
                                 tableHeadText='Activity information'
                                 tableData={sampleCompletedData}
                                 searchBoxPosition='justify-start'

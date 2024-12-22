@@ -197,9 +197,12 @@ const Payments = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                    <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
+                                        changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
                                         tableHeadText={`Incoming Payments (${dataCount.incoming})`}
                                         tableData={data['incoming']}
@@ -222,8 +225,11 @@ const Payments = () => {
                                     <TablePreloader />
                                 ) : (
                                     <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage = {() => { }}
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
+                                        changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
                                         tableHeadText="Outgoing Payments (50)"
                                         tableData={data['outgoing']}

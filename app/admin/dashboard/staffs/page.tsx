@@ -211,8 +211,11 @@ const Staffs = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 deleteAction={handleDeleteTest}
                                 approveAction={handleApproveStaff}
+                                changePage={() => { }}
                                 setItemToDelete={setStafftWithId}
                                 tableHeadText='Requests'
                                 tableData={updatedStaffData}

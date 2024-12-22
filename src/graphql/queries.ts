@@ -186,117 +186,153 @@ export const GetAvailableTestByFacility = gql`
 
 export const GetAllRequest = gql`
   query getAllRequests($limit: Int, $offset: Int,){
-        getAllRequests(limit: $limit, offset: $offset){
+    getAllRequests(limit: $limit, offset: $offset){
+      requestsCount
+      requests {
+        id
+        samplePickUpAddress
+        requestStatus
+        sampleStatus
+        samepleDropOffDate
+        sampleCollectionDate
+        requestDate
+        isPaid
+        total
+        balance
+        patient{
             id
-            samplePickUpAddress
-            requestStatus
-            requestDate
-            sampleStatus
-            total
-            createdAt
-            isPaid
-            balance
-            phlebotomist{
-              id
-              user{
-                   firstName  
-                   lastName
-                   email
+            user{
+              firstName  
+              lastName
+              email
+              phoneNumber
 
-                }
-            }
-            patient{
-                id
-                user{
-                   firstName  
-                   lastName
-                   email
-
-                }
-            }
-            tests{
-                id
-                name
             }
         }
+        phlebotomist{
+            id
+            user{
+                id
+                firstName  
+              lastName
+              email
+              phoneNumber
+            }
+        }
+        tests{
+            id
+            name
+            code
+        }
+        payment{
+            id
+            amountPaid
+            amountCharged
+        }
+        testRequest{
+          id
+          test{
+            id
+              name
+              code 
+          }
+        facility{
+            id
+            facilityName
+            user{
+              id
+              firstName  
+            lastName
+            email
+          }
+        }
+        patientName
+        patientAge
+        package{
+          id
+        }
+        testResult
+        resultDate
+        }
+      }
+    }
 
-}
+  }
 
 `;
 
 export const GetRequest = gql`
-query getRequest($id: ID, $patienId: ID,){
-        getRequest(id: $id, patienId: $patienId){
+  query getRequest($id: ID, $patienId: ID,){
+    getRequest(id: $id, patienId: $patienId){
+      
+        id
+        samplePickUpAddress
+        requestStatus
+        sampleStatus
+        samepleDropOffDate
+        sampleCollectionDate
+        requestDate
+        isPaid
+        total
+        balance
+        patient{
             id
-            samplePickUpAddress
-            requestStatus
-            sampleStatus
-            samepleDropOffDate
-            sampleCollectionDate
-            requestDate
-            isPaid
-            total
-            balance
-            patient{
-                id
-                user{
-                   firstName  
-                   lastName
-                   email
-                   phoneNumber
+            user{
+              firstName  
+              lastName
+              email
+              phoneNumber
 
-                }
-            }
-            phlebotomist{
-                id
-                user{
-                    id
-                    firstName  
-                   lastName
-                   email
-                   phoneNumber
-                }
-            }
-            tests{
-                id
-                name
-                code
-            }
-            payment{
-                id
-                amountPaid
-                amountCharged
-            }
-            testRequest{
-                id
-                test{
-                   id
-                    name
-                    code 
-                }
-                facility{
-                    id
-                    facilityName
-                    user{
-                      id
-                      firstName  
-                    lastName
-                    email
-                  }
-                }
-                patientName
-                patientAge
-                package{
-                    id
-                }
-                testResult
-                resultDate
             }
         }
-
-}
-
-
+        phlebotomist{
+            id
+            user{
+                id
+                firstName  
+              lastName
+              email
+              phoneNumber
+            }
+        }
+        tests{
+            id
+            name
+            code
+        }
+        payment{
+            id
+            amountPaid
+            amountCharged
+        }
+        testRequest{
+          id
+          test{
+            id
+              name
+              code 
+          }
+        facility{
+            id
+            facilityName
+            user{
+              id
+              firstName  
+            lastName
+            email
+          }
+        }
+        patientName
+        patientAge
+        package{
+          id
+        }
+        testResult
+        resultDate
+        }
+      
+    }
+  }
 `;
 
 export const getAllTestRequestsByFacility = gql`

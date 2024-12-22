@@ -221,9 +221,12 @@ const Phlebotomies = () => {
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage={() => { }}
                                     deleteAction={handleDeleteTest}
                                     approveAction={handleApproveStaff}
                                     setItemToDelete={setStafftWithId}
+                                    changePage={() => { }}
                                     tableHeadText=''
                                     tableData={updatedStaffData}
                                     searchBoxPosition='justify-start'

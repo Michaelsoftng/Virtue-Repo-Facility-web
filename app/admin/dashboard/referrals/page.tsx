@@ -198,9 +198,12 @@ const Referrals = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                    <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
+                                        changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
                                         tableHeadText='Completed consultaions (50)'
                                         tableData={data['completed']}
@@ -222,9 +225,12 @@ const Referrals = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                    <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
+                                        changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
                                         tableHeadText="Consultations pending doctor (50)"
                                         tableData={data['pendingassignment']}

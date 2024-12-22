@@ -279,6 +279,8 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
                         
                         <div>
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 approveAction={handleSubmit}
                                 deleteAction={handleDeleteTest}
                                 setItemToDelete={setDeleteTestWithId}
@@ -288,7 +290,7 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
                                 showActions={true}
                                 queryId={ID}
                                 showPagination={true}
-                                
+                                changePage={() => { }}
                                 testPage='addfacilityTests'
                                 marginTop='mt-4'
                             />

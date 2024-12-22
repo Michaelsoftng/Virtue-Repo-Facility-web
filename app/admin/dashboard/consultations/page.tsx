@@ -198,9 +198,12 @@ const Consultations = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                            <AdminFacilitiesTable
+                                <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage={() => { }}
                                 deleteAction={() => {}}
-                                            approveAction={() => { }}
+                                changePage={() => {}}
+                                approveAction={() => { }}
                                 setItemToDelete={setConsultationtWithId}
                                 tableHeadText='Completed consultaions (50)'
                                 tableData={data['completed']}
@@ -222,9 +225,12 @@ const Consultations = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                    <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                         deleteAction={() => { }}
-                                        approveAction={() => { }}
+                                            approveAction={() => { }}
+                                        changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
                                         tableHeadText="Consultations pending doctor (50)"
                                         tableData={data['pendingassignment']}
@@ -245,8 +251,11 @@ const Consultations = () => {
                                     <TablePreloader />
                                 ) : (
                                 <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage = {() => { }}
                                     deleteAction={() => {}}
                                     approveAction={() => {}}
+                                    changePage={() => { }}
                                     setItemToDelete={setConsultationtWithId}
                                     tableHeadText='Consultaions pending payment (50)'
                                     tableData={data['pendingpayment']}

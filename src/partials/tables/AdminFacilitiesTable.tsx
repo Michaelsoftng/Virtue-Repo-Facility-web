@@ -27,6 +27,7 @@ export type AdminFacilitiesTableProps = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approveAction: (data?:  any) => void,
     viewMoreAction?: () => void,
+    changePage: () => void
     setItemToDelete: (id: string) => void
     tableData: TableData[];
     dataCount?: number,
@@ -39,6 +40,8 @@ export type AdminFacilitiesTableProps = {
     showTableHeadDetails?: boolean,
     children?: React.ReactNode,
     queryId?: string;
+    currentPage: number;
+    setCurrentPage: (page: number) => void;
 };
 
 export const colorCombination = [
@@ -79,13 +82,13 @@ export function formatWord(word: string) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, dataCount,
     marginTop, showPagination, showActions, 
-    deleteAction, setItemToDelete, searchBoxPosition, approveAction, viewMoreAction,
-    showTableHeadDetails, children,
+    deleteAction, setItemToDelete, searchBoxPosition, approveAction, viewMoreAction, changePage,
+    showTableHeadDetails, children, currentPage,  setCurrentPage,
     testPage, tableHeadText, queryId
 }) => {
-
+    // console.log('tableData', tableData)
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
+
     const rowsPerPage = 10;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
@@ -117,6 +120,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
         if (direction === 'prev' && currentPage > 1) {
             setCurrentPage(currentPage - 1);
         } else if (direction === 'next' && currentPage < totalPages) {
+            changePage()
             setCurrentPage(currentPage + 1);
         }
     };

@@ -243,6 +243,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 searchBoxPosition='hidden'
                                 showTableHeadDetails={false}
                                 showActions={true}
+                                changePage={() => { }}
                                 deleteAction={() => { }}
                                 setItemToDelete={() => { }}
                                 showPagination={false}

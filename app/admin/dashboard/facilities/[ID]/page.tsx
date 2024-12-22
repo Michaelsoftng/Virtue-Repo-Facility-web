@@ -191,7 +191,10 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
                         <div className="grid grid-cols-[calc(100%-25rem)_23rem] gap-x-8 mt-8">
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 approveAction={() => { }} 
+                                changePage={() => { }}
                                 tableHeadText='53 Facilities'
                                 tableData={sampleCompletedData}
                                 searchBoxPosition='hidden'
@@ -244,8 +247,11 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 <TablePreloader /> :
                                
                                 <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage={() => { }}
                                 marginTop={'mt-6'}
                                 approveAction={() => { }} 
+                                changePage={() => { }}
                                 tableHeadText='53 Facilities'
                                 tableData={updatedTestData.current}
                                 searchBoxPosition='justify-start'

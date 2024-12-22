@@ -169,8 +169,11 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
                                 ?
                                 <TablePreloader />
                                 :
-                                <AdminFacilitiesTable
+                            <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                     deleteAction={() => {}}
+                                    changePage={() => { }}
                                     approveAction={handleAssignPhlebotomies}
                                     setItemToDelete={setPhlebotomiesWithId}
                                     tableHeadText=''

@@ -95,8 +95,11 @@ const Facilities = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 tableHeadText={`${facilityCount} Facilities`}
                                 tableData={updatedFacilityData}
+                                changePage={() => { }}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showActions={true}

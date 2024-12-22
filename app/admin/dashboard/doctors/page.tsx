@@ -210,9 +210,12 @@ const Doctors = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
                                 deleteAction={handleDeleteTest}
                                 approveAction={handleApproveStaff}
                                 setItemToDelete={setStafftWithId}
+                                changePage={() => { }}
                                 tableHeadText='Requests'
                                 tableData={updatedStaffData}
                                 searchBoxPosition='justify-start'

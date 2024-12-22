@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
@@ -11,27 +11,35 @@ import TablePreloader from '@/src/preLoaders/TablePreloader'
 
 const Facilities = () => {
     const [pageLoading, setPageLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [offset, setOffset] = useState(0)
     const { data, error, loading:requestDataLoading } = useGetAllRequest(10, offset)
-    const requestCount = data?.getAllRequests.length
-    const requestData = data?.getAllRequests as TableData[]
+    const requestCount = data?.getAllRequests.requestsCount
+    const requestData = data?.getAllRequests.requests as TableData[]
     const [deleteRequestWithId, setDeleteRequestWithId] = useState<string | null>(null)
+    const cachedRequestData = useRef<TableData[]>([])
 
     const updatedRequestData = requestData?.map((request) => {
         const {
             __typename,
-            phlebotomist,
-            patient,
             requestDate,
+            patient,
+            phlebotomist,
+            tests,
+            payment,
+            testRequest,
             facility,
+            package: packageData,
             samplePickUpAddress,
             requestStatus,
             sampleStatus,
             isPaid,
             balance,
             total,
-            tests,
+            sampleCollectionDate,
+            samepleDropOffDate, 
             createdAt,
+            id,
             ...rest
         } = request;
         const patientname = (patient.user.firstName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
@@ -40,21 +48,31 @@ const Facilities = () => {
             patients: [null, patientname, patient.user.email],
             // test: `${tests.length} tests`,
             amount: total,
-            paid: 1234,
+            paid: total - balance,
             balance: balance ? balance : 0,
             phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.email] : [null, phlebotomistname, "info@labtraca.com"],
             // address: samplePickUpAddress,
             requestDate: requestDate,
             sample_status: sampleStatus,
             status: requestStatus,
-            
+            id,
             ...rest,
 
         };
-
+        
         return newRequestData
     }) || []; // Default to an empty array if patientData is undefined
 
+    
+    const uniqueRequestData = updatedRequestData.filter(newRequest =>
+        !cachedRequestData.current.some(cachedRequest => cachedRequest.id === newRequest.id)
+    );
+
+    cachedRequestData.current = [...cachedRequestData.current, ...uniqueRequestData];
+
+    const handleFetchNextPage = () => {
+        setOffset(offset + 10)
+    }
     return (
         <div>
             <AdminHeader />
@@ -71,8 +89,9 @@ const Facilities = () => {
                                 :
                         
                         <AdminFacilitiesTable
-                            tableHeadText='Requests'
-                            tableData={updatedRequestData}
+                            tableHeadText={`Requests (${requestCount})`}
+                            dataCount={requestCount}
+                            tableData={cachedRequestData.current}
                             searchBoxPosition='justify-start'
                             showTableHeadDetails={true}
                             showActions={true}
@@ -81,6 +100,9 @@ const Facilities = () => {
                             setItemToDelete={() => { }}
                             showPagination={true}
                             testPage='requests'
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            changePage={handleFetchNextPage}
                         />
                         }
                     </div>

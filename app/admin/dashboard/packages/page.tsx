@@ -257,13 +257,15 @@ const Requests = () => {
                                     ? (
 
                                         <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                             approveAction={() => { }} 
                                             deleteAction={handleDeleteTest}
                                             setItemToDelete={setDeleteTestWithId}
                                             tableHeadText='Tests'
                                             dataCount={testCount}
                                             tableData={updatedTestData} 
-
+                                            changePage={() => { }}
                                             showActions={true}
 
                                             showPagination={true}
@@ -276,6 +278,8 @@ const Requests = () => {
                                     : (
 
                                         <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
                                             setItemToDelete={setDeleteTestWithId}
                                             deleteAction={() => { }}
                                             approveAction={() => { }} 
@@ -285,6 +289,7 @@ const Requests = () => {
                                             showPagination={true}
                                             testPage='results'
                                             marginTop='mt-4'
+                                            changePage={() => { }}
                                         />
                                     
                                     )
