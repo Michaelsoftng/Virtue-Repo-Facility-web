@@ -308,6 +308,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'facility_price':
                                             case 'minimum_increase':
                                             case 'balance':
                                                 return (

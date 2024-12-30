@@ -271,6 +271,7 @@ export const GetAvailableTestByFacility = gql`
               price
               preparation
               duration
+              facilityPrice
               facility{
                   id  
                   facilityName

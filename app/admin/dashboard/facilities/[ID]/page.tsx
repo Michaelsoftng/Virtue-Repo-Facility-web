@@ -133,6 +133,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                         duration,
                         createdAt,
                         price,
+                        facilityPrice,
                         preparation,
                         ...rest
                     } = singleFacilityTest;
@@ -141,6 +142,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                         test: test.name,
                         duration: `up to ${duration ? duration : 5} days`,
                         amount: price,
+                        facility_price: facilityPrice,
                         ...rest,
                         status: 'published',
                     };
