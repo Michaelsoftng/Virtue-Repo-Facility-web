@@ -12,7 +12,6 @@ import RequestIcon from '@/src/reuseable/icons/RequestIcon'
 import { PieChartAnalytics } from '@/src/partials/tables/PieChartAnalytics'
 import Link from 'next/link'
 import PlusIcon from '@/src/reuseable/icons/PlusIcon'
-import { useGetAllTest } from '@/src/hooks/useGetAllTest'
 import client from '@/lib/apolloClient';
 import { GetUserById } from '@/src/graphql/queries';
 import { getFacilityTests, useGetAvailableTestByFacility } from '@/src/hooks/useGetAvailableTestByFacility'
@@ -23,6 +22,7 @@ import Approval from '@/src/reuseable/components/Approval'
 import Loading from '../../loading'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { useGetRecentTests } from '@/src/hooks/useGetRecentTests'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -74,7 +74,8 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     const updatedTestData = useRef<TableData[]>([]);
     const testCount = useRef<number>(0);
     const { ID } = params;
-
+    const { data: recentTestsData, loading: recentTestsLoading } = useGetRecentTests(ID, 5, 0);
+    const recentTestData = recentTestsData?.getAllRequestsByFacility.testRequests as TableData[] 
     const { data: facilityData, loading: pageLoading } = useQuery(GetUserById, {
         variables: {
             id: ID
@@ -83,6 +84,34 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     });
     const facilityId = facilityData?.getUserById?.facilityAdmin.id;
    
+    // Check if patientData is available before mapping
+    const updatedrecentTestsData = recentTestData?.map((singleTest) => {
+
+        const {
+            __typename,
+            facilityDistance,
+            patientName,
+            patienAge,
+            package: bundle,
+            request,
+            test,
+            facility,
+            ...rest
+        } = singleTest;
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        console.log("the request data", request)
+        const newPatientData = {
+            patients: [null, `${request.patient.user.firstName}  ${request.patient.user.lastName}`, request.patient.user.email],
+            ...rest,
+
+        };
+
+        return newPatientData
+    }) || []; 
+
+
     const fetchFacilityTests = useCallback(async (facilityId: string, limit: number) => {
         console.log(facilityData)
         setIsLoading(true);
@@ -196,7 +225,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 approveAction={() => { }} 
                                 changePage={() => { }}
                                 tableHeadText='53 Facilities'
-                                tableData={sampleCompletedData}
+                                tableData={updatedrecentTestsData}
                                 searchBoxPosition='hidden'
                                 showTableHeadDetails={false}
                                 showActions={false}
@@ -243,36 +272,36 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                         {
                             testDataLoading
                                  
-                                ?
-                                <TablePreloader /> :
-                               
-                                <AdminFacilitiesTable
-                                    currentPage={1}
-                                    setCurrentPage={() => { }}
-                                marginTop={'mt-6'}
-                                approveAction={() => { }} 
-                                changePage={() => { }}
-                                tableHeadText='53 Facilities'
-                                tableData={updatedTestData.current}
-                                searchBoxPosition='justify-start'
-                                showTableHeadDetails={false}
-                                showActions={true}
-                                deleteAction={() => { }}
-                                setItemToDelete={() => { }}
-                                showPagination={false}
-                                testPage='singleFacility'
-                                >
+                            ?
+                            <TablePreloader />
+                            :
+                            <AdminFacilitiesTable
+                                currentPage={1}
+                                setCurrentPage={() => { }}
+                            marginTop={'mt-6'}
+                            approveAction={() => { }} 
+                            changePage={() => { }}
+                            tableHeadText='53 Facilities'
+                            tableData={updatedTestData.current}
+                            searchBoxPosition='justify-start'
+                            showTableHeadDetails={false}
+                            showActions={true}
+                            deleteAction={() => { }}
+                            setItemToDelete={() => { }}
+                            showPagination={false}
+                            testPage='singleFacility'
+                            >
 
 
-                                    <div className="mx-4 mt-6 flex justify-between">
-                                        <h2 className="text-[#0F1D40] font-bold text-xl">Available tests</h2>
+                            <div className="mx-4 mt-6 pt-4 flex justify-between">
+                                <h2 className="text-[#0F1D40] font-bold text-xl">Available tests</h2>
 
-                                        <Link href={`${ID}/add-test`} className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
-                                            <PlusIcon />
-                                            <span >Add Test</span>
-                                        </Link>
-                                    </div>
-                                </AdminFacilitiesTable>
+                                <Link href={`${ID}/add-test`} className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
+                                    <PlusIcon />
+                                    <span >Add Test</span>
+                                </Link>
+                            </div>
+                        </AdminFacilitiesTable>
                         }
                         
                     </div>

@@ -183,7 +183,6 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
     const [deleteTest, { loading: deleteTestLoading }] = useMutation(DeleteTest, {
         variables: {
             id: deleteTestWithId,
-
         },
         client,
     });
@@ -221,10 +220,14 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
         const {
             __typename,
             createdAt,
+            percentageIncrease,
+            minimumIncrease,
             ...rest
         } = test;
 
         const newTestData = {
+            percentage_increase: percentageIncrease,
+            minimum_increase: minimumIncrease,
             ...rest,
             
         };
@@ -242,6 +245,9 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
         setPageLoading(true);
         try {
             await addFacilityTest({
+                variables: {
+                    ...formData
+                },
                 onCompleted(data) {
                     console.log(data)
                     toast.success('Test added to facility successfully');

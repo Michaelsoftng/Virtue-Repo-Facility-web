@@ -222,32 +222,37 @@ export const CreateTestManual = gql`
 		$code: String!, 
 		$description: String, 
 		$test_type: String!,
-        $group: String!,
-        $normal_range: String, 
+    $group: String!,
+    $normal_range: String, 
 		$unit: String, 
 		$preparation: String,
 		$methodology: String,
 		$duration: String,
+    $percentage_increase: Decimal!,
+    $minimum_increase: Decimal!,
 		) {
     CreateTestManual(
       name: $name, 
-        code: $code, 
+      code: $code, 
       description: $description, 
       testType: $test_type,
-        group: $group,
+      group: $group,
       normalRange: $normal_range, 
       unit: $unit,
-        preparation: $preparation, 
-      methodology:$methodology,
-      duration:$duration,
-
-      ) {
+      preparation: $preparation, 
+      methodology :$methodology,
+      duration: $duration,
+      percentageIncrease: $percentage_increase
+      minimumIncrease: $minimum_increase
+    ) {
         test {
           id
           name
           code
           testType
           group
+          percentageIncrease
+          minimumIncrease
         }
     }
   }
@@ -341,8 +346,8 @@ export const CreateAssignment = gql`
 
 export const CreateFacilityTest = gql`
   mutation CreateFacilityTestManual(
-      $test: String!, 
-      $facility: String!, 
+      $test: ID!, 
+      $facility: ID!, 
       $price: Int!, 
       $duration: String,
           $preparation: String,

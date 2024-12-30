@@ -16,6 +16,8 @@ interface TestData  {
     code: string;
     test_type: string;
     group: string;
+    percentage_increase: number;
+    minimum_increase: number;
     description?: string;
     normal_range?: string;
     unit?: string;
@@ -172,7 +174,7 @@ const NewTest = () => {
                                                         </select>
                                                     </Form.Control>
                                                 </Form.Field>
-
+                                                
                                                 <Form.Field name='normal_range' className="mt-4">
                                                     <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">normal range</span></Form.Label>
                                                     <Form.Control
@@ -187,6 +189,24 @@ const NewTest = () => {
                                                         type='text'
                                                         className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
                                                 </Form.Field>
+                                                <Form.Field name='minimum_increase' className="mt-4">
+                                                    <Form.Label><span className="text-sm font-semibold text-[#B2B7C2]">minimum increase amount</span></Form.Label>
+                                                    <Form.Control
+                                                        required={true}
+                                                        onChange={handleFormChange}
+                                                        type='text'
+                                                        className="mt-2 font-bold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
+                                                </Form.Field>
+                                                <Form.Field name='percentage_increase' className="mt-4">
+                                                    <Form.Label><span className="text-sm font-semibold text-[#B2B7C2]">percentage increase</span></Form.Label>
+                                                    <Form.Control
+                                                        placeholder='10 %'
+                                                        required={true}
+                                                        onChange={handleFormChange}
+                                                        type='text'
+                                                        className="mt-2 font-bold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
+                                                </Form.Field>
+                                                
                                             </div>
                                             <div>
                                                 <h3 className="text-black font-bold">More information</h3>

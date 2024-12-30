@@ -108,7 +108,42 @@ query getUserByUserType($userType: String!) {
 }
 `;
 
-
+export const GetPhlebotomistByProximity = gql`
+  query getPhlebotomistByProximity($requestId: String!) {
+    getPhlebotomistByProximity(requestId: $requestId) {
+      usersCount
+      users{
+        id
+        distance
+        logisticsEstimate
+        user  {
+          firstName
+          lastName
+          email
+          id
+          phoneNumber
+          approvalToken
+          referralCode
+          emailVerifiedAt
+          streetAddress
+          streetAddress2
+          city
+          state
+          country
+          postal
+          latitude
+          longitude
+          referralBonus
+          verificationCode
+          approvedAt
+          createdAt
+          deletedAt
+          deletedBy
+        }    
+      } 
+    }
+  }
+`;
 export const GetUserByEmail = gql`
   query getUserByEmail($email: String!) {
     getUserByEmail(email: $email) {
@@ -141,12 +176,83 @@ export const GetAllTest = gql`
           testType
           group
           description
+          percentageIncrease
+          minimumIncrease
       }
 
     }
   }
 
 `;
+
+export const GetAllAssignment = gql`
+  query getAllAssignment{
+    getAllAssignment{
+        assignmentCount
+        assignments{
+            id
+            request{
+                id
+                requestStatus
+                phlebotomist{
+                    id
+                }
+            }
+            assignedBy {
+                id
+                staff{
+                    id
+                }
+            }
+            assigned{
+                id
+                doctor{
+                    id
+                }
+                phlebotomist{
+                    id
+                }
+            }
+            assignmentDate
+            lastAssignmentTime
+            taskObjectId
+            distance     
+        }
+    }
+}
+`;
+
+export const GetAssignmentByTaskId = gql`
+  query getAssignmentByTaskId($taskId: ID!){
+    getAssignmentByTaskId(taskId: $taskId){
+        id
+        assignedBy{
+                id
+                staff{
+                    id
+                }
+            }
+            assigned{
+                id
+                firstName
+                lastName
+                email
+                phoneNumber
+                doctor{
+                    id
+                }
+                phlebotomist{
+                    id
+                }
+            }
+            assignmentDate
+            lastAssignmentTime
+            taskObjectId
+            distance
+    }
+}
+`;
+
 
 export const GetAvailableTestByFacility = gql`
   query getAvailableTestByFacility($facilityId: ID!, $limit: Int, $offset: Int
@@ -184,6 +290,48 @@ export const GetAvailableTestByFacility = gql`
 
 `;
 
+export const GetRecentTestRequest = gql`
+  query getAllRequestsByFacility($facilityId: ID!, $limit: Int, $offset: Int,){
+    getAllRequestsByFacility(facilityId: $facilityId, limit: $limit, offset: $offset){
+        testRequestCount
+        testRequests{
+            id
+            request{
+                id
+                patient{
+                    id
+                    user{
+                        id
+                        firstName
+                        lastName
+                        email
+                        phoneNumber
+                    }
+                } 
+            }
+            test{
+                id
+                name
+            }
+            facility{
+                id
+            }
+            facilityDistance
+            facilityEarning
+            patientName
+            patientAge
+            package{
+                id
+            }
+            testResult
+            resultDate
+            status
+          }
+    }
+
+}
+
+`;
 export const GetAllRequest = gql`
   query getAllRequests($limit: Int, $offset: Int,){
     getAllRequests(limit: $limit, offset: $offset){

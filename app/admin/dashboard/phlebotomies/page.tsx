@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
@@ -8,6 +8,7 @@ import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
 import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
+import { getAllAssignments } from '@/src/hooks/useGetAllAssignments'
 import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
@@ -22,13 +23,29 @@ import { decodeJwtEncodedId } from '@/src/utils/decode'
 
 const Phlebotomies = () => {
     const [activeTab, setActiveTab] = useState<string>("phlebotomist")
-
-    const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
+    const offsets = useRef<{ [key: string]: number }>({
+            phlebotomies: 0,
+            audits: 0,
+            assignments: 0,
+        });
+    
+    const dataCount = useRef<{ [key: string]: number}>({
+            phlebotomies: 0,
+            audits: 0,
+            assignments: 0,
+        });
+    
+        const datas = useRef<{ [key: string]: TableData[]  }>({
+            phlebotomies: [],
+            audits: [],
+            assignments: [],
+        });
+    
+    const [loading, setLoading] = useState(false)
     const { data, error, loading: staffDataLoading } = useGetUsersByType('phlebotomist')
     const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
     const { user } = useAuth()
     const Id = user?.id
-    console.log("logged in user from staff", user?.id)
     const staffCount = data?.getUserByUserType?.usersCount
     const staffData = data?.getUserByUserType?.users as TableData[]
 
@@ -45,6 +62,8 @@ const Phlebotomies = () => {
             __typename,
             approvalToken,
             approvedAt,
+            referralCode,
+            referralBonus,
             facilityAdmin,
             doctor,
             phlebotomist,
@@ -99,7 +118,6 @@ const Phlebotomies = () => {
         return newPatientData
     }) || [];
 
-
     if (error) {
         console.log("error is saying true", error)
     }
@@ -114,7 +132,7 @@ const Phlebotomies = () => {
     });
 
     const handleApproveStaff = async () => {
-        setPageLoadingFromClick(true)
+        setLoading(true)
         try {
             const { data } = await approveStaff({
                 variables: {
@@ -139,7 +157,7 @@ const Phlebotomies = () => {
         } catch (err) {
             console.error('Error approving account:', err);
         } finally {
-            setPageLoadingFromClick(false)
+            setLoading(false)
 
         }
 
@@ -155,7 +173,7 @@ const Phlebotomies = () => {
 
     const handleDeleteTest = async () => {
         console.log(staffWithId)
-        setPageLoadingFromClick(true)
+        setLoading(true)
         try {
             const { data } = await deleteStaff({
                 async onCompleted(data) {
@@ -177,13 +195,92 @@ const Phlebotomies = () => {
         } catch (err) {
             console.error('Error deleting test:', err);
         } finally {
-            setPageLoadingFromClick(false)
+            setLoading(false)
 
         }
 
     }
 
+    const fetchAssignments = useCallback(async (limit: number, offset: number) => {
+        try {
+            setLoading(true)
+            const { data, error, loading: assignmentDataLoading } = await getAllAssignments(limit, offset);
+            if (error) {
+                console.log('Error fetching assignments:', error);
+                return;
+            }
+            if (data && data.getAllAssignment?.assignments) {
+                // Update the ref instead of state
+                const assignments = data.getAllAssignment?.assignments as TableData[] 
+                const updateAssignmentsData = assignments.map((assignment) => {
+               
+                    const {
+                        id,
+                        __typename,
+                        taskObjectId,
+                        distance,
+                        assignmentDate,
+                        lastAssignmentTime,
+                        potentialEarning,
+                        request,
+                        assignedBy,
+                        assigned,
+                        isAccepted,
+                        createdAt,
+                        ...rest
+                    } = assignment;
 
+                    const newAssignmentData = {
+                        id,
+                        ...rest,
+                        
+                        assigned_to: [null, assigned.firstName, assigned.lastName],
+                        potential_Earning: potentialEarning,
+                        assignment_Date: new Date(assignmentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        last_assigned: new Date(lastAssignmentTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        status: isAccepted ? 'accepted' : 'pending',
+                    };
+                    
+                    return newAssignmentData
+                }) || [];
+            const allAssignments = [...updateAssignmentsData];
+                datas.current = {
+                    ...datas.current,
+                    assignments: Array.from(
+                        new Map(
+                            [...datas.current.assignments, ...allAssignments].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                };
+                dataCount.current = {
+                    ...dataCount.current,
+                    assignments: data.getAllAssignment?.assignmentsCount,
+                };
+                offsets.current = {
+                    ...dataCount.current,
+                    assignments: limit + offsets.current.assignments,
+                };
+            }
+        } catch (err) {
+            console.log('Error fetching cachedSavedJobsRef.current saved jobs:', err);
+        } finally {
+            setLoading(false)
+            console.log("finally")
+        }
+    }, []);
+
+    const handleTabChange = (tab: string) => {
+        switch (tab) {
+            case 'assignment':
+                setActiveTab('assignment')
+                fetchAssignments(10, offsets.current.assignments)
+                break;
+        
+            default:
+                break;
+        }
+        
+    }
     return (
         <div>
             <AdminHeader />
@@ -194,9 +291,9 @@ const Phlebotomies = () => {
 
                     <div className="px-8 py-4">
                         <div className="mb-4">
-                            <button className="px-4 py-2 bg-[#B2B7C2] w-[200px] mr-2 rounded" onClick={() => setActiveTab('phlebotomist')}>Phlebotomist</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] mr-2 rounded" onClick={() => setActiveTab('audit')}>Audit</button>
-                            <button className="px-4 py-2 bg-[#b5b5b646] w-[200px] rounded" onClick={() => setActiveTab('assignment')}>assignment</button>
+                            <button className={`px-4 py-2 ${activeTab === 'phlebotomist' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646]"}  w-[200px] rounded`} onClick={() => setActiveTab('phlebotomist')}>Phlebotomist</button>
+                            <button className={`px-4 py-2 ${activeTab === 'audit' ? " bg-[#B2B7C2]" : "bg-[#b5b5b646] "} w-[200px] rounded`} onClick={() => setActiveTab('audit')}>Audit</button>
+                            <button className={`px-4 py-2 ${activeTab === 'assignment' ? " bg-[#B2B7C2]" : "bg-[#b5b5b646] "} w-[200px] rounded`} onClick={() => handleTabChange('assignment')}>assignment</button>
 
                         </div>
                         <div className="">
@@ -215,7 +312,9 @@ const Phlebotomies = () => {
                                 />
                             }
 
-                            {staffDataLoading
+                            {activeTab === 'phlebotomist' && (
+                                
+                                staffDataLoading
 
                                 ?
                                 <TablePreloader />
@@ -235,7 +334,65 @@ const Phlebotomies = () => {
                                     showPagination={false}
                                     testPage='phlebotomies'
                                     marginTop='mt-4'
+                                    />
+                            )
+                            }
+
+                            {activeTab === 'audit' && (
+
+                                staffDataLoading
+
+                                    ?
+                                    <TablePreloader />
+                                    :
+                                    <AdminFacilitiesTable
+                                        currentPage={1}
+                                        setCurrentPage={() => { }}
+                                        deleteAction={handleDeleteTest}
+                                        approveAction={handleApproveStaff}
+                                        setItemToDelete={setStafftWithId}
+                                        changePage={() => { }}
+                                        tableHeadText=''
+                                        tableData={updatedStaffData}
+                                        searchBoxPosition='justify-start'
+                                        showTableHeadDetails={true}
+                                        showActions={true}
+                                        showPagination={false}
+                                        testPage='phlebotomies'
+                                        marginTop='mt-4'
+                                    />
+                            )
+                            }
+
+
+                            {activeTab === 'assignment' && (
+
+                                loading
+                                ?
+                                <TablePreloader />
+                                :
+                                <AdminFacilitiesTable
+                                    currentPage={1}
+                                    setCurrentPage={() => { }}
+                                    deleteAction={handleDeleteTest}
+                                    approveAction={handleApproveStaff}
+                                    setItemToDelete={setStafftWithId}
+                                    changePage={() => { }}
+                                    tableHeadText=''
+                                    tableData={datas.current.assignments}
+                                    searchBoxPosition='justify-start'
+                                    showTableHeadDetails={true}
+                                    showActions={true}
+                                    showPagination={false}
+                                    testPage='phlebotomies'
+                                    marginTop='mt-4'
+
+                                    dataCount={dataCount.current.assignments}
+                                    // currentPage={currentPage}
+                                    // setCurrentPage={setCurrentPage}
+                                    // changePage={handleFetchNextPage}
                                 />
+                            )
                             }
                         </div>
 

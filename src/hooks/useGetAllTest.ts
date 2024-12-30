@@ -14,3 +14,10 @@ export const useGetAllTest = (limit: number, offset: number) => {
     });
 };
 
+
+export const getAllTests = async (limit: number, offset: number) => {
+    return await client.query({
+        query: GetAllTest,
+        variables: { limit, offset },
+    });
+};

@@ -7,7 +7,7 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
+import { useGetPhlebotomistByProximity } from '@/src/hooks/useGetPhlebotomistByProximity'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
 import { CreateAssignment, DeleteUser } from '@/src/graphql/mutations'
@@ -16,63 +16,42 @@ import { toast } from 'react-toastify';
 import Loading from '../../../loading'
 
 const Phlebotomies = ({ params }: { params: { ID: string } }) => {
-    const [activeTab, setActiveTab] = useState<string>("phlebotomist")
     const { ID } = params;
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
-    const { data, error, loading: phlebotomiesDataLoading } = useGetUsersByType('phlebotomist')
-    const [phlebotomiesWithId, setPhlebotomiesWithId] = useState<string | null>(null) // id of phlebotomies to delete
-    const phlebotomiesCount = data?.getUserByUserType?.usersCount
-    const phlebotomiesData = data?.getUserByUserType?.users as TableData[]
+    const { data, error, loading: phlebotomiesDataLoading } = useGetPhlebotomistByProximity(ID)
+    const [phlebotomiesWithId, setPhlebotomiesWithId] = useState<string | null>(null)
+    const phlebotomiesCount = data?.getPhlebotomistByProximity?.usersCount
+    const phlebotomiesData = data?.getPhlebotomistByProximity?.users as TableData[]
 
     let name: string
-    let status: string
     let verifiedUsers = 0
     let newPhlebotomiess = 0
     let unverifedPhlebotomiess = 0
 
     // Check if PhlebotomiesData is available before mapping
     const updatedPhlebotomiesData = phlebotomiesData?.map((singlePhlebotomies) => {
-
         const {
+            id,
             __typename,
-            approvalToken,
-            approvedAt,
-            facilityAdmin,
-            doctor,
-            staff,
-            phlebotomist,
-            phlebotomies,
-            firstName,
-            streetAddress,
-            streetAddress2,
-            lastName,
-            email,
-            patient,
-            country,
-            postal,
-            city,
-            referralBonus,
-            referralCode,
-            state,
-            latitude,
-            longitude,
-            emailVerifiedAt,
+            distance,
+            logisticsEstimate,
+            user,
             deletedAt,
             deletedBy,
             createdAt,
             ...rest
         } = singlePhlebotomies;
         console.log("the rest data ",{...rest})
-        if (emailVerifiedAt) {
+        if (user.emailVerifiedAt) {
             verifiedUsers += 1;
         } else {
             unverifedPhlebotomiess += 1;
         }
-        name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
-        const active = emailVerifiedAt ? 'verified' : 'unverified'
-        const status = approvedAt ? 'approved' : 'pending approval'
-        const patientCity = city ? city : 'Not set'
-        const patientState = state ? state : 'Not set'
+        name = (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Not Set'
+        const active = user.emailVerifiedAt ? 'verified' : 'unverified'
+        const status = user.approvedAt ? 'approved' : 'pending approval'
+        const patientCity = user.city ? user.city : 'Not set'
+        const patientState = user.state ? user.state : 'Not set'
         const activity = deletedAt ? "deleted" : "active"
         const createdDate = new Date(createdAt);
         const oneWeekAgo = new Date();
@@ -81,13 +60,16 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
             newPhlebotomiess += 1;
         }
         const newPatientData = {
-            phlebotomist: [null, name, singlePhlebotomies.email],
+            id: id,
+            phlebotomist: [null, name, user.email],
             ...rest,
-            address: `${streetAddress} ${patientCity} ${patientState}`,
+            address: `${user.streetAddress} ${patientCity} ${patientState}`,
+            distance: `${distance}km`,
+            logistics_estimate: logisticsEstimate,
             verified: active,
             status: status,
             is_active: activity,
-            userTypeId: phlebotomist.id,
+            userTypeId: id,
         };
 
         return newPatientData
@@ -137,8 +119,8 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
 
     }
     if (assignPhlebotomiesLoading || phlebotomiesDataLoading) {
-            return <Loading />
-        }
+        return <Loading />
+    }
     return (
         <div>
             <AdminHeader />
@@ -172,18 +154,18 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
                             <AdminFacilitiesTable
                                 currentPage={1}
                                 setCurrentPage={() => { }}
-                                    deleteAction={() => {}}
-                                    changePage={() => { }}
-                                    approveAction={handleAssignPhlebotomies}
-                                    setItemToDelete={setPhlebotomiesWithId}
-                                    tableHeadText=''
-                                    tableData={updatedPhlebotomiesData}
-                                    searchBoxPosition='justify-start'
-                                    showTableHeadDetails={true}
-                                    showActions={true}
-                                    showPagination={false}
-                                    testPage='assignPhlebotomist'
-                                    marginTop='mt-4'
+                                deleteAction={() => {}}
+                                changePage={() => { }}
+                                approveAction={handleAssignPhlebotomies}
+                                setItemToDelete={setPhlebotomiesWithId}
+                                tableHeadText=''
+                                tableData={updatedPhlebotomiesData}
+                                searchBoxPosition='justify-start'
+                                showTableHeadDetails={true}
+                                showActions={true}
+                                showPagination={false}
+                                testPage='assignPhlebotomist'
+                                marginTop='mt-4'
                             >
                                 <div className="mx-4 mt-6 flex justify-between">
                                     <h2 className="text-[#0F1D40] font-bold text-xl">Phlebotomies { }</h2>

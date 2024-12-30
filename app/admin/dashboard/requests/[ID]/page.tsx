@@ -29,6 +29,8 @@ import { MdPhoneIphone } from "react-icons/md";
 import { FaMoneyCheckDollar } from "react-icons/fa6";
 import { TbSum, TbStatusChange } from "react-icons/tb";
 import { formatMoney } from '@/src/partials/tables/NewRequesTable'
+import { useGetAssignmentByTaskId } from '@/src/hooks/useGetAssignmentByTaskId'
+
 const sampleCompletedData: TableData[] = [
     {
         facility: 'MRS specialist',
@@ -79,7 +81,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     const updatedRequestData = useRef<TableData[]>([]);
     const testRequestCount = useRef<number>(0);
     const { ID } = params;
-
+    const { data: assignmentData, error, loading: assignmentDataLoading } = useGetAssignmentByTaskId(ID)
     const { data: requestData, loading: pageLoading } = useQuery(GetRequest, {
         variables: {
             id: ID
@@ -117,6 +119,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
         return newRequestData
     }) || []; // Default to an empty array if patientData is undefined
+
 
     return (
         <div>
@@ -172,45 +175,62 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                     <h2 className="text-lg font-bold mb-3"> Phlebotomist </h2>
                                     <Link href={`${ID}/assignment`} className="bg-blue-600 text-white px-3 py-2 rounded-lg">
                                         {
-                                            requestData.getRequest[0].phlebotomist 
-                                            
-                                                ? "Reassign" : "Assign"
+                                            assignmentDataLoading ?
+                                                <NumberPreloader />
+                                                :
+                                                (
+                                                    assignmentData.getAssignmentByTaskId.id
+                                                        
+                                                        ?
+                                                        "Reassign" 
+                                                        :
+                                                        "Assign"
+                                                )
+
                                         }
                                         
                                     </Link>
                                 </div>
                                 
                                 {
-                                    requestData.getRequest[0].phlebotomist && 
-                                <>
-                                    <div className="grid grid-cols-[50px_calc(100%-50px)] gap-1">
-                                        <div>
-                                            {requestData.getRequest[0].phlebotomist.user.image ? (
-                                                <RoundedImage userimage={requestData.getRequest[0].phlebotomist.userimage} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
-                                            ) : (
-                                                <RoundedNoImage
-                                                            text={requestData.getRequest[0].phlebotomist.user.firstName ? `${requestData.getRequest[0].phlebotomist.user.firstName.trim()} ${requestData.getRequest[0].phlebotomist.user.lastName.trim()}` : "Not Set"
-                                                        .split(' ')
-                                                        .map((word: string) => word[0].toUpperCase())
-                                                        .join('')}
-                                                    classes={`rounded-full w-[40px] h-[40px] bg-green-600 text-white text-center flex items-center justify-center`}
-                                                />
-                                            )}
-                                        </div>
-                                        <div className="text-[#231935bd]">
-                                            <span className="block test-black">
-                                                {requestData.getRequest[0].phlebotomist.user.firstName ? `${requestData.getRequest[0].phlebotomist.user.firstName} ${requestData.getRequest[0].phlebotomist.user.lastName}` : "Not Set"}
+                                    assignmentDataLoading
+                                        
+                                    ? 
+                                        <NumberPreloader />
+                                    : 
+                                    ( 
+                                        assignmentData.getAssignmentByTaskId.id ? (
+                                        <>
+                                            <div className="grid grid-cols-[50px_calc(100%-50px)] gap-1">
+                                                <div>
+                                                    {assignmentData.getAssignmentByTaskId.assigned.image ? (
+                                                        <RoundedImage userimage={assignmentData.getAssignmentByTaskId.assigned.image} classes="rounded-full w-[40px] h-[40px]" width={30} height={30} />
+                                                            ) : (
+                                                        <RoundedNoImage
+                                                                text={`${assignmentData.getAssignmentByTaskId.assigned.firstName.trim()} ${assignmentData.getAssignmentByTaskId.assigned.lastName.trim()}`
+                                                                .split(' ')
+                                                                .map((word: string) => word[0].toUpperCase())
+                                                                .join('')}
+                                                            classes={`rounded-full w-[40px] h-[40px] bg-green-600 text-white text-center flex items-center justify-center`}
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="text-[#231935bd]">
+                                                    <span className="block test-black">
+                                                        {assignmentData.getAssignmentByTaskId.assigned.firstName ? `${assignmentData.getAssignmentByTaskId.assigned.firstName} ${assignmentData.getAssignmentByTaskId.assigned.lastName}` : "Not Set"}
 
-                                            </span>
-                                            <span className="text-[#8C93A3] block mt-[-2px]">{requestData.getRequest[0].phlebotomist.user.email}</span>
-                                        </div>
-                                    </div>
-                                
-                                        <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Pick Off Date:  {requestData.getRequest[0].sampleCollectionDate}</span></p>
+                                                    </span>
+                                                    <span className="text-[#8C93A3] block mt-[-2px]">{assignmentData.getAssignmentByTaskId.assigned.email}</span>
+                                                </div>
+                                            </div>
+                                    
+                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Pick up date:  {formatDateTime(requestData.getRequest[0].sampleCollectionDate)}</span></p>
 
-                                        <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><MdPhoneIphone style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Contact line: {requestData.getRequest[0].phlebotomist.user.phoneNumber}</span></p>
-                                        <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Drop Off Date:  {requestData.getRequest[0].samepleDropOffDate}</span></p>
-                                </>
+                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><MdPhoneIphone style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Contact line: {assignmentData.getAssignmentByTaskId.assigned.phoneNumber}</span></p>
+                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Drop Off date: {formatDateTime(requestData.getRequest[0].samepleDropOffDate)}</span></p>
+                                        </>
+                                        ) : (  <div></div> )
+                                    )
                                 }
                             </div>
 
@@ -237,7 +257,8 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                
                         <AdminFacilitiesTable
                             currentPage={1}
-                            setCurrentPage={() => { }}
+                            
+                                setCurrentPage={() => { }}
                                 marginTop={'mt-6'}
                                 approveAction={() => { }} 
                                 tableHeadText='53 Facilities'

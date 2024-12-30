@@ -268,7 +268,6 @@ const Requests = () => {
     });
 
     const handleAddFacilityTest = async (formData: IFacilityTest) => {
-        console.log(formData)
         // setPageLoading(true);
         try {
             await addFacilityTest({
@@ -276,8 +275,8 @@ const Requests = () => {
                     ...formData
                 },
                 onCompleted(data) {
-                    console.log(data)
-                    // toast.success('Test added to facility successfully');
+                   
+                    toast.success('Test added to facility successfully');
 
                 },
                 onError(error) {

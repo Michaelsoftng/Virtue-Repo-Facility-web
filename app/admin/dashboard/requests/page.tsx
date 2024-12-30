@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
@@ -9,7 +9,7 @@ import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import { useGetAllRequest } from '@/src/hooks/useGetAllRequest'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 
-const Facilities = () => {
+const Requests = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [offset, setOffset] = useState(0)
@@ -61,8 +61,7 @@ const Facilities = () => {
         };
         
         return newRequestData
-    }) || []; // Default to an empty array if patientData is undefined
-
+    }) || []; 
     
     const uniqueRequestData = updatedRequestData.filter(newRequest =>
         !cachedRequestData.current.some(cachedRequest => cachedRequest.id === newRequest.id)
@@ -73,6 +72,8 @@ const Facilities = () => {
     const handleFetchNextPage = () => {
         setOffset(offset + 10)
     }
+
+   
     return (
         <div>
             <AdminHeader />
@@ -112,4 +113,4 @@ const Facilities = () => {
     )
 }
 
-export default Facilities
+export default Requests

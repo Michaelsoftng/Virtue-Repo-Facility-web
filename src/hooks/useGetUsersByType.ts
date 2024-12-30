@@ -12,5 +12,3 @@ export const useGetUsersByType = (userType: string) => {
     });
 };
 
-
-// export const GetUser

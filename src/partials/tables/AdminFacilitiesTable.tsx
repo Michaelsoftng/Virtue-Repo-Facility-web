@@ -202,7 +202,16 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
 
             {tableData.length == 0
                 ?
-                <div className="w-full text-center flex justify-center  text-black font-semibold text-2xl  shadow-md h-[300px] pr-4 rounded-lg bg-white"> <p className="mt-[130px]">No data to show</p></div>
+                <div className="w-full shadow-md h-[300px] pr-4 rounded-lg bg-white">
+                    
+                        {children && children}
+                    
+                    <div className="w-full text-center flex justify-center  text-black font-semibold text-2xl ">
+                        
+                        <p className="mt-[130px]">No data to show</p>
+                    </div>
+                    
+                </div>
                  :
                 
                 (<div className="overflow-x-auto shadow-md w-full pr-4 rounded-lg bg-white">
@@ -216,7 +225,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                     (column === 'id' || column === 'userTypeId') ? null : (
                                         <th
                                             key={column}
-                                            className="first:pl-4 px-2 py-6 capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
+                                            className="first:pl-4 px-2 py-6  capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
                                         >
                                             {formatWord(column)}
                                         </th>
@@ -243,7 +252,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                             case 'patients':
                                                 
                                                 return (
-                                                    <td key={column} className=" px-2 py-2 whitespace-no-wrap border-b border-gray-100 text-sm font-light">
+                                                    <td key={column} className="w-full px-2 py-2 whitespace-no-wrap border-b border-gray-100 text-sm font-light">
                                                         <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
                                                             <div>
                                                                 {row[column][0] ? (
@@ -259,8 +268,9 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                                 )}
                                                             </div>
                                                             <div className="text-[#231935bd]">
-                                                                {row[column][1]}
-                                                                <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
+                                                                <span className='whitespace-nowrap overflow-hidden text-ellipsis'>{row[column][1]}</span>
+                                                                <br />
+                                                                <span className="text-[#727A8B]">{row[column][2]}</span>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -298,6 +308,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'minimum_increase':
                                             case 'balance':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -306,6 +317,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'logistics_estimate':
                                             case 'paid':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -341,7 +353,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                                 )}
                                                             </div>
                                                             <div className="text-[#231935bd]">
-                                                                {row[column][1]}
+                                                                <span className='whitespace-nowrap overflow-hidden text-ellipsis'>{row[column][1]}</span>
                                                                 <br /> <span className="text-[#727A8B]">{row[column][2]}</span>
                                                             </div>
                                                         </div>
@@ -397,7 +409,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 );
                                             case 'status':
                                                 return (
-                                                    <td key={column} className="px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                    <td key={column} title={row[column].toLowerCase()} className="px-2 py-2 whitespace-nowrap text-ellipsis overflow-hidden hover:text-clip border-b border-gray-200 text-sm font-thin">
                                                         <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
                                                             {row[column].toLowerCase()}
                                                         </span>

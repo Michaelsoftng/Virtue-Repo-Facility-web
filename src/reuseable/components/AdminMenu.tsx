@@ -122,6 +122,14 @@ const AdminMenu = () => {
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">
+                        <Link href='/admin/dashboard/packages' className="flex gap-4 ">
+                            <ResultsIcon
+                                stroke={currentRoute === '/admin/dashboard/packages' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/packages' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Test Packages</span>
+                        </Link>
+                    </li>
+                    <li className="flex gap-4 mt-8">
                         <Link href='/admin/dashboard/tests' className="flex gap-4 ">
                             <ResultsIcon
                                 stroke={currentRoute === '/admin/dashboard/tests' ? '#08AD85' : '#4F475E'}
