@@ -24,6 +24,8 @@ interface TestData  {
     preparation?: string;
     methodology?: string;
     duration?: string;
+    percentage_increase: number;
+    minimum_increase: number;
 };
 
 

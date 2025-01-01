@@ -205,7 +205,7 @@ const Referrals = () => {
                                         approveAction={() => { }}
                                         changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
-                                        tableHeadText='Completed consultaions (50)'
+                                        tableHeadText={`Completed referrals (${dataCount['completed']})`}
                                         tableData={data['completed']}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
@@ -232,8 +232,8 @@ const Referrals = () => {
                                         approveAction={() => { }}
                                         changePage={() => { }}
                                         setItemToDelete={setConsultationtWithId}
-                                        tableHeadText="Consultations pending doctor (50)"
-                                        tableData={data['pendingassignment']}
+                                        tableHeadText={`Pending referrals (${dataCount['pending']})`}
+                                        tableData={data['pending']}
                                         searchBoxPosition="justify-start"
                                         showTableHeadDetails={true}
                                         showActions={true}

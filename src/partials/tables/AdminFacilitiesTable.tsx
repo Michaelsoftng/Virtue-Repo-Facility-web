@@ -460,6 +460,19 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 // </div>
                                             }
 
+                                            {testPage === 'packages' &&
+
+                                            <div className="flex justify-between gap-2 w-[150px]">
+                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
+                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
+                                                <Link href={`packages/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                   
+                                            </div>
+
+                                                // <div className="flex justify-between gap-2 w-[150px]">
+                                                //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                // </div>
+                                            }
                                             {testPage === 'staffs' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">

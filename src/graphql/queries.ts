@@ -185,6 +185,21 @@ export const GetAllTest = gql`
 
 `;
 
+export const GetAllPackage = gql`
+  query getAllPackages($limit: Int,  $offset: Int){
+    getAllPackages(limit: $limit, offset: $offset){
+        packagesCount
+        packages{     
+            id
+            packageName
+            percentageIncrease
+            minimumIncrease
+            }
+        
+    } 
+  }
+`;
+
 export const GetAllAssignment = gql`
   query getAllAssignment{
     getAllAssignment{
@@ -251,6 +266,32 @@ export const GetAssignmentByTaskId = gql`
             distance
     }
 }
+`;
+
+export const GetPackageById = gql`
+  query getPackageById($id: ID!) {
+    getPackageById(id: $id) {
+      id
+      packageName
+      testCount
+      tests{
+          id
+          name
+          code
+      }
+      facilitesCount
+      facilityPackages{
+          id
+          price
+          facilityPrice
+          facility{
+              id
+          }
+      }
+
+    }
+  }
+
 `;
 
 

@@ -216,6 +216,52 @@ export const ResendVerificationCode = gql`
 
 `;
 
+export const CreatePackageManual = gql`
+  mutation CreatePackageManual(
+      $package_name: String!, 
+      $description: String,
+      $percentage_increase: Decimal!,
+      $minimum_increase: Decimal!
+      ) {
+    CreatePackageManual(packageName: $package_name,
+          description: $description,
+          percentageIncrease: $percentage_increase,
+          minimumIncrease: $minimum_increase) {
+          package {
+              id
+              packageName
+              description
+              percentageIncrease
+              minimumIncrease
+          }
+      }
+  }
+`
+export const CreatePackageUpload = gql`
+  mutation CreatePackageUpload(
+      $file: String!, 
+      ) {
+    CreatePackageUpload(
+      file: $file, 
+      ) {
+        packagesSkipped {
+            id
+            packageName
+            description
+            percentageIncrease
+            minimumIncrease
+        }
+        packagesCreated {
+            id
+            packageName
+            description
+            percentageIncrease
+            minimumIncrease
+        }
+    }
+  }
+`;
+
 export const CreateTestManual = gql`
   mutation CreateTestManual(
 		$name: String!, 
@@ -294,6 +340,22 @@ mutation DeleteTest(
     }
 }
 }
+`;
+
+export const DeletePackage = gql`
+  mutation DeletePackage(
+      $id: String, 
+    ) {
+    DeletePackage(
+    id: $id, 
+      code: $code, 
+    ) {
+      package {
+        deletedStatus
+        message
+      }
+    }
+  }
 `;
 
 export const CreateAssignment = gql`
