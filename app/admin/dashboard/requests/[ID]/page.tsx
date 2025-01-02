@@ -179,7 +179,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                                 <NumberPreloader />
                                                 :
                                                 (
-                                                    assignmentData.getAssignmentByTaskId.id
+                                                    assignmentData?.getAssignmentByTaskId?.id
                                                         
                                                         ?
                                                         "Reassign" 
@@ -199,7 +199,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                         <NumberPreloader />
                                     : 
                                     ( 
-                                        assignmentData.getAssignmentByTaskId.id ? (
+                                        assignmentData?.getAssignmentByTaskId?.id ? (
                                         <>
                                             <div className="grid grid-cols-[50px_calc(100%-50px)] gap-1">
                                                 <div>

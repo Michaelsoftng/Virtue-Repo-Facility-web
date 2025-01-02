@@ -100,7 +100,6 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
                         toast.error(data?.CreateAssignment?.errors?.message);
                     } else {
                         toast.success(data?.CreateAssignment?.success?.message);
-                        toast.success("data?.CreateAssignment?.success?.message");
                     }
                     
                 },
