@@ -146,7 +146,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
                                     <h2 className="text-[#0F1D40] font-bold text-xl">All Test in this package</h2>
                                 </div>
                             </AdminFacilitiesTable>
-                            <div className="mt-2 px-6 py-2  rounded-md bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">
+                            {/* <div className="mt-2 px-6 py-2  rounded-md bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">
                                 <h2 className="text-[20px] font-bold text-black">Top Test</h2>
                                 <div className="">
 
@@ -174,7 +174,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
 
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                         {
                             pageLoading
