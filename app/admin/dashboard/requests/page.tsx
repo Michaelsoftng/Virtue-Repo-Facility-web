@@ -46,6 +46,7 @@ const Requests = () => {
         const phlebotomistname = (phlebotomist && phlebotomist.user.firstName) ? `${phlebotomist.user.firstName} ${phlebotomist.user.lastName}` : 'Not Set'
         const newRequestData = {
             patients: [null, patientname, patient.user.email],
+            address: `${patient.user.city} ${patient.user.state}`,
             // test: `${tests.length} tests`,
             amount: total,
             paid: total - balance,

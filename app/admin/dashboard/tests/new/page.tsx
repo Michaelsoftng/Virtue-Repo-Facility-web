@@ -32,6 +32,7 @@ interface TestData  {
 const NewTest = () => {
     const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
+    const [fileName, setFileName] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<string>('manualaddtest')
     const [formData, setFormData] = useState<TestData | null>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -48,6 +49,8 @@ const NewTest = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             setFile(event.target.files[0]); // Save the file to state
+            setFileName(event.target.files[0].name);
+           
         }
     };
 
@@ -348,7 +351,7 @@ const NewTest = () => {
                                                 >
                                                     <div className="w-full flex justify-center">
                                                         <p className="text-[#08AC85] w-[250px] text-sm font-medium mb-4 text-center">
-                                                            Click or Drag and drop your file or photo here to start uploading
+                                                            {fileName ? fileName : 'Click or Drag and drop your file or photo here to start uploading'}
                                                         </p>
                                                     </div>
                                                     <div className="w-full flex justify-center">

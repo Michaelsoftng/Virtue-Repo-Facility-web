@@ -223,7 +223,8 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                                     <span className="text-[#8C93A3] block mt-[-2px]">{assignmentData.getAssignmentByTaskId.assigned.email}</span>
                                                 </div>
                                             </div>
-                                    
+                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Status:  {assignmentData.getAssignmentByTaskId.isAccepted ? 'accepted' : 'pending'}</span></p>
+
                                                     <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Pick up date:  {formatDateTime(requestData.getRequest[0].sampleCollectionDate)}</span></p>
 
                                                     <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><MdPhoneIphone style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Contact line: {assignmentData.getAssignmentByTaskId.assigned.phoneNumber}</span></p>

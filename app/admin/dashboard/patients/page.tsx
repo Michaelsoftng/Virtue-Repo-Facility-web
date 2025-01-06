@@ -65,9 +65,12 @@ const Patients = () => {
         if (createdDate >= oneWeekAgo) {
             newPatients += 1;
         }
+        
         const newPatientData = {
             patients: [null, name, singlePatient.email],
             ...rest,
+            dob: patient.date_of_birth,
+            gender: patient.gender,
             city: patientCity,
             state: patientState,
             status: status

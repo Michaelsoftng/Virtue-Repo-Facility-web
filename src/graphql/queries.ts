@@ -241,6 +241,7 @@ export const GetAssignmentByTaskId = gql`
   query getAssignmentByTaskId($taskId: ID!){
     getAssignmentByTaskId(taskId: $taskId){
         id
+        isAccepted
         assignedBy{
                 id
                 staff{

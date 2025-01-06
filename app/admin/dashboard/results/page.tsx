@@ -229,7 +229,8 @@ const Tests = () => {
                     <div className="px-8 py-4">
                         <div className="flex justify-between">
                             <div>
-                                <p className="font-bold text-xl px-4 py-2 mr-2" >{dataCount.current.tests } Available Tests</p>
+                                <button className="px-4 py-2 bg-[#B2B7C2] w-[200px] mr-2" onClick={() => handleTabChange('tests')}>Tests</button>
+                                <button className="px-4 py-2 bg-[#b5b5b67c] w-[200px]" onClick={() => handleTabChange('results')}>Results</button>
                             </div>
 
                             <Link href='tests/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">

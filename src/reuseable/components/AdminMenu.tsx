@@ -134,7 +134,15 @@ const AdminMenu = () => {
                             <ResultsIcon
                                 stroke={currentRoute === '/admin/dashboard/tests' ? '#08AD85' : '#4F475E'}
                             />
-                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/tests' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Tests/Results</span>
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/tests' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Tests</span>
+                        </Link>
+                    </li>
+                    <li className="flex gap-4 mt-8">
+                        <Link href='/admin/dashboard/results' className="flex gap-4 ">
+                            <ResultsIcon
+                                stroke={currentRoute === '/admin/dashboard/results' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/results' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Results</span>
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">
