@@ -84,10 +84,12 @@ query getUserByUserType($userType: String!) {
         deletedBy
         staff{
             id
-            
+            gender
         }
         patient{
           id
+          gender
+          dateOfBirth
         }
         facilityAdmin{
             id
@@ -97,11 +99,12 @@ query getUserByUserType($userType: String!) {
 
         doctor{
           id
-          
+          gender
         }
 
         phlebotomist{
           id
+          gender
         }
       }
   }

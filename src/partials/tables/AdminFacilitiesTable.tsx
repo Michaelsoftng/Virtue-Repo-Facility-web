@@ -172,6 +172,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
         approveAction()
     }
 
+    const addPackageTest = (id: string) => {
+        approveAction(id)
+    }
+
     // console.log('tableData', tableData)
     if (isLoading) {
 
@@ -275,6 +279,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'phlebotiomist':
                                             case 'staff':
 
                                                 return (
@@ -462,16 +467,14 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
 
                                             {testPage === 'packages' &&
 
-                                            <div className="flex justify-between gap-2 w-[150px]">
-                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
-                                                <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
-                                                <Link href={`packages/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
-                                                   
-                                            </div>
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
+                                                    <Link href={`packages/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                    
+                                                </div>
 
-                                                // <div className="flex justify-between gap-2 w-[150px]">
-                                                //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
-                                                // </div>
+                                      
                                             }
                                             {testPage === 'staffs' &&
 
@@ -487,6 +490,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
                                                 // </div>
                                             }
+
                                             {testPage === 'patients' &&
                                                 
                                                 <div className="flex justify-between gap-2 w-[150px]">
@@ -494,7 +498,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 </div>
                                             }
 
-                                            {testPage === 'requests' &&
+                                            {testPage === 'requests' || testPage === 'payments' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
@@ -523,6 +527,13 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 </div>
                                             }
                                             
+                                            {testPage === 'packagetests' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-blue-500 rounded text-blue-500" onClick={() => addPackageTest(row.id)}>Add test to package</button>
+                                                </div>
+                                            }
+
                                             {testPage === 'addfacilityTests' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
@@ -530,7 +541,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 </div>
                                             }
                                             
-                                            {testPage === 'singleFacility' &&
+                                            {testPage === 'singleFacility' || testPage === 'testinpackages' && 
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>

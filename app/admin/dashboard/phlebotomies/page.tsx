@@ -105,7 +105,7 @@ const Phlebotomies = () => {
             newStaffs += 1;
         }
         const newPatientData = {
-            staff: [null, name, singleStaff.email],
+            phlebotiomist: [null, name, singleStaff.email],
             ...rest,
             city: patientCity,
             state: patientState,

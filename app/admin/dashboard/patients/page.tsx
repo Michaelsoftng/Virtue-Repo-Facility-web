@@ -70,7 +70,7 @@ const Patients = () => {
             patients: [null, name, singlePatient.email],
             ...rest,
             dob: patient.date_of_birth,
-            gender: patient.gender,
+            gender: patient.gender  ? patient.gender.toLowerCase() : '',
             city: patientCity,
             state: patientState,
             status: status

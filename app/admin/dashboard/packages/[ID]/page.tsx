@@ -22,15 +22,6 @@ import Approval from '@/src/reuseable/components/Approval'
 import Loading from '../../loading'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
-import { useGetRecentTests } from '@/src/hooks/useGetRecentTests'
-
-const chartData = [
-    { test: "Covid", visitors: 275, fill: "red" },
-    { test: "Malaria", visitors: 200, fill: "green" },
-    { test: "RVS", visitors: 187, fill: "purple" },
-    { test: "Hyperloric A.", visitors: 173, fill: "blue" },
-    { test: "others", visitors: 90, fill: "#44AC21" },
-]
 
 
 const Package = ({ params }: { params: { ID: string } }) => {
@@ -74,7 +65,6 @@ const Package = ({ params }: { params: { ID: string } }) => {
         return newFacilityData
     }) || []; // Default to an empty array if patientData is undefined
 
-
     if (pageLoading) {
         return <Loading />;
     }
@@ -85,7 +75,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageTitle="Facilities" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Packages" pageTitle={packageData.getPackageById.packageName} showExportRecord={false} />
                     <div className="px-8 py-4">
                         <div className="flex justify-between">
                             <div className="shadow-md bg-white px-8 py-4 flex gap-6 rounded-md">
@@ -125,7 +115,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-[calc(100%-25rem)_23rem] gap-x-8 mt-8">
+                        <div className="mt-8">
                             <AdminFacilitiesTable
                                 currentPage={1}
                                 setCurrentPage={() => { }}
@@ -135,15 +125,21 @@ const Package = ({ params }: { params: { ID: string } }) => {
                                 tableData={packageData.getPackageById.tests}
                                 searchBoxPosition='hidden'
                                 showTableHeadDetails={false}
-                                showActions={false}
+                                showActions={true}
                                 deleteAction={() => { }}
                                 setItemToDelete={() => { }}
                                 showPagination={false}
-                                testPage='Request'
+                                testPage='testinpackages'
                             >
+                                <div className="flex justify-between px-3 py-3">
+                                    <div>
+                                        <p className="font-bold text-xl ml-2" >{packageData.getPackageById.testCount} Test in this package</p>
+                                    </div>
 
-                                <div className="mx-4 mt-5">
-                                    <h2 className="text-[#0F1D40] font-bold text-xl">All Test in this package</h2>
+                                    <Link href={`${ID}/packagetests`} className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
+                                        <span className="mt-[2px]"><PlusIcon /></span>
+                                        &nbsp;<span >Add Test to package</span>
+                                    </Link>
                                 </div>
                             </AdminFacilitiesTable>
                             {/* <div className="mt-2 px-6 py-2  rounded-md bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">

@@ -261,6 +261,37 @@ export const CreatePackageUpload = gql`
     }
   }
 `;
+export const CreateTestPackage = gql`
+mutation CreateTestPackage(
+		$test: String!, 
+		$package: String! 
+		) {
+  CreateTestPackage(
+	test: $test, 
+    package: $package
+  ) {
+    testPackage {
+        id
+        test{
+            id
+            name
+            code
+            description
+        }
+      package{
+        id
+        packageName
+        facilityPackages{
+            id
+        }
+        facilitesCount
+      }
+    
+    }
+}
+}
+`;
+
 
 export const CreateTestManual = gql`
   mutation CreateTestManual(

@@ -100,9 +100,11 @@ const Payments = () => {
                     payment_type: paymentType.toLowerCase(),
                     amount_paid: amountPaid,
                     amount_charged: amountCharged,
+                    date: createdAt,
                     payment_channel: paymentChannel.toLowerCase(),
                     payment_id: paymentId,
                     ...rest,
+                    status: 'verified'
                 };
 
                 return paymentData
@@ -110,35 +112,6 @@ const Payments = () => {
 
 
             setData((prevData) => {
-                // let modifiedPaymentData = [...updatedPaymentData];
-
-                // Perform editing if the tab matches a specific condition
-                // if (tab === "pendingpayment") {
-                //     modifiedPaymentData = modifiedPaymentData.map((payment) => {
-                //         const {
-                //             consultationTime,
-                //             consultationStartedAt,
-                //             ...rest
-                //         } = payment
-                //             ;
-                //         return {
-                //             ...rest
-                //         };
-                //     });
-                // } else if (tab === "completed") {
-                //     modifiedConsultationData = modifiedConsultationData.map((consultation) => {
-                //         const {
-                //             consultationTime,
-                //             consultationStartedAt,
-                //             ...rest
-                //         } = consultation
-                //             ;
-                //         return {
-                //             ...rest
-                //         };
-                //     });
-                // }
-
                 return {
                     ...prevData,
                     [tab]: [...(prevData[tab] || []), ...updatedPaymentData],
@@ -198,8 +171,8 @@ const Payments = () => {
                                     <TablePreloader />
                                 ) : (
                                         <AdminFacilitiesTable
-                                            currentPage={1}
-                                            setCurrentPage={() => { }}
+                                        currentPage={1}
+                                        setCurrentPage={() => { }}
                                         deleteAction={() => { }}
                                         approveAction={() => { }}
                                         changePage={() => { }}
@@ -210,7 +183,7 @@ const Payments = () => {
                                         showTableHeadDetails={true}
                                         showActions={true}
                                         showPagination={false}
-                                        testPage='phlebotomies'
+                                        testPage='payments'
                                         marginTop='mt-4'
                                     />
 
