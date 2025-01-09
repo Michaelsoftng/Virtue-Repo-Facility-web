@@ -13,7 +13,7 @@ import ConfirmApproveModal from '@/src/reuseable/components/ApproveModal';
 import TestRequestModal from '@/src/reuseable/components/TestRequestModal';
 import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
 import Loading from '@/app/admin/dashboard/loading';
-import { IFacilityTest } from '@/src/interface';
+import EditPackageModal, { IpackageData } from '@/src/reuseable/components/EditPackageModal';
 
 export interface TestModalProps {
     id?: string
@@ -94,9 +94,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
     const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
     const [showTestRequestModal, setShowTestRequestModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
+    const [showEditPackageModal, setShowEditPackageModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [showAddFacilityTestModal, setShowAddFacilityTestModal] = useState<boolean>(false);
-    const [activeData, setActiveData] = useState<TestModalProps | null>(null)
+    const [activeData, setActiveData] = useState<TestModalProps | IpackageData | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -151,6 +152,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                 console.log("data to display",dataToDisplay)
                 setActiveData(dataToDisplay)
                 setShowAddFacilityTestModal(true)
+                break;
+            case 'editPackage':
+                setActiveData(dataToDisplay)
+                setShowEditPackageModal(true)
                 break;
             case 'viewTestRequest':
                 setShowTestRequestModal(true)
@@ -229,7 +234,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                     (column === 'id' || column === 'userTypeId') ? null : (
                                         <th
                                             key={column}
-                                            className="whitespace-nowrap overflow-auto first:pl-4 px-2 py-6 w-full capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
+                                            className="whitespace-nowrap overflow-auto first:pl-4 px-2 py-6 capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
                                         >
                                             {formatWord(column)}
                                         </th>
@@ -305,6 +310,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
+                                                
+                                                
+                                            case 'amount_paid':
+                                            case 'amount_charged':    
                                             case 'amount':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -468,7 +477,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                             {testPage === 'packages' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'editPackage')}>Edit</button>
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
                                                     <Link href={`packages/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                     
@@ -588,6 +597,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
             }
             
             <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
+            <EditPackageModal isOpen={showEditPackageModal} onClose={() => setShowEditPackageModal(false)} packageData={activeData} handleEditPackage={approveAction} />
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddFacilityTestModal} onClose={() => setShowAddFacilityTestModal(false)} test={activeData} facilityId={queryId as string}/>
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />

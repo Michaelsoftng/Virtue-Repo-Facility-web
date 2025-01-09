@@ -199,6 +199,7 @@ export const GetAllPackage = gql`
         packagesCount
         packages{     
             id
+            description
             packageName
             percentageIncrease
             minimumIncrease
@@ -287,6 +288,7 @@ export const GetPackageById = gql`
           id
           name
           code
+          description
       }
       facilitesCount
       facilityPackages{
@@ -773,11 +775,11 @@ export const GetPayments = gql`
           payments{
               id
               paidby{
-              id
-              email
-              firstName
-              lastName
-          }
+                id
+                email
+                firstName
+                lastName
+              }
               paidFor
               paymentPlan
               paymentType
@@ -789,7 +791,11 @@ export const GetPayments = gql`
               invoice
               paymentDetails
               description
+              createdAt
+              requestSet{
+                id
               }
+            }
 
 
 

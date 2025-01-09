@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import Loading from '../../loading'
 import { IoIosWarning } from 'react-icons/io'
 
-interface PackageData  {
+export interface PackageData  {
     package_name: string;
     description?: string;
     percentage_increase: number;

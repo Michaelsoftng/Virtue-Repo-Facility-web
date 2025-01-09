@@ -92,7 +92,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     if (pageLoading ) {
         return <Loading />;
     }
-    const testRequestData = requestData.getRequest[0].testRequest as TableData[]
+    const testRequestData = requestData?.getRequest[0]?.testRequest as TableData[]
     const updatedTestRequestData = testRequestData?.map((request) => {
         const {
             __typename,

@@ -73,7 +73,7 @@ const Payments = () => {
                     __typename,
                     invoice,
                     description,
-                  
+                    id,
                     paidby,
                     paidFor,
                     paymentPlan,
@@ -86,6 +86,7 @@ const Payments = () => {
                     deletedAt,
                     deletedBy,
                     createdAt,
+                    requestSet,
                     ...rest
                 } = singlepPayments;
 
@@ -94,13 +95,14 @@ const Payments = () => {
                 const paid_For = paidFor === 'TESTREQUEST' ? 'tests' : 'consultation'
                 const payment_plan = paymentPlan == 'LUMP_SUM' ? 'full payment' :'installment'
                 const paymentData = {
+                    id: requestSet[0]?.id,
                     patients: [null, patientName, paidby.email],
                     paid_for: paid_For,
                     payment_Plan: payment_plan,
                     payment_type: paymentType.toLowerCase(),
                     amount_paid: amountPaid,
                     amount_charged: amountCharged,
-                    date: createdAt,
+                    date: new Date(createdAt),
                     payment_channel: paymentChannel.toLowerCase(),
                     payment_id: paymentId,
                     ...rest,

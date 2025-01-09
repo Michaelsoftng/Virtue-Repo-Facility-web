@@ -19,7 +19,7 @@ const FacilityMenu = () => {
                 <div className="mt-4">
                     <li className="mt-8">
                         
-                        <Link href='#' className="flex gap-4 ">
+                        <Link href='/facility/dashboard/home' className="flex gap-4 ">
                             <DashboardIcon
                                 stroke={currentRoute === '/facility/dashboard/home' ? '#08AD85' : '#4F475E'}
                             />

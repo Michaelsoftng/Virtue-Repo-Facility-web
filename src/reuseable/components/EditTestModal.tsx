@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState } from 'react';
 import { TestModalProps } from '@/src/partials/tables/NewRequesTable';
+
+export interface ITestModalProps extends TestModalProps{
+    id?: string
+}
 interface EditModalProps {
     isOpen: boolean;
     onClose: () => void;
-    modalDetails: TestModalProps | null
+    test: TestModalProps | null
+    handleEditPackage: (id: string, data: TestModalProps) => void
 }
-const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, modalDetails }) => {
+const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handleEditPackage }) => {
     const [amount, setAmount] = useState<number>(0);
-    
+    const [formData, setFormData] = useState<TestModalProps | null>(null);
     const [duration, setDuration] = useState<string>('');
     const [preparation, setPreparation] = useState<string>('');
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        if (test ) {
+                setFormData({
+                    name: test?.name as string, 
+                    description: test?.description,
+                    percentage_increase: test?.percentage_increase as number,
+                    minimum_increase: test?.minimum_increase as number,
+    
+                });
+            }
+    }, [test]);
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log({ amount, duration, preparation });
+        onClose()
+        handleEditPackage(test!.id as string, formData as TestModalProps);
     };
 
     
@@ -53,7 +70,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, modalDetails
                                 type="text"  // Change to text instead of number
                                 id="amount"
                                 className="appearance-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                                value={modalDetails?.name}
+                                value={test?.name}
                                 onChange={(e) => setAmount(parseFloat(e.target.value))}  // Handling as string
                                 required
                             />

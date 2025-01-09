@@ -16,22 +16,54 @@ import client from '@/lib/apolloClient';
 import { GetPackageById } from '@/src/graphql/queries';
 import { getFacilityTests, useGetAvailableTestByFacility } from '@/src/hooks/useGetAvailableTestByFacility'
 import { toast } from 'react-toastify';
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { useRouter } from 'next/navigation';
 import Approval from '@/src/reuseable/components/Approval'
 import Loading from '../../loading'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { DeleteTestPackage } from '@/src/graphql/mutations'
+
 
 
 const Package = ({ params }: { params: { ID: string } }) => {
     const { ID } = params;
+    const [pageRemovingLoading, setPageRemovingLoading] = useState(false)
+    const [deleteTestWithId, setDeleteTestWithId] = useState <string | null>(null) // id of test to delete
     const { data: packageData, loading: pageLoading } = useQuery(GetPackageById, {
         variables: {
             id: ID
         },
         client,
     });
+    const tests = packageData?.getPackageById?.tests as TableData[]
+    const updatedTestData = tests?.map((singleTest) => {
+
+        const {
+            __typename,
+            id,
+            name,
+            code,
+            description,
+            minimumIncrease,
+            percentageIncrease,
+            createdAt,
+            deletedAt,
+            ...rest
+        } = singleTest;
+
+        const newTestData = {
+            id,
+            test_name: name,
+            code,
+            test_description: description,
+            ...rest,
+            
+        };
+
+        return newTestData
+    }) || []; // Default to an empty array if patientData is undefined
+
     const facilities = packageData?.getPackageById?.facilityPackages?.facility as TableData[]
     const updatedFacilityData = facilities?.map((singleFacility) => {
 
@@ -65,10 +97,50 @@ const Package = ({ params }: { params: { ID: string } }) => {
         return newFacilityData
     }) || []; // Default to an empty array if patientData is undefined
 
+    const [deleteTest, { loading: deleteTestLoading }] = useMutation(DeleteTestPackage, {
+        client,
+    });
+
+    const handleDeleteTest = async () => {
+        setPageRemovingLoading(deleteTestLoading)
+        try {
+            const { data } = await deleteTest({
+                variables: {
+                    test: deleteTestWithId,
+                    package: ID
+                },
+                async onCompleted(data) {
+                    if (data.DeleteTestPackage.testPackage.deletedStatus) {
+                        toast.success(data?.DeleteTestPackage?.testPackage?.message);
+                        window.location.reload();
+                    } else {
+                        toast.error(data?.DeleteTestPackage?.testPackage?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            }); 
+
+        } catch (err) {
+            console.error('Error deleting test from package:', err);
+        } finally {
+            setPageRemovingLoading(false)
+
+        }
+       
+    }
+
+
+
+
     if (pageLoading) {
         return <Loading />;
     }
     
+
     return (
         <div>
             <AdminHeader />
@@ -121,13 +193,13 @@ const Package = ({ params }: { params: { ID: string } }) => {
                                 setCurrentPage={() => { }}
                                 approveAction={() => { }}
                                 changePage={() => { }}
-                                tableHeadText='53 Facilities'
-                                tableData={packageData.getPackageById.tests}
+                                tableHeadText=''
+                                tableData={updatedTestData}
                                 searchBoxPosition='hidden'
                                 showTableHeadDetails={false}
                                 showActions={true}
-                                deleteAction={() => { }}
-                                setItemToDelete={() => { }}
+                                deleteAction={handleDeleteTest}
+                                setItemToDelete={setDeleteTestWithId}
                                 showPagination={false}
                                 testPage='testinpackages'
                             >

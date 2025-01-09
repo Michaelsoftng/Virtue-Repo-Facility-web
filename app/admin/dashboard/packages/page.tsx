@@ -36,12 +36,11 @@ const Packages = () => {
         try {
             const { data } = await deletePackage({
                 async onCompleted(data) {
-                    console.log(data)
-                    if (data.DeleteTest.test.deletedStatus) {
-                        toast.success(data?.DeleteTest?.test?.message);
+                    if (data.DeletePackage.package.deletedStatus) {
+                        toast.success(data?.DeletePackage?.package?.message);
                         window.location.reload();
                     } else {
-                        toast.error(data?.DeleteTest?.test?.message);
+                        toast.error(data?.DeletePackage?.package?.message);
                     }
 
                 },

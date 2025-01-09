@@ -375,11 +375,10 @@ mutation DeleteTest(
 
 export const DeletePackage = gql`
   mutation DeletePackage(
-      $id: String, 
+      $id: ID!, 
     ) {
     DeletePackage(
-    id: $id, 
-      code: $code, 
+      id: $id,  
     ) {
       package {
         deletedStatus
@@ -388,6 +387,24 @@ export const DeletePackage = gql`
     }
   }
 `;
+
+export const DeleteTestPackage = gql`
+  mutation DeleteTestPackage(
+        $test: ID!, 
+      $package: ID!  
+    ) {
+    DeleteTestPackage(
+      test: $test, 
+        package: $package
+      ) {
+        testPackage {
+          deletedStatus
+          message
+        }
+    }
+  }
+`;
+
 
 export const CreateAssignment = gql`
   mutation CreateAssignment(
