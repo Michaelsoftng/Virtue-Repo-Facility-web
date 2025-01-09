@@ -229,7 +229,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                     (column === 'id' || column === 'userTypeId') ? null : (
                                         <th
                                             key={column}
-                                            className="first:pl-4 px-2 py-6  capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
+                                            className="whitespace-nowrap overflow-auto first:pl-4 px-2 py-6 w-full capitalize border-gray-100 text-left text-sm leading-4 text-black tracking-wider"
                                         >
                                             {formatWord(column)}
                                         </th>
@@ -498,13 +498,18 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 </div>
                                             }
 
-                                            {testPage === 'requests' || testPage === 'payments' &&
+                                            {(testPage === 'requests' || testPage === 'payments' )&&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
+                                            {testPage === 'patientrequests'  &&
 
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <Link href={`/admin/dashboard/requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
                                             {testPage === 'phlebotomies' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">

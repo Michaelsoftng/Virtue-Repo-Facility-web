@@ -31,6 +31,11 @@ export const GetUserById = gql`
           id
           role
         }
+        patient{
+          id
+          dateOfBirth
+          gender
+        }
         phlebotomist{
           id
           dob
@@ -526,6 +531,141 @@ export const GetRequest = gql`
         }
       
     }
+  }
+`;
+
+export const GetRequestByPatient = gql`
+query getRequestByPatient($patientId: ID!, $limit: Int, $offset: Int,){
+    getRequestByPatient(patientId: $patientId, limit: $limit, offset: $offset){
+      requestsCount
+      requests {
+        id
+        samplePickUpAddress
+        requestStatus
+        sampleStatus
+        samepleDropOffDate
+        sampleCollectionDate
+        requestDate
+        isPaid
+        total
+        balance
+        totalPaymentSum
+        coveredAmount
+        patient{
+            id
+            user{
+              firstName  
+              lastName
+              email
+              phoneNumber
+
+            }
+        }
+        phlebotomist{
+            id
+            user{
+                id
+                firstName  
+              lastName
+              email
+              phoneNumber
+            }
+        }
+        tests{
+            id
+            name
+            code
+        }
+        payment{
+            id
+            amountPaid
+            amountCharged
+        }
+        testRequest{
+          id
+          test{
+            id
+              name
+              code 
+          }
+        facility{
+            id
+            facilityName
+            user{
+              id
+              firstName  
+            lastName
+            email
+          }
+        }
+        patientName
+        patientAge
+        package{
+          id
+        }
+        testResult
+        resultDate
+        }
+      }
+    }
+
+  }
+`;
+
+export const GetConsultationsByPatient = gql`
+query getConsultationsByPatient($patientId: ID!, $limit: Int, $offset: Int){
+    getConsultationsByPatient(patientId: $patientId, limit: $limit, offset: $offset){
+        consultationCount
+        consultations{
+            id
+            patient{
+                id
+            }
+            doctor{
+                id
+            }
+            status
+            purpose
+            medicalhistory
+            attachments
+            otherdetails
+            requestedDoctorType
+            requestedDuration
+            consultationTime
+            consultationStartedAt
+            consultationEndedAt
+            totalPaymentSum
+            total
+        }
+    }
+}
+`;
+
+export const GetRequestStats = gql`
+  query getRequestStatsByUser($patientId: ID, $phlebotomist: ID){
+    getRequestStatsByUser(patientId: $patientId, phlebotomist: $phlebotomist){
+        completed
+        ongoing
+        pending
+        cancelled
+        scheduled
+        unpaid
+    }
+
+  }
+`;
+
+export const GetConsultationStats = gql`
+  query getConsultationStatsByUser($patientId: ID, $doctor: ID){
+    getConsultationStatsByUser(patientId: $patientId, doctor: $doctor){
+        completed
+        ongoing
+        pending
+        cancelled
+        scheduled
+        unpaid
+    }
+
   }
 `;
 

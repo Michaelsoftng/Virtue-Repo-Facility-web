@@ -14,7 +14,7 @@ const NumberPreloader = () => {
     //           </div>
     //       </div>
     //   </div>
-    <div className="loading-btn w-full h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:250px_100%] rounded-sm animate-shine-loading-container-items"></div>
+    <div className="loading-btn w-full h-6 bg-gradient-to-r from-gray-100 via-gray-300 to-gray-100 bg-[length:250px_100%] rounded-sm animate-shine-loading-container-items"></div>
 
   )
 }
