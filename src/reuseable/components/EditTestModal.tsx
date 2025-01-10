@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { TestModalProps } from '@/src/partials/tables/NewRequesTable';
 
 export interface ITestModalProps extends TestModalProps{
@@ -9,30 +9,37 @@ interface EditModalProps {
     isOpen: boolean;
     onClose: () => void;
     test: TestModalProps | null
-    handleEditPackage: (id: string, data: TestModalProps) => void
+    handleEditTest: (id: string, data: TestModalProps) => void
 }
-const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handleEditPackage }) => {
-    const [amount, setAmount] = useState<number>(0);
+const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handleEditTest }) => {
     const [formData, setFormData] = useState<TestModalProps | null>(null);
-    const [duration, setDuration] = useState<string>('');
-    const [preparation, setPreparation] = useState<string>('');
     useEffect(() => {
-        if (test ) {
-                setFormData({
-                    name: test?.name as string, 
-                    description: test?.description,
-                    percentage_increase: test?.percentage_increase as number,
-                    minimum_increase: test?.minimum_increase as number,
-    
-                });
-            }
+        if (test) {
+            const numericString = test?.percentage_increase as string
+            const numericValue = parseFloat(numericString.replace('%', ''));
+            test.percentage_increase = numericValue;  
+        }
     }, [test]);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         onClose()
-        handleEditPackage(test!.id as string, formData as TestModalProps);
+        handleEditTest(test!.id as string, formData as TestModalProps);
     };
-
+    const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        if (!name) {
+            console.warn("Input is missing a name attribute. Ignoring this change.");
+            return;
+        }
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]:
+                name === 'percentage_increase' || name === 'minimum_increase'
+                    ? (isNaN(parseFloat(value)) ? '' : parseFloat(value))
+                    : value,
+        }) as TestModalProps);
+        
+    };
     
 
     if (!isOpen) return null; // If the modal is closed, render nothing
@@ -48,7 +55,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                         <h3 className="text-black text-xl  font-semibold generalSans">
                             Edit test
                         </h3>
-                        <p className="text-[#525c76] text-sm  generalSans mt-2">Edit facility test information</p>
+                        <p className="text-[#525c76] text-sm  generalSans mt-2">Edit test information</p>
                     </div>
                     
                     <button
@@ -61,48 +68,110 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                 <div className="p-4">
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
-                            <label htmlFor="string" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                                 Name 
                             </label>
                            
                             <input
+                                name='name'
                                 style={{ appearance: 'textfield' }}  // Removes number input spinner
                                 type="text"  // Change to text instead of number
-                                id="amount"
+                                id="name"
                                 className="appearance-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 value={test?.name}
-                                onChange={(e) => setAmount(parseFloat(e.target.value))}  // Handling as string
-                                required
+                                onChange={handleFormChange} 
+                                
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                                Percentage increase
+                            </label>
+
+                            <input
+                                style={{ appearance: 'textfield' }}  // Removes number input spinner
+                                type="number"  // Change to text instead of number
+                                value={test?.percentage_increase}
+                                name="percentage_increase"
+                                className="appearance-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                onChange={handleFormChange}// Handling as string
+                                
                             />
                         </div>
 
                         <div className="mb-4">
                             <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-                                Duration (Hours)
+                                Minimum increase
                             </label>
                             <input
-                                type="text"
-                                id="duration"
+                                type="number"  // Change to text instead of number
+                                step='100'
+                                value={test?.minimum_increase}
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                                value={duration}
-                                onChange={(e) => setDuration(e.target.value)}
-                                required
+                                name="minimum_increase"
+                                onChange={handleFormChange}
+
                             />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
+                                Test Type (Hours)
+                            </label>
+                            <select
+                                onChange={handleFormChange}
+                                name="test_type"
+                                id="group"
+                                required
+                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-[14px]"
+                            >
+                                <option defaultValue="facility">Select a Test Type</option>
+                                <option value="Laboratory">Laboratory Tests</option>
+                                <option value="Radiology">Radiology Tests</option>
+                                <option value="others">Others</option>
+                            </select>
                         </div>
 
                         <div className="mb-4">
                             <label htmlFor="preparation" className="block text-sm font-medium text-gray-700">
-                                Preparation
+                                Group
+                            </label>
+                            <select
+                                onChange={handleFormChange}
+                                name="group"
+                                id="group"
+                                required
+                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-[14px]"
+                            >
+                                <option defaultValue="facility">Select a Test group</option>
+                                <option value="chemistry">Chemistry Tests</option>
+                                <option value="genetic">Genetic Tests</option>
+                                <option value="imaging">Imaging Tests</option>
+                                <option value="molecular">Molecular Tests</option>
+                                <option value="microbiological">Microbiological Tests</option>
+                                <option value="hematology">Hematology Tests</option>
+                                <option value="immunology">Immunology and Serology Tests</option>
+                                <option value="endoscopic">Endoscopic Tests</option>
+                                <option value="electrodiagnostic">Electrodiagnostic Tests</option>
+                                <option value="biopsy">Biopsy and Histopathology Tests</option>
+                                <option value="urine-stool">Urine and Stool Tests</option>
+                                <option value="pulmonary">Pulmonary Function Tests</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                Description
                             </label>
                             <textarea
-                                id="preparation"
+                                name="description"
+                                id="description"
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                                value={preparation}
-                                onChange={(e) => setPreparation(e.target.value)}
+                                onChange={handleFormChange}
                                 rows={3}
-                                required
+
                             />
                         </div>
+                        
 
                         <div className="flex justify-end">
                             <button

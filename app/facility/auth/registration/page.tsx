@@ -94,12 +94,10 @@ const Registration: React.FC = () => {
     });
 
     const handleFormSubmit = async (e: React.FormEvent) => {
-        console.log(formData)
         e.preventDefault();
         setIsLoading(true);
 
         if (disableSubmitBtn()) {
-            console.log("Form is not valid");
             return;
         }
         Cookies.remove('user', { path: '/' });

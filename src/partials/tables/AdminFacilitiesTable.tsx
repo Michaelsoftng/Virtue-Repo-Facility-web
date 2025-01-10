@@ -86,7 +86,6 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
     showTableHeadDetails, children, currentPage,  setCurrentPage,
     testPage, tableHeadText, queryId
 }) => {
-    // console.log('tableData', tableData)
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const rowsPerPage = 10;
@@ -135,6 +134,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
         switch (modalType) {
             case 'edit':
                 setShowEditModal(true)
+                setActiveData(dataToDisplay)
                 break;
             case 'remove':
                 setItemToDelete(id as string)
@@ -149,7 +149,6 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                 setShowAddModal(true)
                 break;
             case 'addFacilityTest':
-                console.log("data to display",dataToDisplay)
                 setActiveData(dataToDisplay)
                 setShowAddFacilityTestModal(true)
                 break;
@@ -181,7 +180,6 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
         approveAction(id)
     }
 
-    // console.log('tableData', tableData)
     if (isLoading) {
 
         return <Loading />;
@@ -596,7 +594,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                     
             }
             
-            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} modalDetails={activeData} />
+            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeData} handleEditTest={approveAction} />
             <EditPackageModal isOpen={showEditPackageModal} onClose={() => setShowEditPackageModal(false)} packageData={activeData} handleEditPackage={approveAction} />
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddFacilityTestModal} onClose={() => setShowAddFacilityTestModal(false)} test={activeData} facilityId={queryId as string}/>

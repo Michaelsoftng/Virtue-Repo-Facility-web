@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(req: NextRequest) {
     const user = req.cookies.get('user'); // Get the 'user' cookie (or any other relevant cookie)
-    console.log()
     if (!user) {
         return NextResponse.redirect(new URL('/login', req.url)); // Redirect if no user
     }

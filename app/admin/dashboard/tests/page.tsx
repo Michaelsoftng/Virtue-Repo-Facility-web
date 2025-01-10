@@ -184,7 +184,6 @@ const Tests = () => {
                 };
             }
 
-            console.log(testdata.current.tests)
         } catch (err) {
             console.log('error fetching tests catch error', err);
         } finally {

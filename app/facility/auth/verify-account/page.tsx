@@ -30,7 +30,6 @@ const VerifyUserAccount: React.FC = () => {
             setFormData({ ...formData, [name]: value } as IVerify);
             const newToken = Object.values({ ...formData, [name]: value }).join('');
             setToken(Number(newToken));
-            console.log(token)
             // Move focus to the next input field if the current field is filled
             if (value.length === 1) {
                 const nextInput = document.querySelector(`input[name="${getNextDigit(name)}"]`);
@@ -106,7 +105,6 @@ const VerifyUserAccount: React.FC = () => {
         setButtonMessage('Resending...')
         e.preventDefault();
         const userId = Cookies.get('userId'); // Get userId from cookies
-        console.log('userId', userId)
         if (!userId) {
             router.push('/facility/auth/resend-verification');
             return;

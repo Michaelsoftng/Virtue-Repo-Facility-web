@@ -25,7 +25,7 @@ export interface TestModalProps{
     preparation?: string;
     methodology?: string;
     duration?: string;
-    percentage_increase?: number;
+    percentage_increase?: number | string;
     minimum_increase?: number;
 }
 
@@ -328,7 +328,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                     Next
                 </button>
             </div>
-            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeData} handleEditPackage={()=>{}} />
+            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeData} handleEditTest={()=>{}} />
             {/* <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} /> */}
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddModal} onClose={() => setShowAddModal(false)} test={activeData} facilityId={facilityId as string} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('cllosed')} />

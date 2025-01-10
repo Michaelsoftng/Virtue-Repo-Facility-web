@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, { ChangeEvent, useCallback, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -43,7 +44,6 @@ const NewTest = () => {
             ...prevData,
             [name]: value,
         }) as TestData);
-        console.log(formData)
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,12 +75,10 @@ const NewTest = () => {
             toast.error("Fill all input boxes in the form");
             return;
         }
-        console.log(formData)
         
         try {
             await newTest({
                 onCompleted(data) {
-                    console.log(data)
                     toast.success('You created a new test');
                     router.push('/admin/dashboard/tests');
                 },

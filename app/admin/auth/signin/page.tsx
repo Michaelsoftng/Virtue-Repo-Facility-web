@@ -123,8 +123,6 @@ const Signin: React.FC = () => {
 
                 },
             });
-            console.log('User created:', data.createUser); // Adjust according to your mutation response structure
-
         } catch (err) {
             console.error('Error logging user in:', err);
         } finally {
