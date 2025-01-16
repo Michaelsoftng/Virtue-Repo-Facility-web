@@ -14,6 +14,7 @@ import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie';
+import LogoIcon from '@/src/reuseable/icons/LogoIcon';
 
 const VerifyUserAccount: React.FC = () => {
     const router = useRouter();
@@ -150,7 +151,7 @@ const VerifyUserAccount: React.FC = () => {
         <div className="px-[100px] py-[30px]">
             <div className="w-full p">
                 <div className="w-[200px] ">
-                    <Logo />
+                    <LogoIcon />
                 </div>
             </div>
 

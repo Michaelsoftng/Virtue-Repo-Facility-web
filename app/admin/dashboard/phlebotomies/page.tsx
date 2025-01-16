@@ -18,6 +18,8 @@ import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
 import { decodeJwtEncodedId } from '@/src/utils/decode'
+import BarChartAnalytics from '@/src/partials/BarChartAnalytics'
+import BarChartYaxis from '@/src/partials/BarChartYaxis'
 
 
 
@@ -339,30 +341,31 @@ const Phlebotomies = () => {
                             }
 
                             {activeTab === 'audit' && (
+                                <div className="mt-6">
+                                    <BarChartYaxis />
+                                    {staffDataLoading ? (
+                                        <TablePreloader />
+                                    ) : (
+                                        <AdminFacilitiesTable
+                                            currentPage={1}
+                                            setCurrentPage={() => { }}
+                                            deleteAction={handleDeleteTest}
+                                            approveAction={handleApproveStaff}
+                                            setItemToDelete={setStafftWithId}
+                                            changePage={() => { }}
+                                            tableHeadText=""
+                                            tableData={updatedStaffData}
+                                            searchBoxPosition="justify-start"
+                                            showTableHeadDetails={true}
+                                            showActions={true}
+                                            showPagination={false}
+                                            testPage="phlebotomies"
+                                            marginTop="mt-4"
+                                        />
+                                    )}
+                                </div>
+                            )}
 
-                                staffDataLoading
-
-                                    ?
-                                    <TablePreloader />
-                                    :
-                                    <AdminFacilitiesTable
-                                        currentPage={1}
-                                        setCurrentPage={() => { }}
-                                        deleteAction={handleDeleteTest}
-                                        approveAction={handleApproveStaff}
-                                        setItemToDelete={setStafftWithId}
-                                        changePage={() => { }}
-                                        tableHeadText=''
-                                        tableData={updatedStaffData}
-                                        searchBoxPosition='justify-start'
-                                        showTableHeadDetails={true}
-                                        showActions={true}
-                                        showPagination={false}
-                                        testPage='phlebotomies'
-                                        marginTop='mt-4'
-                                    />
-                            )
-                            }
 
 
                             {activeTab === 'assignment' && (

@@ -1,12 +1,12 @@
 import React from 'react'
-import SmallLogo from './SmallLogo'
 import Image from 'next/image'
 import UserImage from '@/public/images/userdefault.png'
+import LogoIcon from '../icons/LogoIcon'
 const FacilityHeader = () => {
   return (
     <div className="border-solid border-[1px] border-gray-300 grid grid-cols-[250px_calc(100%-250px)]">
         <div className="py-1 w-full grid grid-cols-[140px] place-content-center items-center border-r-[1px] border-r-solid border-r-gray-300">
-            <SmallLogo />
+        <LogoIcon />
         </div>
           <div className="grid grid-cols-[calc(100%-300px)_300px] py-1 px-5">
             <div>

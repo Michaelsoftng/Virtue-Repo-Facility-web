@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import React, { ChangeEvent, useCallback, useState } from 'react';
-import Logo from '@/src/reuseable/components/Logo';
+import LogoIcon from '@/src/reuseable/icons/LogoIcon';
 import * as Form from '@radix-ui/react-form';
 import { IVerify } from '@/src/interface';
 import Link from 'next/link';
@@ -152,7 +152,7 @@ const VerifyUserAccount: React.FC = () => {
         <div className="px-[100px] py-[30px]">
             <div className="w-full p">
                 <div className="w-[200px] ">
-                    <Logo />
+                    <LogoIcon />
                 </div>
             </div>
 

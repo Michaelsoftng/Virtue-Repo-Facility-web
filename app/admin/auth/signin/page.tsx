@@ -2,6 +2,7 @@
 'use client';
 import React, { ChangeEvent, FormEvent, useState, useCallback } from 'react';
 import Logo from '@/src/reuseable/components/Logo'
+import LogoIcon from '@/src/reuseable/icons/LogoIcon';
 import * as Form from '@radix-ui/react-form';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon } from '@radix-ui/react-icons';
@@ -134,7 +135,7 @@ const Signin: React.FC = () => {
         <div className="px-[100px] py-[30px] ">
             <div className="w-full p">
                 <div className="w-[200px] ">
-                    <Logo />
+                    <LogoIcon />
                 </div>
             </div>
             <div className="w-full md:w-[350px] lg:w-[400px] mx-auto md:mt-20 lg:mt-24">

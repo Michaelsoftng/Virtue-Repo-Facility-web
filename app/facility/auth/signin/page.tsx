@@ -18,6 +18,7 @@ import { LoginAccount } from '@/src/graphql/mutations';
 import { useAuth } from '@/src/context/AuthContext';
 import FooterNav from '@/src/reuseable/components/FooterNav';
 import Cookies from 'js-cookie';
+import LogoIcon from '@/src/reuseable/icons/LogoIcon';
 
 const Signin: React.FC = () => {
     const router = useRouter();
@@ -140,7 +141,7 @@ const Signin: React.FC = () => {
         <div className="px-[100px] py-[30px] ">
             <div className="w-full p">
                 <div className="w-[200px] ">
-                    <Logo />
+                    <LogoIcon />
                 </div>
             </div>
             <div className="w-full md:w-[350px] lg:w-[400px] mx-auto md:mt-20 lg:mt-24">
