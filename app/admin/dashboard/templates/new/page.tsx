@@ -4,12 +4,12 @@ import React, { useCallback, useEffect, useState } from 'react'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
-import LogoIcon from '@/src/reuseable/icons/Logo'
 import { GrTableAdd } from "react-icons/gr";
 import { RiDeleteBinFill } from "react-icons/ri";
 import {ColumnWithRowsFields, SectionWithRows, SingleColumnRow} from '@/src/interface'
 import { RiPlayListAddLine } from "react-icons/ri";
 import { RiFunctionAddFill } from "react-icons/ri";
+import LogoIcon from '@/src/reuseable/icons/LogoIcon'
 
 const NewTemplate = () => {
     const [template, setTemplate] = useState<SectionWithRows[]>([]);
