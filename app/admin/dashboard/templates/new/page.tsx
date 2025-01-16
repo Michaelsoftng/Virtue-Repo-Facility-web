@@ -623,43 +623,43 @@ const NewTemplate = () => {
   )
 }
 
-export const Preview = () => {
-    return (
-        <section className="py-4  border-t-2 border-black pt-1 mt-1">
-            <li className="text-[12px] grid grid-cols-3">
-                <div >
-                    <b>Cholesterol HDL</b>
-                </div>
-                <p className="flex justify-center">&nbsp;</p>
-                <p className="flex justify-center">&nbsp;</p>
-            </li>
-            <li className="text-[12px] grid grid-cols-3 mt-4">
-                <div >
-                    <p>Total Cholesterol</p>
-                    <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                </div>
-                <p className="flex justify-center">5.73</p>
-                <p className="flex justify-center">mmcl/L</p>
-            </li>
+// export const Preview = () => {
+//     return (
+//         <section className="py-4  border-t-2 border-black pt-1 mt-1">
+//             <li className="text-[12px] grid grid-cols-3">
+//                 <div >
+//                     <b>Cholesterol HDL</b>
+//                 </div>
+//                 <p className="flex justify-center">&nbsp;</p>
+//                 <p className="flex justify-center">&nbsp;</p>
+//             </li>
+//             <li className="text-[12px] grid grid-cols-3 mt-4">
+//                 <div >
+//                     <p>Total Cholesterol</p>
+//                     <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
+//                 </div>
+//                 <p className="flex justify-center">5.73</p>
+//                 <p className="flex justify-center">mmcl/L</p>
+//             </li>
 
-            <li className="text-[12px] grid grid-cols-3 mt-4">
-                <div >
-                    <p>Desirable:&gt;5.2 mmol/l</p>
-                    <p>Borderline :5.2 - 6.2 mmol/l</p>
-                    <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
-                </div>
-                <p className="flex justify-center">5.73</p>
-                <p className="flex justify-center">mmcl/L</p>
-            </li>
-            <li className="text-[12px] grid grid-cols-3">
-                <div >
-                    <p>Total Cholesterol</p>
-                    <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                </div>
-                <p className="flex justify-center">221</p>
-                <p className="flex justify-center">mg/dL</p>
-            </li>
-        </section>
-    )
-}
+//             <li className="text-[12px] grid grid-cols-3 mt-4">
+//                 <div >
+//                     <p>Desirable:&gt;5.2 mmol/l</p>
+//                     <p>Borderline :5.2 - 6.2 mmol/l</p>
+//                     <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
+//                 </div>
+//                 <p className="flex justify-center">5.73</p>
+//                 <p className="flex justify-center">mmcl/L</p>
+//             </li>
+//             <li className="text-[12px] grid grid-cols-3">
+//                 <div >
+//                     <p>Total Cholesterol</p>
+//                     <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
+//                 </div>
+//                 <p className="flex justify-center">221</p>
+//                 <p className="flex justify-center">mg/dL</p>
+//             </li>
+//         </section>
+//     )
+// }
 export default NewTemplate
