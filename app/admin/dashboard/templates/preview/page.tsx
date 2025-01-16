@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
-import LogoIcon from '@/src/reuseable/icons/Logo'
+import LogoIcon from '@/src/reuseable/icons/LogoIcon'
 // import { PlusIcon } from '@radix-ui/react-icons'
 // import { RiDeleteBinFill } from "react-icons/ri";
 // import { SectionWithRows } from '@/src/interface'
