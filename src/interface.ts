@@ -25,7 +25,7 @@ export interface IRegister {
     country: string
 }
 
-export interface IPasswordData{
+export interface IPasswordData {
     old_password: string
     new_password1: string
     new_password2: string
@@ -49,8 +49,8 @@ export interface IUpdateAccount {
     longitude: number,
 }
 
-export interface ICharges{
-    serviceCharge?:number
+export interface ICharges {
+    serviceCharge?: number
     chargePerDistance?: number
     consultationCharge?: number
     consultationDiscount?: number
@@ -67,11 +67,11 @@ export interface IFacilityTest {
     price?: number,
     duration?: string,
     preparation?: string,
-    
+
 }
 
 
-export interface IResendVerification{
+export interface IResendVerification {
     email: string
 }
 
@@ -82,7 +82,7 @@ export interface ILogin {
 
 
 
-export interface IVerify{
+export interface IVerify {
     digit1: string,
     digit2: string,
     digit3: string,
@@ -97,7 +97,7 @@ export interface IVerifyAccount {
 export interface PatientType {
     __typename: "UserType"
     approvalToken: string | null
-    email:string
+    email: string
     firstName: string | null
     id: string
     lastName: string | null
@@ -122,4 +122,27 @@ export interface FacilityType {
         facility_type: string
         role: string
     } | null
+}
+
+
+export interface ColumnWithRowsFields {
+    section_style?: string,
+    section_fields: string[],
+}
+
+export interface SingleColumnRow { section_style?: string, section_fields: string[] }
+
+export interface RowWithColumnFields {
+    section_style?: string, //tells us how to display this section
+    section_fields: SingleColumnRow[]
+}
+
+export interface SectionWithRows {
+    section_style?: string, //tells us how to display this section
+    section_fields: RowWithColumnFields[]
+}
+
+export interface Template {
+    template_name: string;
+    sections: SectionWithRows[];
 }

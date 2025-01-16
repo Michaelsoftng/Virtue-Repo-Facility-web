@@ -158,6 +158,15 @@ const AdminMenu = () => {
 
                 <div className="mt-16 border-t-solid border-t-[1px] border-t-[#E9E8EC]">
                     <li className="flex gap-4 mt-10">
+                        <Link href='/admin/dashboard/templates' className="flex gap-4">
+                            <SettingsIcon
+                                stroke={currentRoute === '/admin/dashboard/templates' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/templates' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>Templates</span>
+
+                        </Link>
+                    </li>
+                    <li className="flex gap-4 mt-10">
                         <Link href='/admin/dashboard/setting' className="flex gap-4">
                             <SettingsIcon
                                 stroke={currentRoute === '/admin/dashboard/setting' ? '#08AD85' : '#4F475E'}

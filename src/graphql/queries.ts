@@ -415,9 +415,9 @@ export const GetAllRequest = gql`
             user{
                 id
                 firstName  
-              lastName
-              email
-              phoneNumber
+                lastName
+                email
+                phoneNumber
             }
         }
         tests{

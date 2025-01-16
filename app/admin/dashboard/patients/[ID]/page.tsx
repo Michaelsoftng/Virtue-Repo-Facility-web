@@ -128,7 +128,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                         id,
                         phlebotomist: phlebotomistAssigned,
                         no_of_test: tests.length,
-                        address: samplePickUpAddress,
+                        // address: samplePickUpAddress,
                         request_date: requestDate,
                         amount: total,
                         paid: totalPaymentSum,

@@ -51,7 +51,7 @@ const Requests = () => {
             amount: total,
             paid: total - balance,
             balance: balance ? balance : 0,
-            phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.email] : [null, phlebotomistname, "info@labtraca.com"],
+            phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.user.email] : [null, phlebotomistname, "info@labtraca.com"],
             // address: samplePickUpAddress,
             requestDate: requestDate,
             sample_status: sampleStatus,
