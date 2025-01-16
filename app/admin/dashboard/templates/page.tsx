@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState } from "react";
 import {
@@ -5,62 +6,62 @@ import {
 } from '@/src/interface'
 
 const TemplateEditor = () => {
-    const [template, setTemplate] = useState<SectionWithRows[]>([]);
+    // const [template, setTemplate] = useState<SectionWithRows[]>([]);
 
-    const addSection = () => {
-        setTemplate((prev) => [
-            ...prev,
-            {
-                section_style: "",
-                section_fields: [],
-            },
-        ]);
-    };
+    // const addSection = () => {
+    //     setTemplate((prev) => [
+    //         ...prev,
+    //         {
+    //             section_style: "",
+    //             section_fields: [],
+    //         },
+    //     ]);
+    // };
 
-    const addRow = (sectionIndex: number) => {
-        setTemplate((prev) => {
-            const updated = [...prev];
-            updated[sectionIndex].section_fields.push({
-                section_style: "",
-                section_fields: [],
-            });
-            return updated;
-        });
-    };
+    // const addRow = (sectionIndex: number) => {
+    //     setTemplate((prev) => {
+    //         const updated = [...prev];
+    //         updated[sectionIndex].section_fields.push({
+    //             section_style: "",
+    //             section_fields: [],
+    //         });
+    //         return updated;
+    //     });
+    // };
 
-    const addColumn = (sectionIndex: number, rowIndex: number) => {
-        setTemplate((prev) => {
-            const updated = [...prev];
-            updated[sectionIndex].section_fields[rowIndex].section_fields.push({
-                section_fields: {
-                    section_style: "",
-                    section_fields: [],
-                },
-                section_style: "",
-            });
-            return updated;
-        });
-    };
+    // const addColumn = (sectionIndex: number, rowIndex: number) => {
+    //     setTemplate((prev) => {
+    //         const updated = [...prev];
+    //         updated[sectionIndex].section_fields[rowIndex].section_fields.push({
+    //             section_fields: {
+    //                 section_style: "",
+    //                 section_fields: [],
+    //             },
+    //             section_style: "",
+    //         });
+    //         return updated;
+    //     });
+    // };
 
-    const addField = (
-        sectionIndex: number,
-        rowIndex: number,
-        columnIndex: number,
-        field: string
-    ) => {
-        setTemplate((prev) => {
-            const updated = [...prev];
-            updated[sectionIndex].section_fields[rowIndex].section_fields[
-                columnIndex
-            ].section_fields.section_fields.push(field);
-            return updated;
-        });
-    };
+    // const addField = (
+    //     sectionIndex: number,
+    //     rowIndex: number,
+    //     columnIndex: number,
+    //     field: string
+    // ) => {
+    //     setTemplate((prev) => {
+    //         const updated = [...prev];
+    //         updated[sectionIndex].section_fields[rowIndex].section_fields[
+    //             columnIndex
+    //         ].section_fields.section_fields.push(field);
+    //         return updated;
+    //     });
+    // };
 
     return (
         <div>
             <h1>Template Editor</h1>
-            {template.map((section, sectionIndex) => (
+            {/* {template.map((section, sectionIndex) => (
                 <div key={sectionIndex} style={{ marginBottom: "20px" }}>
                     <input
                         type="text"
@@ -123,7 +124,7 @@ const TemplateEditor = () => {
                 </div>
             ))}
             <button onClick={addSection}>Add Section</button>
-            <pre>{JSON.stringify(template, null, 2)}</pre>
+            <pre>{JSON.stringify(template, null, 2)}</pre> */}
         </div>
     );
 };
