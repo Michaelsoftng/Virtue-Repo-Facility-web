@@ -107,7 +107,7 @@ const Phlebotomies = () => {
             newStaffs += 1;
         }
         const newPatientData = {
-            phlebotomist: [null, name, singleStaff.email],
+            phlebotiomist: [null, name, singleStaff.email],
             ...rest,
             city: patientCity,
             state: patientState,
@@ -358,17 +358,10 @@ const Phlebotomies = () => {
                                             searchBoxPosition="justify-start"
                                             showTableHeadDetails={true}
                                             showActions={true}
-                                            showPagination={true}
+                                            showPagination={false}
                                             testPage="phlebotomies"
                                             marginTop="mt-4"
-                                            >
-                                            <div className="mx-4 mt-6">
-                                                <h2 className="text-[#0F1D40] font-bold text-xl">Inventory Remaining</h2>
-                                                <p className="text-sm text-[#8C93A3]">Allocated inventory remaining to phlebotomist</p>
-                                              
-                                            </div>
-                                        </AdminFacilitiesTable>
-                                    
+                                        />
                                     )}
                                 </div>
                             )}

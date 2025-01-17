@@ -3,7 +3,6 @@ import React, {  useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
-import * as Form from '@radix-ui/react-form'
 import Image from 'next/image'
 import FemalePhoto from '@/public/assets/images/femalephoto.jpg'
 import ConfirmDeactivateModal from '@/src/reuseable/components/DeactivateModal'
@@ -16,6 +15,11 @@ import { GetUserById } from '@/src/graphql/queries';
 import { useQuery } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import Loading from '../../loading'
+import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { BsFillCalendar2DateFill } from 'react-icons/bs'
+import { PiGenderIntersexFill } from 'react-icons/pi'
+import { FaPhoneSquare } from 'react-icons/fa'
+import { FaLocationDot } from 'react-icons/fa6'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -128,130 +132,64 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                         />
                     }
                     
-                    
-                    <Form.Root >
-                        <div className="px-8 py-4 grid grid-cols-[75%_25%] gap-8">
-                            <div>
-                                <div className="w-full  grid grid-cols-[50%_50%]  gap-x-3 px-4 py-3">
-
-                                    <div className="">
-                                        <h3 className="text-black font-bold">Personal information</h3>
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-semibold text-[#B2B7C2]">First name</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                value={phlebotomistData?.getUserById?.firstName}
-                                                type='text'
-                                                readOnly
-                                                className="mt-2 font-bold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Last name</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                readOnly
-                                                value={phlebotomistData?.getUserById?.lastName}
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Address</span></Form.Label>
-                                            <Form.Control
-                                                readOnly
-                                                required={true}
-                                                placeholder={phlebotomistData?.getUserById?.streetAddress}
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">City</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                value={phlebotomistData?.getUserById?.city}
-                                                type='text'
-                                                readOnly
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Postal</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                value={phlebotomistData?.getUserById?.postal}
-                                                type='text'
-                                                readOnly
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
+                    <div className="px-8 py-4 grid grid-cols-[75%_25%] gap-8">
+                        <div className='shadow-xl bg-white px-6 py-6 mt-3 rounded-sm'>
+                            <div className="w-full gap-x-3 flex justify-center">
+                                <div className=''>
+                                    <div className="flex justify-center">
+                                        <Image src={FemalePhoto} alt='pprofile image' className="rounded-lg h-[70px] w-[70px]" />
                                     </div>
-                                    <div>
-                                        <h3 className="text-black font-bold">Account information</h3>
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Email</span></Form.Label>
-                                            <Form.Control
-                                                readOnly
-                                                required={true}
-                                                value={phlebotomistData?.getUserById?.email}
-                                                type='email'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
+                                    <div className="text-center">
+                                        <div className="text-gray-700">
+                                            {
+                                                pageLoading
+                                                    ? <NumberPreloader />
+                                                    : `${phlebotomistData.getUserById.firstName} ${phlebotomistData.getUserById.lastName}`
 
-                                        <Form.Field name='referralSource' className="mt-2">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2]">Phone no</span></Form.Label>
-                                            <Form.Control
-                                                readOnly
-                                                required={true}
-                                                value={phlebotomistData?.getUserById?.phoneNumber}
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        
-                                        <Form.Field name="password_confirmation" className="relative block mt-3">
-                                            <Form.Label className="text-sm font-bold text-[#B2B7C2] block ">Apartment </Form.Label>
-                                            <Form.Control
-                                               
-                                                required
-                                                value={phlebotomistData?.getUserById?.streetAddress2}
-                                                readOnly
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
+                                            }
+                                        </div>
+                                        <div className="text-gray-500">
+                                            {
+                                                pageLoading
+                                                    ?
+                                                    <div className="mt-[2px] w-[200px]"><NumberPreloader /></div>
+                                                    : `${phlebotomistData.getUserById.email}`
 
-                                        </Form.Field>
-                                        <Form.Field name="password_confirmation" className="relative block mt-3">
-                                            <Form.Label className="text-[#B2B7C2] block font-bold text-[14px]">State</Form.Label>
-                                            <Form.Control
-                                                
-                                                required
-                                                value={phlebotomistData?.getUserById?.state}
-                                                readOnly
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
+                                            }
 
-                                        </Form.Field>
-                                        <Form.Field name="password_confirmation" className="relative block mt-2">
-                                            <Form.Label className="text-[#B2B7C2] block font-semibold text-[14px]">Country</Form.Label>
-                                            <Form.Control
-                                               
-                                                required
-                                                readOnly
-                                                value='Nigeria'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
-
-                                        </Form.Field>
+                                        </div>
                                     </div>
                                 </div>
-                                        
-                                <div className="flex justify-start w-full pl-5 pt-5">
-                                    <Form.Submit className="border-2 border-[#FF3236] px-10 py-1 text-sm text-[#FF3236] rounded hover:bg-slate-800" onClick={() => setShowDeleteModal(true)}>Deactivate Account</Form.Submit>
-                                </div>
-                            
+
+
                             </div>
-                            <div className=" gap-x-3 mt-10 px-4 pt-6">
-                                <Image src={FemalePhoto} alt='pprofile image' className="rounded-lg h-[300px] w-[300px]"/>
-                                
+                            <div className="px-5 mt-10">
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4 gap-2">
+                                    <span className="flex"><BsFillCalendar2DateFill /><span className="ml-3 text-[16px]">DOB</span></span>
+                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.dob || '?'}`}</span>
+                                </div>
+                                <div className="w-full  text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
+                                    <span className="flex"><PiGenderIntersexFill /><span className="ml-3 text-[16px]">Gender</span></span>
+                                    <span
+                                        title={`${phlebotomistData?.getUserById?.phlebotomist.gender || 'gender'}`}
+                                        className=" overflow-hidden text-nowrap text-[14px] text-black">
+                                        {pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.gender || '?'}`}
+                                    </span>
+                                </div>
+
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
+                                    <span className="flex"><FaPhoneSquare /><span className="ml-3 text-[16px]">Phone</span></span>
+                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phoneNumber}`}</span>
+                                </div>
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1 mt-4">
+                                    <span className="flex"><FaLocationDot /><span className="ml-3 text-[16px]">Address</span></span>
+                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : phlebotomistData?.getUserById?.streetAddress ? `${phlebotomistData?.getUserById?.streetAddress} ${phlebotomistData?.getUserById?.city} ${phlebotomistData?.getUserById?.state}` : '?'}</span>
+                                </div>
+
                             </div>
                         </div>
-                    </Form.Root>
+                    </div>
+                    
                     <div className="px-8 py-4 gap-4 grid grid-cols-[70%_30%] border-t-2 border-t-[#CACDD5] mt-4 pt-8">
                         <div className="mt-10">
                             <AdminFacilitiesTable

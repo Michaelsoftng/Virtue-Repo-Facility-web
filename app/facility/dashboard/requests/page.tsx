@@ -22,7 +22,7 @@ const Requests = () => {
     const [dataCount, setDataCount] = useState< number >(0);
 
     const [data, setData] = useState<TableData[]>([]);
-
+    console.log("user id ", user!.id)
     const fetchData = useCallback(async (offset: number) => {
         setLoading(true);
         try {
