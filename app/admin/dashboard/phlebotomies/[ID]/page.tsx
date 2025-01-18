@@ -20,7 +20,9 @@ import { BsFillCalendar2DateFill } from 'react-icons/bs'
 import { PiGenderIntersexFill } from 'react-icons/pi'
 import { FaPhoneSquare } from 'react-icons/fa'
 import { FaLocationDot } from 'react-icons/fa6'
-
+import ToolsRequest from '@/src/reuseable/components/ToolsRequest'
+import { AiOutlineClose } from "react-icons/ai";
+import * as Form from '@radix-ui/react-form';
 const sampleCompletedData: TableData[] = [
     {
         patients: [null, 'John Doe', 'egeregav@gmail.com'],
@@ -99,6 +101,8 @@ const sampleCompletedData: TableData[] = [
 ];
 const Singlefacility = ({ params }: { params: { ID: string } }) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [isOpenToolsModal, setIsOpenToolsModal] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [phlebotomistLoading, setIsLoading] = useState<boolean>(false);
     const { ID } = params;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -131,8 +135,18 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                             setLoading={setIsLoading}
                         />
                     }
-                    
-                    <div className="px-8 py-4 grid grid-cols-[75%_25%] gap-8">
+                    <ToolsRequest
+                        setIsOpenToolsModal={setIsOpenToolsModal}
+                    />
+                    <div className="px-8 py-4 grid grid-cols-[30%_35%_35%] gap-1">
+                        <div className="mt-4">
+                            <DoughtPieAnalytics />
+                        </div>
+                        <div className="bg-white shadow-lg rounded px-4 py-4 ">
+                            <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total cash recieved</span> <span className="font-bold text-lg">{formatMoney(450090)}</span></p>
+                            <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
+                            <p className="flex justify-between mt-2"  ><span className="text-[#525C76] text-lg">Balance to be remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
+                        </div>
                         <div className='shadow-xl bg-white px-6 py-6 mt-3 rounded-sm'>
                             <div className="w-full gap-x-3 flex justify-center">
                                 <div className=''>
@@ -265,6 +279,140 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     </div>
                 </div>
             </div>
+            {
+                isOpenToolsModal &&  
+                <div className="fixed top-0 left-0 w-full h-full bg-[#7f7f7fc2] bg-opacity-50 backdrop-blur-sm z-10 flex items-center justify-center">
+                    <div className="bg-white w-[900px] shadow-lg w-fullrounded-md p-6 z-20">
+                        <div className="flex justify-between">
+                            <div>
+                                <h1 className="font-[600] text-[16px]">Inventory supply</h1>
+                                <p className="text-[#8C93A3] text-[13px]">Allocate supply to phlebotomist</p>
+                            </div>
+                            <div>
+                                <button
+                                    className="px-2 py-2 bg-white text-gray-400 rounded-md border-[1px] border-gray-300"
+                                    onClick={() => setIsOpenToolsModal(false)}
+                                >
+                                    <AiOutlineClose />
+                                </button>
+                            </div>
+                        </div>
+
+                        <Form.Root className="mt-6">
+                            <div className="grid grid-cols-4 gap-y-4 gap-x-4 bg-[#EEEFF2] py-2 px-3">
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Sample bottle</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="Needle" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Needle</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Hand gloves</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Cotton wool</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Methylated spirit</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Pressure cuff</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Bolt trips</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Bolt trips</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                                <Form.Field name="first_name" className="grid grid-cols-[60%_40%]">
+                                    <Form.Label className="text-[13px] text-[#525C76] mt-1">Bolt trips</Form.Label>
+                                    <Form.Control
+                                        onChange={() => { }}
+                                        step={1}
+                                        type="number"
+                                        min={1}
+                                        className="w-12 h-7 border-[1px] border-[#525c764d] focus:outline-none "
+                                    />
+
+                                </Form.Field>
+                            </div>
+
+                            <Form.Submit
+                                className="mt-2 w-[150px] border-2 border-[#08AC85] text-[#08AC85] px-3 py-1 text-lg rounded-sm disabled:bg-[#08ac865b]"
+                                disabled={false}
+                            >
+                                Allocate
+                            </Form.Submit>
+                        </Form.Root>
+
+                    </div>
+                </div>
+            }
+            
             <ConfirmDeactivateModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('confirem')} />
 
         </div>

@@ -22,8 +22,9 @@ const Requests = () => {
     const [dataCount, setDataCount] = useState< number >(0);
 
     const [data, setData] = useState<TableData[]>([]);
-    console.log("user id ", user!.id)
+    
     const fetchData = useCallback(async (offset: number) => {
+        if (!user) return;
         setLoading(true);
         try {
             // Dynamically refetch the data with updated variables
@@ -46,7 +47,7 @@ const Requests = () => {
 
             
             // Check if testRequests is available before mapping
-            const updatedtestRequestsData = testRequest?.map((singleTestRequest: TableData) => {
+            const updatedtestRequestsData: TableData[] = testRequest?.map((singleTestRequest: TableData) => {
 
                 const {
                     __typename,
@@ -56,14 +57,23 @@ const Requests = () => {
                     deletedAt,
                     deletedBy,
                     createdAt,
-                    total,
+                    facilityEarning,
+                    status,
+                    patientName,
+                    patientAge,
+                    package: testPackage,
                     ...rest
                 } = singleTestRequest;
 
-                    const requestData = {
+                const requestData = {
+                    patient: patientName,
+                    package: testPackage ? "" : "single test",
+                    age: patientAge,
+
+                    test: test.name,
+                    amount: facilityEarning,
+                    status: status.toLowerCase(),
                     ...rest,
-                    amount: total,
-                    status: status,
 
                 };
 
@@ -94,8 +104,10 @@ const Requests = () => {
     // };
 
     useEffect(() => {
-        fetchData(0);
-    }, [fetchData]); // Empty dependency array ensures this runs only once
+        if (user) {
+            fetchData(offsets);
+        }
+    }, [user, offsets, fetchData]); // Empty dependency array ensures this runs only once
     return (
         <div>
             <FacilityHeader />
