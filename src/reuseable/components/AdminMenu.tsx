@@ -59,12 +59,12 @@ const AdminMenu = () => {
                    
                     <li className="mt-8">
 
-                        <Link href='/admin/dashboard/patients' className="flex gap-4 ">
+                        <Link href='/admin/dashboard/organisations' className="flex gap-4 ">
                             <DashboardIcon
-                                stroke={currentRoute === '/admin/dashboard/patients' ? '#08AD85' : '#4F475E'}
+                                stroke={currentRoute === '/admin/dashboard/organisations' ? '#08AD85' : '#4F475E'}
                             />
-                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/patients' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
-                                Patients
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/organisations' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
+                               Organisations
                             </span>
 
                         </Link>
@@ -77,6 +77,18 @@ const AdminMenu = () => {
                             />
                             <span className={`font-semibold ${currentRoute === '/admin/dashboard/phlebotomies' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
                                 Phlebotomists
+                            </span>
+
+                        </Link>
+                    </li>
+                    <li className="mt-8">
+
+                        <Link href='/admin/dashboard/patients' className="flex gap-4 ">
+                            <DashboardIcon
+                                stroke={currentRoute === '/admin/dashboard/patients' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`font-semibold ${currentRoute === '/admin/dashboard/patients' ? 'text-[#08AD85]' : 'text-[#8C93A3]'}`}>
+                                Patients
                             </span>
 
                         </Link>

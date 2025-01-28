@@ -255,7 +255,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                         
                                         switch (column) {
                                             
-                                            
+                                            case 'organisations':
                                             case 'patients':
                                                 
                                                 return (
@@ -267,7 +267,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                                 ) : (
                                                                     <RoundedNoImage
                                                                         text={row[column][1]
-                                                                            .split('  ')
+                                                                            .split(' ')
                                                                             .map((word: string) => word[0].toUpperCase())
                                                                             .join('')}
                                                                         classes={`rounded-full w-[40px] h-[40px] ${colorCombination[Math.floor(Math.random() * 4)]} text-center flex items-center justify-center`}
@@ -308,8 +308,6 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                         </div>
                                                     </td>
                                                 );
-                                                
-                                                
                                             case 'amount_paid':
                                             case 'amount_charged':    
                                             case 'amount':
@@ -497,7 +495,12 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                 //     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
                                                 // </div>
                                             }
+                                            {testPage === 'organisations' &&
 
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <Link href={`organisations/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
                                             {testPage === 'patients' &&
                                                 
                                                 <div className="flex justify-between gap-2 w-[150px]">

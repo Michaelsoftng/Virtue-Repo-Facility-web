@@ -86,9 +86,9 @@ const Consultations = () => {
                 patientName = (patient.user.firstName && patient.user.lastName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
                 doctorName = (doctor && doctor.user.firstName && doctor.user.lastName) ? `${doctor.user.firstName} ${doctor.user.lastName}` : 'Not Set'
                 const consultationData = {
-                    patient: [null, patientName, patient.user.email],
+                    patients: [null, patientName, patient.user.email],
                     doctor: doctor ? [null, doctorName, doctor.user.email] : [null, 'Not Set', 'example@example.com'],
-                    ...rest,
+                    // ...rest,
                     requested_doctor: requestedDoctorType,
                     request_date: createdAt,
                     consutation_duration: requestedDuration,
@@ -210,8 +210,8 @@ const Consultations = () => {
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showActions={true}
-                                showPagination={false}
-                                testPage='phlebotomies'
+                                showPagination={true}
+                                testPage='consultations'
                                 marginTop='mt-4'
                             />
                             
@@ -237,7 +237,7 @@ const Consultations = () => {
                                         searchBoxPosition="justify-start"
                                         showTableHeadDetails={true}
                                         showActions={true}
-                                        showPagination={false}
+                                        showPagination={true}
                                         testPage="phlebotomies"
                                         marginTop="mt-4"
                                     />
@@ -262,7 +262,7 @@ const Consultations = () => {
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}
-                                    showPagination={false}
+                                    showPagination={true}
                                     testPage='phlebotomies'
                                     marginTop='mt-4'
                                 />

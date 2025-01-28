@@ -3,11 +3,11 @@ import client from '@/lib/apolloClient';
 import { useQuery } from '@apollo/client';
 
 
-export const useGetConsultationStats = (patientId?: string, phlebotomist?: string) => {
+export const useGetConsultationStats = (patientId?: string, doctor?: string) => {
     return useQuery(GetConsultationStats, {
         variables: {
             patientId,
-            phlebotomist,
+            doctor,
         },
         client,
     });

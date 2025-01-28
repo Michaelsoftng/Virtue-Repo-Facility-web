@@ -35,6 +35,10 @@ export const GetUserById = gql`
           id
           dateOfBirth
           gender
+          organisationName
+          patientType
+          organisationType
+          noOfEmployees
         }
         phlebotomist{
           id
@@ -95,6 +99,11 @@ query getUserByUserType($userType: String!) {
           id
           gender
           dateOfBirth
+          organisationName
+          organisationName
+          patientType
+          organisationType
+          noOfEmployees
         }
         facilityAdmin{
             id

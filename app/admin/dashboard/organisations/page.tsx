@@ -14,16 +14,16 @@ import TablePreloader from '@/src/preLoaders/TablePreloader'
 // import { PatientType } from '@/src/interface'
 
 const Patients = () => {
-    const { data, error, loading: patientDataLoading } = useGetUsersByType('patient')
+    const { data, error, loading: organisatonDataLoading } = useGetUsersByType('organisation')
     const patientCount = data?.getUserByUserType?.usersCount
-    const patientData = data?.getUserByUserType?.users as TableData[] 
+    const organisatonData = data?.getUserByUserType?.users as TableData[] 
     let name: string
     let status: string
     let verifiedUsers=0
     let newPatients = 0
     let unverifedPatients = 0
-    // Check if patientData is available before mapping
-    const updatedPatientData = patientData?.map((singlePatient) => {
+    // Check if organisatonData is available before mapping
+    const updatedOrganisatonData = organisatonData?.map((singlePatient) => {
         
         const {
             __typename,
@@ -34,11 +34,12 @@ const Patients = () => {
             facilityAdmin,
             staff,
             firstName,
+            phoneNumber,
             streetAddress,
             streetAddress2,
             lastName,
             email,
-            patient,
+            organisation,
             country,
             postal,
             city,
@@ -47,6 +48,8 @@ const Patients = () => {
             longitude,
             emailVerifiedAt,
             createdAt,
+
+            id,
             ...rest
         } = singlePatient;
 
@@ -55,31 +58,33 @@ const Patients = () => {
         } else {
             unverifedPatients += 1;
         }
-        name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim() }` : 'Not Set'
+        name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
         const status = emailVerifiedAt ? 'verified' : 'unverified'
-        const patientCity = city ? city : 'Not set'
-        const patientState = state ? state : 'Not set'
+        const organisationCity = city ? city : 'Not set'
+        const organisationState = state ? state : 'Not set'
         const createdDate = new Date(createdAt);
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         if (createdDate >= oneWeekAgo) {
             newPatients += 1;
         }
-        
-        const newPatientData = {
-            patients: [null, name, singlePatient.email],
-            ...rest,
-            dob: patient.date_of_birth,
-            gender: patient.gender  ? patient.gender.toLowerCase() : '',
-            city: patientCity,
-            state: patientState,
+        	 
+        const newOrganisatonData = {
+            organisations: [null, name, singlePatient.email],
+            id,
+            // ...rest,
+            phoneNumber: phoneNumber,
+            name: organisation? organisation.organisationName : 'Not Set',	
+            city: organisationCity,
+            state: organisationState,
             status: status
 
         };
         
-        return newPatientData
-    }) || []; // Default to an empty array if patientData is undefined
+        return newOrganisatonData
+    }) || []; // Default to an empty array if organisatonData is undefined
     
+
     if (error) {
         console.log("error is saying true", error)
         // logout()
@@ -92,13 +97,13 @@ const Patients = () => {
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard" pageTitle="Patients" showExportRecord={true} />
                     <div className="px-8 py-4 ">
-                        {patientDataLoading
+                        {organisatonDataLoading
 
                             ?
                             'loading'
                             :
                             <TotalPatients
-                                loading={patientDataLoading}
+                                loading={organisatonDataLoading}
                                 totalusers={patientCount}
                                 newUsers={newPatients}
                                 verifiedUsers={verifiedUsers}
@@ -106,7 +111,7 @@ const Patients = () => {
 
                             />
                         }
-                        {patientDataLoading
+                        {organisatonDataLoading
 
                             ?
                             <TablePreloader />
@@ -117,19 +122,17 @@ const Patients = () => {
                                 deleteAction={() => { }}
                                 approveAction={() => { }} 
                                 setItemToDelete={() => { }}
-                                tableHeadText='Patients'
-                                tableData={updatedPatientData}
+                                tableHeadText='Organisations'
+                                tableData={updatedOrganisatonData}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showPagination={true}
                                 showActions={true}
-                                testPage='patients'
+                                testPage='organisations'
                                 marginTop='mt-4'
                                 changePage={() => { }}
                             />
                         }
-                        
-
                     </div>
                 </div>
             </div>
