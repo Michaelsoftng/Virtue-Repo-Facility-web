@@ -523,3 +523,24 @@ export const UpdateCharges = gql`
   }
   }
 `;
+
+
+export const CreateResultTemplate = gql`
+  mutation CreateResultTemplate(
+      $name: String!, 
+      $template_fields: String!, 
+      ) {
+    CreateResultTemplate(
+    name: $name, 
+      templateFields: $template_fields
+    
+    ) {
+      template{
+          id
+          name
+          templateFields
+      }
+
+    }
+  }
+`;

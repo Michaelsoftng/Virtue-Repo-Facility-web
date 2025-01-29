@@ -91,7 +91,7 @@ const Payments = () => {
                 } = singlepPayments;
 
 
-                patientName = (paidby.firstName && paidby.lastName) ? `${paidby.firstName.trim()}  ${paidby.lastName.trim()}` : 'Not Set'
+                patientName = (paidby.firstName && paidby.lastName) ? `${paidby.firstName.trim()} ${paidby.lastName.trim()}` : 'Not Set'
                 const paid_For = paidFor === 'TESTREQUEST' ? 'tests' : 'consultation'
                 const payment_plan = paymentPlan == 'LUMP_SUM' ? 'full payment' :'installment'
                 const paymentData = {
