@@ -686,6 +686,28 @@ export const getAllTestRequestsByFacility = gql`
           testRequestCount
           testRequests {
               id
+              request{
+                patient{
+                  id
+                  user{
+                  
+                    firstName
+                    lastName
+                    email
+                  }
+                
+                }
+                phlebotomist{
+                  id
+                  user{
+                  
+                    firstName
+                    lastName
+                    email
+                  }
+                
+                }
+              }
               test{
                   id
                   name
@@ -693,7 +715,19 @@ export const getAllTestRequestsByFacility = gql`
               facility{
                   id
                   facilityName
-              }}
+              }
+              facilityDistance
+              facilityEarning
+              patientName
+              patientAge
+              package{
+                id
+                packageName
+              }
+              testResult
+              resultDate
+              status
+          }
     }
   }
 
@@ -876,4 +910,88 @@ export const GetCharges = gql`
         }
     }
   }
+`;
+
+
+export const GetAllResultTemplatates = gql`
+query getAllResultTemplate($limit: Int, $offset: Int){
+  getAllResultTemplate(limit: $limit, offset: $offset) {
+
+    templates{
+        id
+        name
+        templateFields
+    }
+    templatesCount
+
+  }
+}
+
+`;
+
+export const GetResultTemplateById = gql`
+  query getResultTemplateById($id: ID!){
+    getResultTemplateById(id: $id) {
+          id
+          name
+          templateFields
+
+    }
+  }
+
+`;
+
+export const GetTestRequestById = gql`
+  query getTestRequestById($id: ID!) {
+    getTestRequestById(id: $id) {
+      id
+      request{
+        sampleCollectionDate
+        samepleDropOffDate
+        sampleStatus
+        samplePickUpAddress
+        patient{
+          id
+          user{
+            image
+            firstName
+            lastName
+            email
+          }
+        
+        }
+        phlebotomist{
+          id
+          user{
+          
+            firstName
+            lastName
+            email
+          }
+        
+        }
+      }
+      test{
+          id
+          name
+      }
+      facility{
+          id
+          facilityName
+      }
+      facilityDistance
+      facilityEarning
+      patientName
+      patientAge
+      package{
+        id
+        packageName
+      }
+      testResult
+      resultDate
+      status   
+      createdAt    
+    }
+  }
+
 `;

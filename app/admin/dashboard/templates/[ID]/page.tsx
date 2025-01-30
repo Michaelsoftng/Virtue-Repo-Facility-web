@@ -9,20 +9,54 @@ import Link from 'next/link'
 import * as Form from '@radix-ui/react-form';
 import { IoIosWarning } from 'react-icons/io'
 import { AiOutlineClose } from "react-icons/ai";
+import { useGetResultTemplateById } from '@/src/hooks/useGetResultTemplateById'
+import { SectionWithRows } from '@/src/interface'
+import Loading from '../../loading'
 // import { PlusIcon } from '@radix-ui/react-icons'
 // import { RiDeleteBinFill } from "react-icons/ri";
 // import { SectionWithRows } from '@/src/interface'
 // import jsPDF from "jspdf";
 // import html2canvas from "html2canvas";
-const NewTemplate = () => {
+const NewTemplate = ({ params }: { params: { ID: string } }) => {
+    const { ID } = params;
+    const { data, error, loading: templatesDataLoading } = useGetResultTemplateById(ID)
     const [showRename, setShowRename] = useState(false)
+    // const template = data?.getResultTemplateById;
+    // const { __typename, id, name, templateFields, ...rest } = template
+    // const updatedtemplate = JSON.parse(templateFields)
+    // const parsedTempate: SectionWithRows[] = JSON.parse(updatedtemplate) 
+    // if (templatesDataLoading || !template) {
+    //     return <Loading />;
+    // }
+    
+    if (templatesDataLoading) {
+        return <Loading />;
+    }
+
+    const template = data?.getResultTemplateById;
+
+    if (!template) {
+        return <p>Error: No template found</p>;
+    }
+
+    const { __typename, id, name, templateFields, ...rest } = template;
+
+    let parsedTemplate: SectionWithRows[] = [];
+    try {
+        if (templateFields) {
+            const updatedtemplate = JSON.parse(templateFields)
+            parsedTemplate = JSON.parse(updatedtemplate) 
+        }
+    } catch (error) {
+        console.error("Error parsing templateFields JSON:", error);
+    }
     return (
         <div>
             <AdminHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageTitle="Tests" showExportRecord={false} />
+                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Templates" pageTitle={name} showExportRecord={false} />
                     <div className="px-8 py-4">
                         <div className="w-full grid grid-cols-[70%_30%] pt-6">
                             <div className="bg-[#EEFEF4] w-[776px] py-[21px] px-[35px]" id="pdf-content">
@@ -36,8 +70,8 @@ const NewTemplate = () => {
                                                 <h1 className="text-xl font-[600] text-black uppercase">
                                                     Wuse District Hospital, Abuja
                                                 </h1>
-                                                <p className="text-[12px] font-[600] text-black text-center mt-2">
-                                                    LABORATORY REPORT FORM - CHEMICAL PATHOLOGY
+                                                <p className="text-[12px] font-[600] text-black text-center mt-2 uppercase">
+                                                    LABORATORY REPORT FORM - {name}
                                                 </p>
                                             </div>
                                         </div>
@@ -86,145 +120,62 @@ const NewTemplate = () => {
                                         </div>
 
                                     </div>
-                                    <div>
-                                        <div className="text-[12px] border-b-2 border-black pb-1">
-                                            <b>Chemistry - </b>
-                                            <b>Lipogram - </b>
-                                            <span> Validated</span>
-                                        </div>
-                                        <div className="text-[12px] border-b-2 border-black pb-1 mt-1">
-                                            <b>Total Cholesterol</b>
-                                        </div>
-                                    </div>
+                                    
                                     <div>
                                         <div>
                                             <ul>
-                                                <section className="text-[12px] border-b-2 border-black pb-1 mt-1" >
-                                                    <li className="font-[700] text-[12px] grid grid-cols-3">
-                                                        <p className="flex justify-center">TEST NAME</p>
-                                                        <p className="flex justify-center">RESULT</p>
-                                                        <p className="flex justify-center">REFERENCE RANGE / (UNITS)</p>
-                                                    </li>
-                                                </section>
-                                                <section className="py-4">
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
+                                                {
+                                                    parsedTemplate.map((section, sectionIndex) => (
+                                                        <section key={sectionIndex} className={`${section.section_style} ${(sectionIndex == 0) ? "" : "border-t-2 pt-1"
+                                                            }`} >
+                                                            {
+                                                                section.section_fields.map((row, rowIndex) => (
+                                                                    <li key={rowIndex} className={`text-[12px] grid grid-cols-3 ${rowIndex === 0 ? "font-[700]" : "font-[500] mt-2"}`} >
+                                                                        {
+                                                                            row.section_fields.map((column, columnIndex) => (
+                                                                                column.section_fields.length > 1
+                                                                                    ?
+                                                                                    <div key={columnIndex}>
+                                                                                        {
+                                                                                            column.section_fields.map((field, idx) => (
+                                                                                                field === "___" ? (
+                                                                                                    <input
+                                                                                                        className={`w-full pl-2 ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
+                                                                                                        key={idx}
+                                                                                                        type="text"
+                                                                                                        placeholder="result here..."
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <p key={idx} className={` ${idx === 0 ? "mt-0" : ""} ${(idx === column.section_fields.length - 1 && columnIndex == 0) ? "border-b-4 border-dotted border-black pb-1 mb-3" : ""
+                                                                                                        }`}>{field}</p>
+                                                                                                )
 
-                                                    <li className="text-[12px] grid grid-cols-3 mt-4">
-                                                        <div >
-                                                            <p>Desirable:&gt;5.2 mmol/l</p>
-                                                            <p>Borderline :5.2 - 6.2 mmol/l</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">221</p>
-                                                        <p className="flex justify-center">mg/dL</p>
-                                                    </li>
-                                                </section>
-                                                <section className="py-4">
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
 
-                                                    <li className="text-[12px] grid grid-cols-3 mt-4">
-                                                        <div >
-                                                            <p>Desirable:&gt;5.2 mmol/l</p>
-                                                            <p>Borderline :5.2 - 6.2 mmol/l</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">221</p>
-                                                        <p className="flex justify-center">mg/dL</p>
-                                                    </li>
-                                                </section>
-                                                <section className="py-4 border-t-2 border-black pt-1 mt-1">
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
+                                                                                            ))
+                                                                                        }
+                                                                                    </div>
+                                                                                    :
+                                                                                    column.section_fields[0] === "___" ? (
+                                                                                        <input
+                                                                                            className={`w-full pl-2  ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
+                                                                                            key={columnIndex}
+                                                                                            type="text"
+                                                                                            placeholder="result here..."
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <p key={columnIndex} className={`${columnIndex === 0 ? "flex justify-start" : "flex justify-center"}`} >{column.section_fields[0]}</p>
+                                                                                    )
+                                                                            ))
+                                                                        }
 
-                                                    <li className="text-[12px] grid grid-cols-3 mt-4">
-                                                        <div >
-                                                            <p>Desirable:&gt;5.2 mmol/l</p>
-                                                            <p>Borderline :5.2 - 6.2 mmol/l</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">221</p>
-                                                        <p className="flex justify-center">mg/dL</p>
-                                                    </li>
-                                                </section>
-                                                <section className="py-4  border-t-2 border-black pt-1 mt-1">
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <b>Cholesterol HDL</b>
-                                                        </div>
-                                                        <p className="flex justify-center">&nbsp;</p>
-                                                        <p className="flex justify-center">&nbsp;</p>
-                                                    </li>
-                                                    <li className="text-[12px] grid grid-cols-3 mt-4">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
+                                                                    </li>
+                                                                ))
+                                                            }
 
-                                                    <li className="text-[12px] grid grid-cols-3 mt-4">
-                                                        <div >
-                                                            <p>Desirable:&gt;5.2 mmol/l</p>
-                                                            <p>Borderline :5.2 - 6.2 mmol/l</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">High :&gt; 6.2 mmol/l</p>
-                                                        </div>
-                                                        <p className="flex justify-center">5.73</p>
-                                                        <p className="flex justify-center">mmcl/L</p>
-                                                    </li>
-                                                    <li className="text-[12px] grid grid-cols-3">
-                                                        <div >
-                                                            <p>Total Cholesterol</p>
-                                                            <p className="border-b-4 border-dotted border-black pb-2">Comment</p>
-                                                        </div>
-                                                        <p className="flex justify-center">221</p>
-                                                        <p className="flex justify-center">mg/dL</p>
-                                                    </li>
-                                                </section>
+                                                        </section>
+                                                    ))
+                                                }
+                                                
 
                                             </ul>
                                         </div>

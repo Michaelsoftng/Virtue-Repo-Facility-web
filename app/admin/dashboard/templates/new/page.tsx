@@ -21,6 +21,8 @@ const NewTemplate = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [preview, setOpenPreview] = useState(false)
     const [template, setTemplate] = useState<SectionWithRows[]>([]);
+    const [templateName, setTemplateName] = useState<string>('');
+
     const addSection = () => {
         setTemplate((prev) => [
             ...prev,
@@ -293,27 +295,38 @@ const NewTemplate = () => {
         });
     };
 
+    const disableSubmitBtn = useCallback((): boolean => {
+        return (
+            templateName === '' ||
+            template.length < 2 
+        );
+    }, [templateName, template ]);
+    
     const [createTemplate] = useMutation(CreateResultTemplate, {
         variables: {
-            name: "Test Template",
-            template_fields: template
+            name: templateName,
+            template_fields: JSON.stringify(template)
         },
         client,
     });
+
 
     const handleSaveTemplate = async (e: React.FormEvent) => {
         console.log(template)
         e.preventDefault();
         setPageLoading(true);
-
-        // if (disableSubmitBtn()) {
-        //     return;
-        // }
+        
+        if (disableSubmitBtn()) {
+            return;
+        }
         try {
             await createTemplate({
                 onCompleted(data) {
-                    
-                    toast.success('Registration Successful! Verify your account with the code sent to your email and phone.');
+                    if (data.CreateResultTemplate.error) {
+                        toast.error(data.CreateResultTemplate.error.message);
+                        return;
+                    }
+                    toast.success('New result template created successfully');
                     router.push('/admin/dashboard/templates');
                 },
                 onError(error) {
@@ -326,14 +339,25 @@ const NewTemplate = () => {
             setPageLoading(false);
         }
     };
+
+
     return (
         <div>
             <AdminHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageTitle="Tests" showExportRecord={false} />
+                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Templates" pageTitle="Create Template" showExportRecord={false} />
                     <div className="px-8 py-4">
+                        <div className="mt-6 bg-white shadow-lg py-3 px-4">
+                            <input
+                                type="text"
+                                placeholder={`enter template name`}
+                                className="w-full bg-slate-100 text-black px-4 py-3"
+                                onChange={(e) => setTemplateName(e.target.value)}
+                            />
+                        </div>
+                                                      
                         <div className="w-full pt-6">
                             <div className="bg-white w-full py-[21px] px-[35px]">
                                 
@@ -435,7 +459,7 @@ const NewTemplate = () => {
                             <div className="grid grid-cols-6 gap-3">
                                 <button className="bg-gray-600 font-600 py-2 px-3 text-[14px] block mt-2 rounded-md text-white " onClick={addSection}>Create Section</button>
                                 <button className="bg-blue-600 font-600 py-2 px-3 text-[14px] block mt-2 rounded-md text-white " onClick={() => setOpenPreview(true)}>Preview Template</button>
-                                <button className="bg-green-600 font-600 py-2 px-3 text-[14px] block mt-2 rounded-md text-white " onClick={handleSaveTemplate}>Save Template</button>
+                                <button className="bg-green-600 font-600 py-2 px-3 text-[14px] block mt-2 rounded-md text-white disabled:bg-green-300" onClick={handleSaveTemplate} disabled={disableSubmitBtn()}>Save Template</button>
 
                                 {/* <div>
                                     <pre>{JSON.stringify(template, null, 2)}</pre>
@@ -525,7 +549,7 @@ const NewTemplate = () => {
                                                                                         }`} >
                                                         {
                                                             section.section_fields.map((row, rowIndex) => (
-                                                                <li key={rowIndex} className="font-[700] text-[12px] grid grid-cols-3">
+                                                                <li key={rowIndex} className={`text-[12px] grid grid-cols-3 ${rowIndex === 0 ? "font-[700]" : "font-[500] mt-2"}`} >
                                                                     {
                                                                         row.section_fields.map((column, columnIndex) => (
                                                                             column.section_fields.length > 1
@@ -533,15 +557,33 @@ const NewTemplate = () => {
                                                                                 <div key={columnIndex}>
                                                                                     {
                                                                                         column.section_fields.map((field, idx) => (
-                                                                                            <p key={idx} className={` ${idx === 0 ? "mt-0" : ""} ${(idx === column.section_fields.length - 1 && columnIndex == 0) ? "border-b-4 border-dotted border-black pb-2" : ""
-                                                                                                }`}>{field}</p>
+                                                                                            field === "___" ? (
+                                                                                                <input
+                                                                                                    className={` ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
+                                                                                                    key={idx}
+                                                                                                    type="text"
+                                                                                                    placeholder="result here..."
+                                                                                                />
+                                                                                            ) : (
+                                                                                                <p key={idx} className={` ${idx === 0 ? "mt-0" : ""} ${(idx === column.section_fields.length - 1 && columnIndex == 0) ? "border-b-4 border-dotted border-black pb-1 mb-3" : ""
+                                                                                                        }`}>{field}</p>
+                                                                                            )
+                                                                                            
                                                                                             
                                                                                         ))
                                                                                     }
                                                                                 </div>
                                                                                 :
+                                                                                column.section_fields[0] === "___" ? (
+                                                                                    <input
+                                                                                        className={` ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
+                                                                                        key={columnIndex}
+                                                                                        type="text"
+                                                                                        placeholder="result here..."
+                                                                                    />
+                                                                                ) : (
                                                                                 <p key={columnIndex} className={`${columnIndex === 0 ? "flex justify-start" : "flex justify-center"}`} >{column.section_fields[0]}</p>
-                                                                            
+                                                                                    )
                                                                         ))
                                                                     }
                                                                     

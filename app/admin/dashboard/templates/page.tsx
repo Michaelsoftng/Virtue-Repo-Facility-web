@@ -6,77 +6,53 @@ import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
-import { useGetAllRequest } from '@/src/hooks/useGetAllRequest'
+import { useGetAllResultTemplates } from '@/src/hooks/useGetAllResultTemplates'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import ResultTemplate from '@/src/reuseable/components/ResultTemplate'
 import Link from 'next/link'
+import Loading from '../loading'
 
 const Templates = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [offset, setOffset] = useState(0)
-    const { data, error, loading: requestDataLoading } = useGetAllRequest(10, offset)
-    const requestCount = data?.getAllRequests.requestsCount
-    const requestData = data?.getAllRequests.requests as TableData[]
+    const { data, error, loading: templatesDataLoading } = useGetAllResultTemplates(10, offset)
+    const templatesCount = data?.getAllResultTemplate.templatesCount
+    const templatesData = data?.getAllResultTemplate.templates as TableData[]
     const [deleteRequestWithId, setDeleteRequestWithId] = useState<string | null>(null)
-    const cachedRequestData = useRef<TableData[]>([])
-
-    const updatedRequestData = requestData?.map((request) => {
+    const cachedTemplatesData = useRef<TableData[]>([])
+    
+    const updatedTemplatesData = templatesData?.map((request) => {
         const {
             __typename,
-            requestDate,
-            patient,
-            phlebotomist,
-            tests,
-            payment,
-            testRequest,
-            facility,
-            package: packageData,
-            samplePickUpAddress,
-            requestStatus,
-            sampleStatus,
-            isPaid,
-            balance,
-            total,
-            sampleCollectionDate,
-            samepleDropOffDate,
-            createdAt,
             id,
+            name,
+            templateFields,
             ...rest
         } = request;
-        const patientname = (patient.user.firstName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
-        const phlebotomistname = (phlebotomist && phlebotomist.user.firstName) ? `${phlebotomist.user.firstName} ${phlebotomist.user.lastName}` : 'Not Set'
-        const newRequestData = {
-            patients: [null, patientname, patient.user.email],
-            address: `${patient.user.city} ${patient.user.state}`,
-            // test: `${tests.length} tests`,
-            amount: total,
-            paid: total - balance,
-            balance: balance ? balance : 0,
-            phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.user.email] : [null, phlebotomistname, "info@labtraca.com"],
-            // address: samplePickUpAddress,
-            requestDate: requestDate,
-            sample_status: sampleStatus,
-            status: requestStatus,
+        const newTemplatesData = {
             id,
+            name,
+            templateFields: templateFields,
             ...rest,
+        };  
 
-        };
-
-        return newRequestData
+        return newTemplatesData
     }) || [];
 
-    const uniqueRequestData = updatedRequestData.filter(newRequest =>
-        !cachedRequestData.current.some(cachedRequest => cachedRequest.id === newRequest.id)
+    const uniqueTemplatesData = updatedTemplatesData.filter(newRequest =>
+        !cachedTemplatesData.current.some(cachedRequest => cachedRequest.id === newRequest.id)
     );
 
-    cachedRequestData.current = [...cachedRequestData.current, ...uniqueRequestData];
+    cachedTemplatesData.current = [...cachedTemplatesData.current, ...uniqueTemplatesData];
 
     const handleFetchNextPage = () => {
         setOffset(offset + 10)
     }
 
-
+    if (pageLoading ) {
+        return <Loading />;
+    }
     return (
         <div>
             <AdminHeader />
@@ -90,20 +66,20 @@ const Templates = () => {
                         </div>
                     
                         <div className="grid grid-cols-3 gap-x-2 gap-y-4">
-                            <div>
-                                <div className="text-center font-bold text-sm">CHEMICAL PATHOLOGY</div>
-                                <Link href='templates/2335467890'><ResultTemplate /></Link>
-                            </div>
+                            {
+                                cachedTemplatesData.current.map((template, index) => (
+                                    <div key={index}>
+                                        <div className="text-center font-bold text-sm uppercase">{template.name}</div>
+                                        <Link href={`templates/${template.id}`}>
+                                            <ResultTemplate
+                                                name={template.name}
+                                                template={template.templateFields}
+                                            />
+                                        </Link>
+                                    </div>
+                                ))
+                            }
                             
-                            <div>
-                                <div className="text-center font-bold text-sm">CHEMICAL PATHOLOGY</div>
-                                <Link href='2335467890'><ResultTemplate /></Link>
-                            </div>
-                            <div>
-                                <div className="text-center font-bold text-sm">CHEMICAL PATHOLOGY</div>
-                                <Link href='2335467890'><ResultTemplate /></Link>
-                            </div>
-                           
                         </div>
                         <div className="flex justify-between mt-4 w-full">
                             <button
@@ -122,7 +98,7 @@ const Templates = () => {
                             </button>
                         </div>
                         {/* {
-                            requestDataLoading
+                            templatesDataLoading
                                 ?
                                 <TablePreloader />
 
@@ -130,9 +106,9 @@ const Templates = () => {
                                 div
     
                                 <AdminFacilitiesTable
-                                    tableHeadText={`Templates (${requestCount})`}
-                                    dataCount={requestCount}
-                                    tableData={cachedRequestData.current}
+                                    tableHeadText={`Templates (${templatesCount})`}
+                                    dataCount={templatesCount}
+                                    tableData={cachedTemplatesData.current}
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}

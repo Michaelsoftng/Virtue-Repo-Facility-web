@@ -34,7 +34,7 @@ const FacilityMenu = () => {
                             <RequestIcon
                                 stroke={currentRoute === '/facility/dashboard/requests' ? '#08AD85' : '#4F475E'}
                             />
-                            <span>Request</span>
+                            <span className={`${currentRoute === '/facility/dashboard/requests' ? 'text-[#08AD85]' : 'text-black'}`}>Request</span>
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">
@@ -42,7 +42,7 @@ const FacilityMenu = () => {
                             <TestIcon
                                 stroke={currentRoute === '/facility/dashboard/tests' ? '#08AD85' : '#4F475E'}
                             />
-                            <span>Test</span>
+                            <span className={`${currentRoute === '/facility/dashboard/tests' ? 'text-[#08AD85]' : 'text-black'}`}>Test</span>
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">
@@ -50,7 +50,7 @@ const FacilityMenu = () => {
                             <ResultsIcon
                                 stroke={currentRoute === '/facility/dashboard/results' ? '#08AD85' : '#4F475E'}
                             />
-                            <span>Results</span>
+                            <span className={`${currentRoute === '/facility/dashboard/results' ? 'text-[#08AD85]' : 'text-black'}`}>Results</span>
                             
                         </Link>
                     </li> 

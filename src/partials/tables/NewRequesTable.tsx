@@ -11,6 +11,7 @@ import AddTestModal from '@/src/reuseable/components/AddTestModal';
 import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
 import { formatWord } from './AdminFacilitiesTable';
 import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
+import Link from 'next/link';
 
 export interface TestModalProps{
     id?: string
@@ -33,12 +34,17 @@ export interface TestModalProps{
 export type NewRequestTableProps = {
     tableData: TableData[];
     searchBoxPosition: string,
+    tableHeadText: string,
     showTableHeadDetails: boolean,
     showActions: boolean
     activeTab: string,
     setActiveTab: (tab: string) => void
     testPage?: string
     facilityId?: string,
+    changePage: () => void
+    dataCount?: number,
+    currentPage: number;
+    setCurrentPage: (page: number) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approveAction: (data?: any) => void,
 };
@@ -71,9 +77,25 @@ function formatDateTime(dateString: string): string {
     return `${formattedDate} ${formattedTime}`;
 }
 
-const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxPosition, showTableHeadDetails, showActions, activeTab, setActiveTab, testPage, facilityId, approveAction  }) => {
+const NewRequestTable: React.FC<NewRequestTableProps> = (
+    {   tableData,
+        searchBoxPosition,
+        showTableHeadDetails,
+        tableHeadText,
+        showActions,
+        activeTab,
+        setActiveTab,
+        testPage,
+        facilityId,
+        approveAction,
+        dataCount,
+        changePage,
+        currentPage,
+        setCurrentPage,
+
+    }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    // const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10; 
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
@@ -92,23 +114,24 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
         );
     });
 
-    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+    const totalPages = Math.ceil(dataCount as number / rowsPerPage);
     const currentData = filteredData.slice(
         (currentPage - 1) * rowsPerPage,
         currentPage * rowsPerPage
     );
 
+    console.log('filtered Data', filteredData.length);
+  
     const handlePageChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev' && currentPage > 1) {
             setCurrentPage(currentPage - 1);
         } else if (direction === 'next' && currentPage < totalPages) {
+            changePage()
             setCurrentPage(currentPage + 1);
         }
     };
 
     const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
-
-
     const showModalFunc = (dataIndex: number, modalType: string) => {
         const dataToDisplay = tableData[dataIndex]
         switch (modalType) {
@@ -129,8 +152,12 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
     }
     return (
         <div className="mt-[-20px] container mx-auto ">
-            <div className={`mt-8 flex ${searchBoxPosition}  mb-4`}>
-                <div className="flex space-x-4">
+            <div className={`mt-8 flex justify-between  mb-4`}>
+                <div>
+                    <h2 className="text-lg font-bold">{tableHeadText }</h2>
+                </div>
+                
+                <div className={`flex  ${searchBoxPosition ? searchBoxPosition : "justify-end" } `}>
                     <input
                         type="text"
                         placeholder="Search..."
@@ -175,14 +202,14 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                     ?
                     <div className="w-full text-center flex justify-center  text-black font-semibold text-2xl  shadow-md h-[300px] pr-4 rounded-lg bg-white"> <p className="mt-[130px]">No data to show</p></div>
                     :
-                    <table className="w-full">
+                    <table className="w-full border-collapse">
                         <thead>
                             <tr>
                                 {columns.map((column) =>
                                     column === 'id' ? null : (
                                         <th
                                             key={column}
-                                            className="px-6 py-8 capitalize border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
+                                            className="px-6 py-8 capitalize whitespace-nowrap border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
                                         >
                                             {formatWord(column)}
                                         </th>
@@ -191,7 +218,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                 {showActions && (
                                     <th
                                         key="actions"
-                                        className="px-6 py-8 capitalize border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
+                                        className="px-6 py-8 capitalize whitespace-nowrap border-gray-400 text-left text-sm leading-4 text-black tracking-wider"
                                     >
                                         Action
                                     </th>
@@ -203,9 +230,10 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                 <tr key={index} className="border-solid border-2">
                                     {columns.map((column) => {
                                         switch (column) {
+                                            case 'patient':
                                             case 'patients':
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-light">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-light">
                                                         <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
                                                             <div>
                                                                 {row[column][0] ? (
@@ -229,7 +257,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                                 );
                                             case 'amount':
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
                                                         <div>
                                                             <span className="text-[#434D64]">{formatMoney(row[column])}</span>
                                                         </div>
@@ -237,7 +265,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                                 );
                                             case 'phlebotomist':
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm ">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm ">
                                                         <div className="grid grid-cols-[50px_calc(100%-50px)] gap-2">
                                                             <div>
                                                                 {row[column][0] ? (
@@ -261,7 +289,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                                 );
                                             case 'date':
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
                                                         <span className="text-center text-md capitalize px-2 py-2 rounded font-thin">
                                                             {formatDateTime(row[column])}
                                                         </span>
@@ -270,7 +298,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                             case 'sample_status':
                                             case 'result_status':
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap overflow-scroll border-b border-gray-200 text-sm font-thin">
                                                         <span className={`status-indicator ${row[column].toLowerCase()} text-md capitalize px-2 py-2 rounded`}>
                                                             {row[column]}
                                                         </span>
@@ -280,7 +308,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                                 break;
                                             default:
                                                 return (
-                                                    <td key={column} className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
+                                                    <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
                                                         <span className="text-[#434D64]">{row[column]}</span>
                                                     </td>
                                                 );
@@ -288,20 +316,25 @@ const NewRequestTable: React.FC<NewRequestTableProps> = ({ tableData, searchBoxP
                                     })}
                                     {showActions && (
                                     
-                                        <td key="actions" className="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-sm">
-                                            {testPage === 'facilityTest'
-                                                ?
+                                        <td key="actions" className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm">
+                                            {testPage === 'facilityTest' &&
+                                               
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove')}>Remove</button>
                                                 </div>
-                                                :
+                                              
+                                            }
+                                            {(testPage === 'requests' || testPage === 'payments') &&
+
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                    <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
-                                        
-                                        
+                                            {/* :
+                                            <div className="flex justify-between gap-2 w-[150px]">
+                                                <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                            </div> */}
                                         </td>
                                     )}
                                 </tr>
