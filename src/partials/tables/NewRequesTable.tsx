@@ -325,12 +325,20 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                                 </div>
                                               
                                             }
+
                                             {(testPage === 'requests' || testPage === 'payments') &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
+                                            {(testPage === 'availableTest') &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                </div>
+                                            }
+                                            
                                             {/* :
                                             <div className="flex justify-between gap-2 w-[150px]">
                                                 <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
