@@ -314,6 +314,7 @@ const Requests = () => {
                                     <TablePreloader />
                                 ) : (
                                     <NewRequestTable
+                                        tableHeadText={`Facility Tests (${dataCount['facilityTest']})`}
                                         approveAction={() => { }}
                                         tableData={data['facilityTest']}
                                         searchBoxPosition='justify-start'
@@ -322,6 +323,12 @@ const Requests = () => {
                                         activeTab={activeTab}
                                         setActiveTab={setActiveTab}
                                         testPage='facilityTest'
+                                        dataCount={dataCount['facilityTest']}
+                                        currentPage={1}
+                                        setCurrentPage={()=>{}}
+                                        changePage={()=>{}}    
+                                            
+                                         
                                     />
                                 ))
 
@@ -332,6 +339,7 @@ const Requests = () => {
                                     ) : (
 
                                         <NewRequestTable
+                                            tableHeadText={`Tests (${dataCount['test']})`}
                                             approveAction={handleAddFacilityTest}
                                             facilityId={decodeJwtEncodedId(user?.id)}
                                             tableData={data['availableTest']}
@@ -341,6 +349,10 @@ const Requests = () => {
                                             activeTab={activeTab}
                                             setActiveTab={setActiveTab}
                                             testPage='availableTest'
+                                            dataCount={dataCount['test']}
+                                            currentPage={1}
+                                            setCurrentPage={()=>{}}
+                                            changePage={()=>{}} 
                                         />
                                     ))
                             }
