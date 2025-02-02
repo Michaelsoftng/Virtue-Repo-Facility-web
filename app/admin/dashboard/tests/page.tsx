@@ -76,23 +76,13 @@ const sampleCompletedData: TableData[] = [
 ];
 
 const Tests = () => {
-    const [activeTab, setActiveTab] = useState<string>('tests')
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const offsets = useRef<{ [key: string]: number }>({
-        tests: 0,
-        results: 0,
-    });
-        
-    const dataCount = useRef<{ [key: string]: number}>({
-        tests: 0,
-        results: 0,
-        });
+    const [offsets, setOffsets]  = useState<number>(0);
+    const limit = 10;    
+    const dataCount = useRef<number>(0);
     
-    const testdata = useRef<{ [key: string]: TableData[]  }>({
-        tests: [],
-        results: [],
-    });
+    const testdata = useRef<TableData[]>([]);
     const [deleteTestWithId, setDeleteTestWithId] = useState <string | null>(null) // id of test to delete
 
     const [deleteTest, { loading: deleteTestLoading }] = useMutation(DeleteTest, {
@@ -131,6 +121,7 @@ const Tests = () => {
         }
        
     }
+
     const fetchTests = useCallback(async (limit: number, offset: number) => {
         try {
             setPageLoading(true)
@@ -166,57 +157,36 @@ const Tests = () => {
                 }) || [];
 
                 const allTests = [...updateTestsData];
-                testdata.current = {
-                    ...testdata.current,
-                    tests: Array.from(
+                testdata.current = Array.from(
                         new Map(
-                            [...testdata.current.tests, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                            [...testdata.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
                         ).values()
-                    ),
-                };
-                dataCount.current = {
-                    ...dataCount.current,
-                    tests: data.getAllTest.testCount,
-                };
-                offsets.current = {
-                    ...dataCount.current,
-                    tests: limit + offsets.current.tests,
-                };
+                    );
+                dataCount.current = data.getAllTest.testCount;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
             }
 
         } catch (err) {
             console.log('error fetching tests catch error', err);
         } finally {
             setPageLoading(false)
-            console.log("finally")
+            // console.log("finally")
         }
     }, []);
     
-    const handleTabChange = (tab: string) => {
-        switch (tab) {
-            case 'tests':
-                setActiveTab('tests')
-                fetchTests(10, offsets.current.tests)
-                break;
-            case 'results':
-                setActiveTab('results')
-                // fetchTests(10, offsets.current.tests)
-                break;
-            default:
-                break;
-        }
-        
-    }
 
     const handleFetchNextPage = () => {
-        offsets.current = {
-            ...dataCount.current,
-            tests: 10 + offsets.current.tests,
-        };
+        if (testdata.current.length < (limit * (currentPage + 1))) {
+            fetchTests(limit, offsets); 
+        }
+        return;
+      
     }
+
     useEffect(() => {
-        fetchTests(10, 0);
-    }, [fetchTests]);
+        fetchTests(limit, 0);
+    }, [fetchTests, limit]);
 
     return (
         <div>
@@ -228,7 +198,7 @@ const Tests = () => {
                     <div className="px-8 py-4">
                         <div className="flex justify-between">
                             <div>
-                                <p className="font-bold text-xl px-4 py-2 mr-2" >{dataCount.current.tests } Available Tests</p>
+                                <p className="font-bold text-xl px-4 py-2 mr-2" >{dataCount.current } Available Tests</p>
                             </div>
 
                             <Link href='tests/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
@@ -243,45 +213,27 @@ const Tests = () => {
                                     ? 
                                     <TablePreloader />
                                     :
-                                    (activeTab === 'tests'
-                                    ? (
-
-                                        <AdminFacilitiesTable
-                                            currentPage={currentPage}
-                                            setCurrentPage={setCurrentPage}
-                                            approveAction={() => { }} 
-                                            deleteAction={handleDeleteTest}
-                                            setItemToDelete={setDeleteTestWithId}
-                                            tableHeadText='Tests'
-                                            dataCount={dataCount.current.tests}
-                                            tableData={testdata.current.tests} 
-                                            changePage={handleFetchNextPage}
-                                            showActions={true}
-                                            showPagination={true}
-                                            
-                                            testPage='tests'
-                                            marginTop='mt-4'
-                                        />
-                                        
-                                    )
-                                    : (
-
-                                        <AdminFacilitiesTable
-                                            currentPage={1}
-                                            setCurrentPage={() => { }}
-                                            setItemToDelete={setDeleteTestWithId}
-                                            deleteAction={() => { }}
-                                            approveAction={() => { }} 
-                                            tableHeadText='Results'
-                                            tableData={sampleCompletedData}
-                                            showActions={false}
-                                            showPagination={true}
-                                            testPage='results'
-                                            marginTop='mt-4'
-                                            changePage={() => { }}
-                                        />
                                     
-                                    ))
+
+                                    <AdminFacilitiesTable
+                                        currentPage={currentPage}
+                                        setCurrentPage={setCurrentPage}
+                                        approveAction={() => { }} 
+                                        deleteAction={handleDeleteTest}
+                                        setItemToDelete={setDeleteTestWithId}
+                                        tableHeadText='Tests'
+                                        dataCount={dataCount.current}
+                                        tableData={testdata.current} 
+                                        changePage={handleFetchNextPage}
+                                        showActions={true}
+                                        showPagination={true}
+                                        
+                                        testPage='tests'
+                                        marginTop='mt-4'
+                                    />
+                                        
+                                    
+                                    
                             }
                         </div>
                         
