@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
+import { getUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType'
 import { getAllAssignments } from '@/src/hooks/useGetAllAssignments'
 import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
@@ -24,8 +24,19 @@ import BarChartYaxis from '@/src/partials/BarChartYaxis'
 
 
 const Phlebotomies = () => {
+    const limit = 10;  
+    const [currentPhlebPage, setPhlebCurrentPage] = useState<number>(1);
+    const [currentAssignmentPage, setAssignmentCurrentPage] = useState<number>(1);
+    const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
+    const { user } = useAuth()
+    const Id = user?.id
+    const verifiedUsers = useRef<number>(0)
+    const newStaffs = useRef<number>(0)
+    const unverifedStaffs = useRef<number>(0)
     const [activeTab, setActiveTab] = useState<string>("phlebotomist")
-    const offsets = useRef<{ [key: string]: number }>({
+    const [offsets, setOffsets]  = useState<{ [key: string]: number }>({
             phlebotomies: 0,
             audits: 0,
             assignments: 0,
@@ -37,92 +48,118 @@ const Phlebotomies = () => {
             assignments: 0,
         });
     
-        const datas = useRef<{ [key: string]: TableData[]  }>({
-            phlebotomies: [],
-            audits: [],
-            assignments: [],
-        });
-    
-    const [loading, setLoading] = useState(false)
-    const { data, error, loading: staffDataLoading } = useGetUsersByType('phlebotomist')
-    const [staffWithId, setStafftWithId] = useState<string | null>(null) // id of staff to delete
-    const { user } = useAuth()
-    const Id = user?.id
-    const staffCount = data?.getUserByUserType?.usersCount
-    const staffData = data?.getUserByUserType?.users as TableData[]
+    const datas = useRef<{ [key: string]: TableData[]  }>({
+        phlebotomies: [],
+        audits: [],
+        assignments: [],
+    });
 
-    let name: string
-    let status: string
-    let verifiedUsers = 0
-    let newStaffs = 0
-    let unverifedStaffs = 0
+    const fetchPhlebotomies = useCallback(async (limit: number, offset: number) => {
+        try {
+            setLoading(true)
+            const { data, error, loading: testsDataLoading } = await getUsersByType('phlebotomist', limit, offset);
+            if (error) {
+                console.log('Error fetching users from api:', error);
+                return;
+            }
+            if (data && data.getUserByUserType?.users) {
+                // Update the ref instead of state
+                const phlebotomies = data.getUserByUserType?.users as TableData[]
+                const updatedPhlebotomiesData = phlebotomies?.map((singleStaff) => {
 
-    // Check if StaffData is available before mapping
-    const updatedStaffData = staffData?.map((singleStaff) => {
+                    const {
+                        id,
+                        __typename,
+                        approvalToken,
+                        approvedAt,
+                        referralCode,
+                        referralBonus,
+                        facilityAdmin,
+                        doctor,
+                        phlebotomist,
+                        staff,
+                        firstName,
+                        streetAddress,
+                        streetAddress2,
+                        lastName,
+                        email,
+                        patient,
+                        country,
+                        postal,
+                        city,
+                        state,
+                        latitude,
+                        longitude,
+                        emailVerifiedAt,
+                        deletedAt,
+                        deletedBy,
+                        createdAt,
+                        ...rest
+                    } = singleStaff;
 
-        const {
-            __typename,
-            approvalToken,
-            approvedAt,
-            referralCode,
-            referralBonus,
-            facilityAdmin,
-            doctor,
-            phlebotomist,
-            staff,
-            firstName,
-            streetAddress,
-            streetAddress2,
-            lastName,
-            email,
-            patient,
-            country,
-            postal,
-            city,
-            state,
-            latitude,
-            longitude,
-            emailVerifiedAt,
-            deletedAt,
-            deletedBy,
-            createdAt,
-            ...rest
-        } = singleStaff;
+                    if (emailVerifiedAt) {
+                        verifiedUsers.current += 1;
+                    } else {
+                        unverifedStaffs.current += 1;
+                    }
+                    const name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
+                    const active = emailVerifiedAt ? 'verified' : 'unverified'
+                    const status = approvedAt ? 'approved' : 'pending approval'
+                    const patientCity = city ? city : 'Not set'
+                    const patientState = state ? state : 'Not set'
+                    const activity = deletedAt ? "deleted" : "active"
+                    const createdDate = new Date(createdAt);
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    if (createdDate >= oneWeekAgo) {
+                        newStaffs.current += 1;
+                    }
+                    const newPatientData = {
+                        id,
+                        phlebotomist: [null, name, singleStaff.email],
+                        ...rest,
+                        city: patientCity,
+                        state: patientState,
+                        verified: active,
+                        status: status,
+                        is_active: activity,
+                        approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
+                    };
 
-        if (emailVerifiedAt) {
-            verifiedUsers += 1;
-        } else {
-            unverifedStaffs += 1;
+                    return newPatientData
+                }) || [];
+
+
+                const allPhlebotomies = [...updatedPhlebotomiesData];
+
+                datas.current = {
+                    ...datas.current,
+                    phlebotomies: Array.from(
+                        new Map(
+                            [...datas.current.phlebotomies, ...allPhlebotomies].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                };
+                dataCount.current = {
+                    ...dataCount.current,
+                    phlebotomies: data.getUserByUserType.usersCount
+                };
+                
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    phlebotomies: prevOffsets.phlebotomies + limit, // Update the key you want
+                }));
+
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setLoading(false)
+            // console.log("finally")
         }
-        name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
-        const active = emailVerifiedAt ? 'verified' : 'unverified'
-        const status = approvedAt ? 'approved' : 'pending approval'
-        const patientCity = city ? city : 'Not set'
-        const patientState = state ? state : 'Not set'
-        const activity = deletedAt ? "deleted" : "active"
-        const createdDate = new Date(createdAt);
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        if (createdDate >= oneWeekAgo) {
-            newStaffs += 1;
-        }
-        const newPatientData = {
-            phlebotomist: [null, name, singleStaff.email],
-            ...rest,
-            city: patientCity,
-            state: patientState,
-            verified: active,
-            status: status,
-            is_active: activity,
-            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
-        };
-
-        return newPatientData
-    }) || [];
-
-    if (error) {
-        console.log("error is saying true", error)
-    }
+    }, []);
 
     const [approveStaff, { loading: approveStaffLoading }] = useMutation(ApproveAccount, {
         variables: {
@@ -258,10 +295,13 @@ const Phlebotomies = () => {
                     ...dataCount.current,
                     assignments: data.getAllAssignment?.assignmentsCount,
                 };
-                offsets.current = {
-                    ...dataCount.current,
-                    assignments: limit + offsets.current.assignments,
-                };
+
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    assignments: prevOffsets.assignments + limit, // Update the key you want
+                }));
+
+        
             }
         } catch (err) {
             console.log('Error fetching cachedSavedJobsRef.current saved jobs:', err);
@@ -275,7 +315,7 @@ const Phlebotomies = () => {
         switch (tab) {
             case 'assignment':
                 setActiveTab('assignment')
-                fetchAssignments(10, offsets.current.assignments)
+                fetchAssignments(10, offsets.assignments)
                 break;
         
             default:
@@ -283,6 +323,28 @@ const Phlebotomies = () => {
         }
         
     }
+
+    const handleFetchPhlebNextPage = () => {
+        if (datas.current.phlebotomies.length < (limit * (currentPhlebPage + 1))) {
+            fetchPhlebotomies(limit, offsets.phlebotomies);
+        }
+        return;
+
+    }
+
+    const handleFetchAssignmentNextPage = () => {
+        if (datas.current.phlebotomies.length < (limit * (currentAssignmentPage + 1))) {
+            fetchAssignments(limit, offsets.assignments);
+        }
+        return;
+
+    }
+
+    useEffect(() => {
+        fetchPhlebotomies(limit, 0);
+    }, [fetchPhlebotomies, limit]);
+
+    console.log(dataCount.current.phlebotomies)
     return (
         <div>
             <AdminHeader />
@@ -299,37 +361,38 @@ const Phlebotomies = () => {
 
                         </div>
                         <div className="">
-                            {staffDataLoading
+                            {loading
 
                                 ?
                                 'loading'
                                 :
                                 <TotalPatients
-                                    loading={staffDataLoading}
-                                    totalusers={staffCount}
-                                    newUsers={newStaffs}
-                                    verifiedUsers={verifiedUsers}
-                                    unverifedPatients={unverifedStaffs}
+                                    loading={loading}
+                                    totalusers={dataCount.current.phlebotomies}
+                                    newUsers={newStaffs.current}
+                                    verifiedUsers={verifiedUsers.current}
+                                    unverifedPatients={unverifedStaffs.current}
                                     type="phlebotomies"
                                 />
                             }
 
                             {activeTab === 'phlebotomist' && (
                                 
-                                staffDataLoading
+                                loading
 
                                 ?
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
-                                    currentPage={1}
-                                    setCurrentPage={() => { }}
+                                    currentPage={currentPhlebPage}
+                                    setCurrentPage={setPhlebCurrentPage}
                                     deleteAction={handleDeleteTest}
                                     approveAction={handleApproveStaff}
                                     setItemToDelete={setStafftWithId}
-                                    changePage={() => { }}
-                                    tableHeadText=''
-                                    tableData={updatedStaffData}
+                                    changePage={handleFetchPhlebNextPage}
+                                    tableHeadText={`Phlebotomies ${dataCount.current.phlebotomies}`}
+                                    tableData={datas.current.phlebotomies}
+                                    dataCount={dataCount.current.phlebotomies}
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}
@@ -343,7 +406,7 @@ const Phlebotomies = () => {
                             {activeTab === 'audit' && (
                                 <div className="mt-6">
                                     <BarChartYaxis />
-                                    {staffDataLoading ? (
+                                    {loading ? (
                                         <TablePreloader />
                                     ) : (
                                         <AdminFacilitiesTable
@@ -354,7 +417,7 @@ const Phlebotomies = () => {
                                             setItemToDelete={setStafftWithId}
                                             changePage={() => { }}
                                             tableHeadText=""
-                                            tableData={updatedStaffData}
+                                            tableData={datas.current.phlebotomies}
                                             searchBoxPosition="justify-start"
                                             showTableHeadDetails={true}
                                             showActions={true}
@@ -382,12 +445,12 @@ const Phlebotomies = () => {
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
-                                    currentPage={1}
-                                    setCurrentPage={() => { }}
+                                    currentPage={currentAssignmentPage}
+                                    setCurrentPage={setAssignmentCurrentPage}
                                     deleteAction={handleDeleteTest}
                                     approveAction={handleApproveStaff}
                                     setItemToDelete={setStafftWithId}
-                                    changePage={() => { }}
+                                    changePage={handleFetchAssignmentNextPage}
                                     tableHeadText=''
                                     tableData={datas.current.assignments}
                                     searchBoxPosition='justify-start'

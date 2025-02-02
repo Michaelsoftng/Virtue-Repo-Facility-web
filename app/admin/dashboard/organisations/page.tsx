@@ -1,94 +1,136 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { useGetUsersByType } from '@/src/hooks/useGetUsersByType'
-import { PatientType } from '@/src/interface'
-import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { getUsersByType, } from '@/src/hooks/useGetUsersByType'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 // import { PatientType } from '@/src/interface'
 
-const Patients = () => {
-    const { data, error, loading: organisatonDataLoading } = useGetUsersByType('organisation')
-    const patientCount = data?.getUserByUserType?.usersCount
-    const organisatonData = data?.getUserByUserType?.users as TableData[] 
-    let name: string
-    let status: string
-    let verifiedUsers=0
-    let newPatients = 0
-    let unverifedPatients = 0
-    // Check if organisatonData is available before mapping
-    const updatedOrganisatonData = organisatonData?.map((singlePatient) => {
-        
-        const {
-            __typename,
-            approvalToken,
-            doctor,
-            phlebotomist,
-            approvedAt,	
-            facilityAdmin,
-            staff,
-            firstName,
-            phoneNumber,
-            streetAddress,
-            streetAddress2,
-            lastName,
-            email,
-            organisation,
-            country,
-            postal,
-            city,
-            state,
-            latitude,
-            longitude,
-            emailVerifiedAt,
-            createdAt,
-
-            id,
-            ...rest
-        } = singlePatient;
-
-        if (emailVerifiedAt) {
-            verifiedUsers += 1;
-        } else {
-            unverifedPatients += 1;
-        }
-        name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
-        const status = emailVerifiedAt ? 'verified' : 'unverified'
-        const organisationCity = city ? city : 'Not set'
-        const organisationState = state ? state : 'Not set'
-        const createdDate = new Date(createdAt);
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        if (createdDate >= oneWeekAgo) {
-            newPatients += 1;
-        }
-        	 
-        const newOrganisatonData = {
-            organisations: [null, name, singlePatient.email],
-            id,
-            // ...rest,
-            phoneNumber: phoneNumber,
-            name: organisation? organisation.organisationName : 'Not Set',	
-            city: organisationCity,
-            state: organisationState,
-            status: status
-
-        };
-        
-        return newOrganisatonData
-    }) || []; // Default to an empty array if organisatonData is undefined
+const Organisation = () => {
+    const [pageLoading, setPageLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [offsets, setOffsets]  = useState<number>(0);
+    const limit = 10;    
+    const dataCount = useRef<number>(0);
+    const organisatonData = useRef<TableData[]>([]);
+    const verifiedUsers = useRef<number>(0)
+    const newStaffs = useRef<number>(0)
+    const unverifedStaffs = useRef<number>(0)
     
 
-    if (error) {
-        console.log("error is saying true", error)
-        // logout()
+    const fetchPatients = useCallback(async (limit: number, offset: number) => {
+        try {
+            setPageLoading(true)
+            const { data, error, loading: testsDataLoading } = await getUsersByType('organisation', limit, offset);
+            if (error) {
+                console.log('Error fetching users from api:', error);
+                return;
+            }
+            if (!organisatonData.current) {
+                console.log("invalid ref for data.current")
+            }
+            if (data && data.getUserByUserType?.users) {
+                // Update the ref instead of state
+                const organisaton = data.getUserByUserType?.users as TableData[]
+                const updatedOrganisatonData = organisaton?.map((singleOrganisation) => {
+
+                    const {
+                        __typename,
+                        approvalToken,
+                        doctor,
+                        phlebotomist,
+                        approvedAt,
+                        facilityAdmin,
+                        staff,
+                        firstName,
+                        phoneNumber,
+                        streetAddress,
+                        streetAddress2,
+                        lastName,
+                        email,
+                        organisation,
+                        country,
+                        postal,
+                        city,
+                        state,
+                        latitude,
+                        longitude,
+                        emailVerifiedAt,
+                        createdAt,
+
+                        id,
+                        ...rest
+                    } = singleOrganisation;
+
+                    if (emailVerifiedAt) {
+                        verifiedUsers.current += 1;
+                    } else {
+                        unverifedStaffs.current += 1;
+                    }
+                    const name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
+                    const status = emailVerifiedAt ? 'verified' : 'unverified'
+                    const organisationCity = city ? city : 'Not set'
+                    const organisationState = state ? state : 'Not set'
+                    const createdDate = new Date(createdAt);
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    if (createdDate >= oneWeekAgo) {
+                        newStaffs.current += 1;
+                    }
+
+                    const newOrganisatonData = {
+                        organisations: [null, name, singleOrganisation.email],
+                        id,
+                        // ...rest,
+                        phoneNumber: phoneNumber,
+                        name: organisation ? organisation.organisationName : 'Not Set',
+                        city: organisationCity,
+                        state: organisationState,
+                        status: status
+
+                    };
+
+                    return newOrganisatonData
+                }) || []; // Default to an empty array if organisatonData is undefined
+
+
+
+                const allTests = [...updatedOrganisatonData];
+                organisatonData.current = Array.from(
+                    new Map(
+                        [...organisatonData.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                    ).values()
+                );
+                dataCount.current = data.getUserByUserType.usersCount;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setPageLoading(false)
+            // console.log("finally")
+        }
+    }, []);
+
+    const handleFetchNextPage = () => {
+        if (organisatonData.current.length < (limit * (currentPage + 1))) {
+            fetchPatients(limit, offsets); 
+        }
+        return;
+        
     }
+
+    useEffect(() => {
+        fetchPatients(limit, 0);
+    }, [fetchPatients, limit]);
+
     return (
         <div>
             <AdminHeader />
@@ -97,40 +139,41 @@ const Patients = () => {
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard" pageTitle="Patients" showExportRecord={true} />
                     <div className="px-8 py-4 ">
-                        {organisatonDataLoading
+                        {pageLoading
 
                             ?
                             'loading'
                             :
                             <TotalPatients
-                                loading={organisatonDataLoading}
-                                totalusers={patientCount}
-                                newUsers={newPatients}
-                                verifiedUsers={verifiedUsers}
-                                unverifedPatients={unverifedPatients}
+                                loading={pageLoading}
+                                totalusers={dataCount.current}
+                                newUsers={newStaffs.current}
+                                verifiedUsers={verifiedUsers.current}
+                                unverifedPatients={unverifedStaffs.current}
 
                             />
                         }
-                        {organisatonDataLoading
+                        {pageLoading
 
                             ?
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
-                                currentPage={1}
-                                setCurrentPage={() => { }}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
                                 deleteAction={() => { }}
                                 approveAction={() => { }} 
                                 setItemToDelete={() => { }}
-                                tableHeadText='Organisations'
-                                tableData={updatedOrganisatonData}
+                                tableHeadText={`Organisations ${dataCount.current}`}
+                                tableData={organisatonData.current}
+                                dataCount={dataCount.current}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showPagination={true}
                                 showActions={true}
                                 testPage='organisations'
                                 marginTop='mt-4'
-                                changePage={() => { }}
+                                changePage={handleFetchNextPage}
                             />
                         }
                     </div>
@@ -140,4 +183,4 @@ const Patients = () => {
     )
 }
 
-export default Patients
+export default Organisation

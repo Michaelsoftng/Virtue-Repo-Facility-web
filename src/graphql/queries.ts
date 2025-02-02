@@ -66,8 +66,8 @@ export const GetUsersCount = gql`
 `;
 
 export const GetUsersByType = gql`
-query getUserByUserType($userType: String!) {
-  getUserByUserType(userType: $userType) {
+query getUserByUserType($userType: String!, $offset: Int!, $limit: Int!) {
+  getUserByUserType(userType: $userType, offset: $offset, limit: $limit) {
       usersCount
       users{
         firstName

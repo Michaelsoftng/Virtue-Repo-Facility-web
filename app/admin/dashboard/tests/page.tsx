@@ -15,65 +15,6 @@ import { DeleteTest } from '@/src/graphql/mutations';
 import { toast } from 'react-toastify';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 
-const sampleCompletedData: TableData[] = [
-    {
-        patients: [null, 'John Doe', 'egeregav@gmail.com'],
-        test: 'Covid 19',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Jane Smith', 'janesmith@example.com'],
-        test: 'Malaria',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'coperate (12)',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Robert Brown', 'robertbrown@example.com'],
-        test: 'Typhoid',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-12 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'sent'
-    },
-    {
-        patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-        test: 'Blood Test',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-11 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Mark Johnson', 'markjohnson@example.com'],
-        test: 'HIV Test',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-14 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-    {
-        patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-        test: 'Blood Test',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-11 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-    {
-        patients: ['female.jpg', 'Mark Johnson', 'markjohnson@example.com'],
-        test: 'HIV Test',
-        facility: 'MRS specialist/GARKI',
-        date: "2024-10-14 18:11:57.866863+00",
-        package: 'single',
-        result_status: 'pending'
-    },
-
-];
 
 const Tests = () => {
     const [pageLoading, setPageLoading] = useState(false)
