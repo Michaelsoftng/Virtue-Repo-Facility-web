@@ -777,39 +777,42 @@ export const GetFilteredConsultations = gql`
 
 export const GetMinimalFilteredConsultations = gql`
   query getFilteredConsultations($filterStatus: String!, $limit: Int, $offset: Int){
-      getFilteredConsultations(filterStatus: $filterStatus, limit: $limit, offset: $offset){
-          consultationCount
-          consultations {
-              status
-              patient{
-                  id
-                  user{
-                  firstName  
-                  lastName
-                  email
+    getFilteredConsultations(filterStatus: $filterStatus, limit: $limit, offset: $offset){
+        consultationCount
+        consultations {
+            id
+            status
+            patient{
+                id
+                user{
+                firstName  
+                lastName
+                email
 
-                  }
-              }
-              doctor{
-                  id
-                  user{
-                  firstName  
-                  lastName
-                  email
+                }
+            }
+            doctor{
+                id
+                user{
+                firstName  
+                lastName
+                email
 
-                  }
-              }
-             
-              createdAt
-              requestedDoctorType
-              requestedDuration
-              consultationTime
-              consultationStartedAt
-              consultationEndedAt
-              total
-          }
-      }
-  }
+                }
+            }
+            purpose
+            medicalhistory
+            attachments
+            otherdetails
+            requestedDoctorType
+            requestedDuration
+            consultationTime
+            consultationStartedAt
+            consultationEndedAt
+            total
+        }
+    }
+}
 `;
 
 export const GetPayments = gql`
