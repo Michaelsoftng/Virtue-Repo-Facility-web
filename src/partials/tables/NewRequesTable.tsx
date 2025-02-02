@@ -133,7 +133,8 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
 
     const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
     const showModalFunc = (dataIndex: number, modalType: string) => {
-        const dataToDisplay = tableData[dataIndex]
+        // const dataToDisplay = tableData[dataIndex]
+        const dataToDisplay = tableData.find(item => item.id === dataIndex);
         switch (modalType) {
             case 'edit':
                 setShowEditModal(true)
@@ -142,7 +143,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                 setShowDeleteModal(true)
                 break;
             case 'addTest':
-                setActiveData(dataToDisplay)
+                setActiveData(dataToDisplay as unknown as TestModalProps)
                 setShowAddModal(true)
                 break;
 
@@ -205,6 +206,11 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                     <table className="w-full border-collapse">
                         <thead>
                             <tr>
+                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
+                                    <div>
+                                        <span className="text-[#434D64]">S/N</span>
+                                    </div>
+                                </td>
                                 {columns.map((column) =>
                                     column === 'id' ? null : (
                                         <th
@@ -228,6 +234,11 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                         <tbody>
                             {currentData.map((row, index) => (
                                 <tr key={index} className="border-solid border-2">
+                                    <td key={index} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
+                                        <div>
+                                            <span className="text-[#434D64]">{index + 1}</span>
+                                        </div>
+                                    </td>
                                     {columns.map((column) => {
                                         switch (column) {
                                             case 'patient':
@@ -320,8 +331,8 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                             {testPage === 'facilityTest' &&
                                                
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'edit')}>Edit</button>
-                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove')}>Remove</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(row.id, 'edit')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(row.id, 'remove')}>Remove</button>
                                                 </div>
                                               
                                             }
@@ -335,7 +346,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                             {(testPage === 'availableTest') &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(index, 'addTest')}>Add test to facility</button>
+                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(row.id, 'addTest')}>Add test to facility</button>
                                                 </div>
                                             }
                                             
@@ -361,6 +372,8 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                 >
                     Previous
                 </button>
+
+                <p>page {currentPage}</p>
                 <button
                     onClick={() => handlePageChange('next')}
                     disabled={currentPage === totalPages}

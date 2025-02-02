@@ -116,13 +116,11 @@ const Tests = () => {
         }
     }, []);
     
-
     const handleFetchNextPage = () => {
         if (testdata.current.length < (limit * (currentPage + 1))) {
             fetchTests(limit, offsets); 
         }
-        return;
-      
+        return; 
     }
 
     useEffect(() => {

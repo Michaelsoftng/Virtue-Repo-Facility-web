@@ -142,7 +142,7 @@ const Organisation = () => {
                         {pageLoading
 
                             ?
-                            'loading'
+                            'loading...'
                             :
                             <TotalPatients
                                 loading={pageLoading}

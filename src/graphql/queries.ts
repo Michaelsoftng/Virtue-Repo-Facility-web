@@ -321,6 +321,7 @@ export const GetAvailableTestByFacility = gql`
       getAvailableTestByFacility(facilityId: $facilityId, limit: $limit, offset: $offset) {
           facilityTestCount
           facilityTests{
+              id
               test{
                   id
                   name

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
 import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -16,125 +16,14 @@ import { IFacilityTest } from '@/src/interface'
 import { CreateFacilityTest } from '@/src/graphql/mutations'
 import { useMutation } from '@apollo/client'
 import { toast } from 'react-toastify'
-
-const sampleCompletedData: TableData[] = [
-    {
-        test: 'Covid 19',
-        amount: 30000,
-        avalability: '9:30AM to 3:30PM',
-        duration: "up to 7 days",
-        id: '34567809'
-    },
-    {
-
-        test: 'Malaria',
-        amount: 20000,
-        avalability: '9:30AM to 3:30PM',
-        duration: "up to 7 days",
-        id: '34567809'
-    },
-    {
-
-        test: 'Typhoid',
-        amount: 15000,
-        avalability: '9:30AM to 3:30PM',
-        duration: "up to 7 days",
-        id: '34567809'
-    },
-    {
-
-        test: 'Blood Test',
-        amount: 25000,
-        avalability: '9:30AM to 3:30PM',
-        duration: "up to 7 days",
-        id: '34567809'
-    },
-    {
-
-        test: 'HIV Test',
-        amount: 10000,
-        avalability: '9:30AM to 3:30PM',
-        duration: "up to 7 days",
-        id: '34567809'
-    },
-    // {
-    // 	patients: ['male.jpg', 'Linda Thomas', 'lindathomas@example.com'],
-    // 	test: 'Cholesterol',
-    // 	amount: 18000,
-    // 	phlebotomist: ['male.jpg', 'James Parker', 'jamesparker@example.com'],
-    // 	sample_status: '222-444-6666'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Steve Martin', 'stevemartin@example.com'],
-    // 	test: 'Blood Sugar',
-    // 	amount: 22000,
-    // 	phlebotomist: ['female.jpg', 'Isabella Lewis', 'isabellalewis@example.com'],
-    // 	sample_status: '777-888-9999'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Emily Davis', 'emilydavis@example.com'],
-    // 	test: 'Urine Test',
-    // 	amount: 12000,
-    // 	phlebotomist: ['male.jpg', 'Ryan Phillips', 'ryanphillips@example.com'],
-    // 	sample_status: '333-555-7777'
-    // },
-    // {
-    // 	patients: ['female.jpg', 'Daniel Taylor', 'danieltaylor@example.com'],
-    // 	test: 'DNA Test',
-    // 	amount: 50000,
-    // 	phlebotomist: ['female.jpg', 'Emma Wilson', 'emmawilson@example.com'],
-    // 	sample_status: '888-999-0000'
-    // },
-    // {
-    // 	patients: ['male.jpg', 'Sarah King', 'sarahking@example.com'],
-    // 	test: 'Pregnancy Test',
-    // 	amount: 8000,
-    // 	phlebotomist: ['male.jpg', 'Jacob Walker', 'jacobwalker@example.com'],
-    // 	sample_status: '666-777-8888'
-    // }
-];
-
-const sampleAvailableData: TableData[] = [
-    {
-        test: 'Thyroid stimulating hormone (TSH)',
-        description: 'Test description thats extremly long and needs to be truncated so it doesnt distrupt the entire page flow and is really really long so needs truncation for better user experience',
-        code: 'TSH',
-        type: "single test",
-        id: '34567809'
-    },
-    {
-        test: 'Covid 19',
-        description: 'Test description thats extremly long and needs to be truncated so it doesnt distrupt the entire page flow and is really really long so needs truncation for better user experience',
-        code: 'COV19',
-        type: "single test",
-        id: '34567809'
-    },
-    {
-
-        test: 'Mens Health',
-        description: 'Test description thats extremly long and needs to be truncated so it doesnt distrupt the entire page flow and is really really long so needs truncation for better user experience',
-        code: 'TSH',
-        type: "Package (7)",
-        id: '34567809'
-    },
-    {
-        test: 'Covid 19',
-        description: 'Test description thats extremly long and needs to be truncated so it doesnt distrupt the entire page flow and is really really long so needs truncation for better user experience',
-        code: 'TSH',
-        type: "single test",
-        id: '34567809'
-    },
-    {
-
-        test: 'Pre Wedding Test',
-        description: 'Test description thats extremly long and needs to be truncated so it doesnt distrupt the entire page flow and is really really long so needs truncation for better user experience',
-        code: 'TSH',
-        type: "Package (7)",
-        id: '34567809'
-    }
-];
+import { getAllTests } from '@/src/hooks/useGetAllTest'
 
 const Requests = () => {
+    const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
+    const limit = 10;  
+    const { user } = useAuth()
+    const [currentFacilityTestPage, setFacilityTestCurrentPage] = useState<number>(1);
+    const [currentAvailablePage, setAvailableCurrentPage] = useState<number>(1);
     const [activeTab, setActiveTab] = useState<string>('facilityTest')
     const [loading, setLoading] = useState(true)
     const [offsets, setOffsets] = useState<{ [key: string]: number }>({
@@ -147,137 +36,180 @@ const Requests = () => {
         facilityTest: 0
     });
 
-    const [data, setData] = useState<{ [key: string]: TableData[] }>({
+    const data = useRef<{ [key: string]: TableData[] }>({
         test: [],
         facilityTest: []
     });
 
-    const { user } = useAuth()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transformFacilityTest = useCallback((facilitTest: any) => {
-        const {
-            __typename,
-            test,
-            facility,
-            duration,
-            price,
-            ...rest
-        } = facilitTest;
-
-        return {
-            test: test.name,
-            duration: `up to ${duration ? duration : 5} days`,
-            amount: price,
-            ...rest,
-            status: 'published',
-        };
-    }, [])
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transformTest = useCallback((test: any) => {
-        const {
-            __typename,
-
-            ...rest
-        } = test;
-        return {
-            ...rest,
-        };
-    }, [])
-
-
-    const fetchData = useCallback(async (offset: number, tab: string) => {
-        setLoading(true);
+    const fetchFacilityTests = useCallback(async (limit: number, offset: number) => {
         try {
-            const isFacilityTest = tab === 'facilityTest';
-
-            const response = isFacilityTest
-                ? await getFacilityTests(decodeJwtEncodedId(user?.id), 10, offset)
-                : await client.query({
-                    query: GetAllTest,
-                    variables: { limit: 10, offset },
-                    fetchPolicy: 'network-only',
-                });
-
-            const dataKey = isFacilityTest ? 'getAvailableTestByFacility' : 'getAllTest';
-            const fetchedData = response.data?.[dataKey];
-            if (!fetchedData) {
-                console.log(`Error fetching ${tab} data:`, response.error || 'No data found.');
+            setLoading(true)
+            const { data: testData, error, loading: testsDataLoading } = await getFacilityTests(user?.facilityAdmin?.id as string, limit, offset);
+            if (error) {
+                toast.error('Error fetching tests from api');
                 return;
             }
+            if (testData && testData.getAvailableTestByFacility?.facilityTests) {
+                // Update the ref instead of state
+                const facilitytests = testData.getAvailableTestByFacility?.facilityTests as TableData[]
+                const updateFacilityTestsData = facilitytests.map((facilitTest) => {
+                    const {
+                        id,
+                        __typename,
+                        test,
+                        facility,
+                        duration,
+                        price,
+                        ...rest
+                    } = facilitTest;
 
-            const items = isFacilityTest ? fetchedData.facilityTests : fetchedData.tests;
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const transformedData = items.map((item: any) =>
-                isFacilityTest ? transformFacilityTest(item) : transformTest(item)
-            );
-
-            setData((prevData) => {
-                const existingIds = new Set((prevData[tab] || []).map((item) => item.id));
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const filteredData = transformedData.filter((item: any) => !existingIds.has(item.id));
-
-                return {
-                    ...prevData,
-                    [tab]: [...(prevData[tab] || []), ...filteredData],
+                    return {
+                        id,
+                        test: test.name,
+                        duration: `up to ${duration ? duration : 5} days`,
+                        amount: price,
+                        ...rest,
+                        status: 'published',
+                    };
+                }) || [];
+                const allTests = [...updateFacilityTestsData];
+                data.current = {
+                    ...data.current,
+                    facilityTest: Array.from(
+                        new Map(
+                            [...data.current.facilityTest, ...allTests].map(item => [item.id, item])
+                        ).values()
+                    ),
                 };
-            });
+               
+                setDataCount((prevData) => ({
+                    ...prevData,
+                    facilityTest: testData.getAvailableTestByFacility.facilityTestCount,
+                }));
+                
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    facilityTest: prevOffsets.facilityTest + limit, // Update the key you want
+                }));
+            }
 
-            setDataCount((prevData) => ({
-                ...prevData,
-                [tab]: isFacilityTest ? fetchedData.facilityTestCount : fetchedData.testCount,
-            }));
-
-        } catch (error) {
-            console.error(`Error fetching ${tab} data:`, error);
+        } catch (err) {
+            toast.error('A server error occurred! contact technical support')
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    }, [user, transformFacilityTest, transformTest])
+    }, [user]);
 
-        ;
 
+    const fetchAvailableTests = useCallback(async (limit: number, offset: number) => {
+        try {
+            setLoading(true)
+            const { data:testData, error, loading: testsDataLoading } = await getAllTests(limit, offset);
+            if (error) {
+                toast.error('Error fetching tests from api');
+                return;
+            }
+            if (testData && testData.getAllTest?.tests) {
+                // Update the ref instead of state
+                const tests = testData.getAllTest?.tests as TableData[] 
+                const updateTestsData = tests.map((test) => {
+                    const {
+                        __typename,
+                        id,
+                        percentageIncrease,
+                        minimumIncrease,
+                        createdAt,
+                        ...rest
+                    } = test;
+
+                    const newTestData = {
+                        id,
+                        ...rest,
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
+
+                    };
+                    return newTestData
+                }) || [];
+
+                const allTests = [...updateTestsData];
+                data.current = {
+                    ...data.current,
+                    test: Array.from(
+                        new Map(
+                            [...data.current.test, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                };
+                setDataCount((prevData) => ({
+                    ...prevData,
+                    test: testData.getAllTest.testCount,
+                }));
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    test: prevOffsets.test + limit, // Update the key you want
+                }));
+                
+                console.log("available test", data.current.test)
+                
+            }
+
+        } catch (err) {
+            toast.error('A server error occurred! contact technical support')
+        } finally {
+            setLoading(false)
+        }
+    }, []);
+    
+    const handleFetchNextPage = () => {
+        if (data.current.test.length < (limit * (currentAvailablePage + 1))) {
+            fetchAvailableTests(limit, offsets.test); 
+        }
+        return;
+    }
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
-        fetchData(offsets[tab], tab);
-
-    };
-
-    const handlePagination = () => {
-        const currentOffset = offsets[activeTab] + 10;
-        setOffsets((prevOffsets) => ({
-            ...prevOffsets,
-            [activeTab]: currentOffset,
-        }));
-        let filterStatus: string
-        if (activeTab == '') {
-            filterStatus = ''
-        } else if (activeTab == '') {
-            filterStatus = ''
-        } else if (activeTab == '') {
-            filterStatus = ''
+        if (tab === 'availableTest') {
+            if (data.current.test.length < (limit * (currentAvailablePage))) {
+                fetchAvailableTests(limit, offsets.test); 
+            }
+            return;
+            
         } else {
-            filterStatus = ''
+            if (data.current.facilityTest.length < (limit * (currentAvailablePage))) {
+                fetchFacilityTests(limit, offsets.facilityTest);
+            }
+            return;
         }
-        fetchData(currentOffset, activeTab);
+
     };
+
+    const handleFetchNextPageFacilityTest = () => {
+        if (data.current.facilityTest.length < (limit * (currentAvailablePage + 1))) {
+            fetchFacilityTests(limit, offsets.facilityTest);
+        }
+        return;
+    }
+
 
     const [addFacilityTest] = useMutation(CreateFacilityTest, {
         client,
     });
 
     const handleAddFacilityTest = async (formData: IFacilityTest) => {
-        // setPageLoading(true);
+        setPageLoadingFromClick(true);
         try {
             await addFacilityTest({
                 variables: {
                     ...formData
                 },
                 onCompleted(data) {
-                   
-                    toast.success('Test added to facility successfully');
-
+                if (data.CreateFacilityTestManual.error) {
+                    toast.error(data.CreateFacilityTestManual.error.message);   
+                } else {
+                    toast.success('Test added to facility successfully'); 
+                }
+    
                 },
                 onError(error) {
                     toast.error(error.message);
@@ -286,14 +218,18 @@ const Requests = () => {
         } catch (err) {
             console.error('Error adding test to facility:', err);
         } finally {
-
+            setPageLoadingFromClick(false);
 
         }
     };
 
     useEffect(() => {
-        fetchData(0, 'facilityTest');
-    }, [fetchData]); // Empty dependency array ensures this runs only once
+        if (user) {
+            fetchFacilityTests(10, 0);
+        }
+        
+    }, [fetchFacilityTests, user]); // Empty dependency array ensures this runs only once
+
     return (
         <div>
             <FacilityHeader />
@@ -314,19 +250,19 @@ const Requests = () => {
                                     <TablePreloader />
                                 ) : (
                                     <NewRequestTable
-                                        tableHeadText={`Facility Tests (${dataCount['facilityTest']})`}
+                                        tableHeadText={`Facility Tests (${dataCount.facilityTest})`}
                                         approveAction={() => { }}
-                                        tableData={data['facilityTest']}
+                                        tableData={data.current.facilityTest}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
                                         showActions={true}
                                         activeTab={activeTab}
                                         setActiveTab={setActiveTab}
                                         testPage='facilityTest'
-                                        dataCount={dataCount['facilityTest']}
-                                        currentPage={1}
-                                        setCurrentPage={()=>{}}
-                                        changePage={()=>{}}    
+                                        dataCount={dataCount.facilityTest}
+                                        currentPage={currentFacilityTestPage}
+                                        setCurrentPage={setFacilityTestCurrentPage}
+                                        changePage={handleFetchNextPageFacilityTest}    
                                             
                                          
                                     />
@@ -339,10 +275,10 @@ const Requests = () => {
                                     ) : (
 
                                         <NewRequestTable
-                                            tableHeadText={`Tests (${dataCount['test']})`}
+                                            tableHeadText={`Tests (${dataCount.test})`}
                                             approveAction={handleAddFacilityTest}
                                             facilityId={decodeJwtEncodedId(user?.id)}
-                                            tableData={data['availableTest']}
+                                            tableData={data.current.test}
                                             searchBoxPosition='justify-start mt-3'
                                             showTableHeadDetails={true}
                                             showActions={true}
@@ -350,9 +286,9 @@ const Requests = () => {
                                             setActiveTab={setActiveTab}
                                             testPage='availableTest'
                                             dataCount={dataCount['test']}
-                                            currentPage={1}
-                                            setCurrentPage={()=>{}}
-                                            changePage={()=>{}} 
+                                            currentPage={currentAvailablePage}
+                                            setCurrentPage={setAvailableCurrentPage}
+                                            changePage={handleFetchNextPage} 
                                         />
                                     ))
                             }
@@ -361,6 +297,12 @@ const Requests = () => {
                     </div>
                 </div>
             </div>
+            {
+                pageLoadingFromClick &&
+                <div className="flex items-center justify-center min-h-screen fixed w-full bg-[#ffffff54] top-0 left-0">
+                    <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-t-green-500 border-green-200 rounded-full"></div>
+                </div>
+            }
         </div>
     )
 }
