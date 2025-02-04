@@ -31,6 +31,8 @@ import { TbSum, TbStatusChange } from "react-icons/tb";
 import { formatMoney } from '@/src/partials/tables/NewRequesTable'
 import { useGetTestRequestById } from '@/src/hooks/useGetTestRequestById'
 import LogoIcon from '@/src/reuseable/icons/LogoIcon'
+import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
+import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -121,9 +123,9 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
     return (
         <div>
-            <AdminHeader />
+            <FacilityHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
-                <AdminMenu />
+                <FacilityMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard  / Requests"  pageTitle="Single Test" showExportRecord={true} />
 

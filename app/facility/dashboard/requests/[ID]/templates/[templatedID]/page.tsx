@@ -12,11 +12,14 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useGetResultTemplateById } from '@/src/hooks/useGetResultTemplateById'
 import { SectionWithRows } from '@/src/interface'
 import Loading from '@/app/admin/dashboard/loading'
+import { useAuth } from '@/src/context/AuthContext'
 
-const NewTemplate = ({ params }: { params: { ID: string } }) => {
-    const { ID: requestID, ID: templateID } = params;
+const NewTemplate = ({ params }: { params: { ID: string, templateID: string } }) => {
+    const { ID, templateID } = params;
     const { data, error, loading: templatesDataLoading } = useGetResultTemplateById(templateID)
     const [showRename, setShowRename] = useState(false)
+    const { user } = useAuth();
+    console.log(user)
     // const template = data?.getResultTemplateById;
     // const { __typename, id, name, templateFields, ...rest } = template
     // const updatedtemplate = JSON.parse(templateFields)
@@ -64,7 +67,7 @@ const NewTemplate = ({ params }: { params: { ID: string } }) => {
                                         <div className="flex justify-center">
                                             <div className="ml-[-60px]">
                                                 <h1 className="text-xl font-[600] text-black uppercase">
-                                                    Wuse District Hospital, Abuja
+                                                    {/* {user?.facilityAdmin?.facilityName}, Abuja */}
                                                 </h1>
                                                 <p className="text-[12px] font-[600] text-black text-center mt-2 uppercase">
                                                     LABORATORY REPORT FORM - {name}

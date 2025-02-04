@@ -11,6 +11,8 @@ import TablePreloader from '@/src/preLoaders/TablePreloader'
 import ResultTemplate from '@/src/reuseable/components/ResultTemplate'
 import Link from 'next/link'
 import Loading from '@/app/admin/dashboard/loading'
+import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
+import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 
 const Templates = () => {
     const [pageLoading, setPageLoading] = useState(false)
@@ -55,19 +57,21 @@ const Templates = () => {
     }
     return (
         <div>
-            <AdminHeader />
+            <FacilityHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
-                <AdminMenu />
+                <FacilityMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageTitle="Templates" showExportRecord={false} />
                     <div className="px-8 py-4">
-                        <div className="flex justify-end mb-4">
-                            <div>
-                                <h2>Select a template for this result</h2>
+                        <div className=" grid grid-cols-[70%_30%] mb-6">
+                            <div className="flex justify-center">
+                                <h2 className="max-w-fit font-bold border-b-2  border-black text-xl">Select a template for this result</h2>
                             </div>
-                            <input type="search" placeholder='search templates' />
-                            <button>Go</button>
-                            <div className="bg-green-700 text-white px-4 py-2 rounded"><Link href='templates/new'>Create Template</Link></div>
+                            <div>
+                                <input type="search" className="border-1 border-x-green-300 py-1 w-[300px] px-2" placeholder='search templates' />
+                                <button className="bg-green-700 text-white px-4 py-1">Go</button>
+                            </div>
+                            
                         </div>
                     
                         <div className="grid grid-cols-3 gap-x-2 gap-y-4">
