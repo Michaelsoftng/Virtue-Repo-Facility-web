@@ -11,7 +11,7 @@ import { getUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
-import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
+import { ApproveAccount, DeleteUser, ToggleAccountStatus } from '@/src/graphql/mutations'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
@@ -73,7 +73,9 @@ const Staffs = () => {
                         latitude,
                         longitude,
                         emailVerifiedAt,
+                        accountStatus,
                         deletedAt,
+                        referralBonus,
                         deletedBy,
                         createdAt,
                         ...rest
@@ -105,7 +107,7 @@ const Staffs = () => {
                         state: patientState,
                         verified: active,
                         status: status,
-                        is_active: activity,
+                        is_active: accountStatus,
                         approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
                     };
 
@@ -225,7 +227,34 @@ const Staffs = () => {
 
     }
 
-
+    const [toggleAccount] = useMutation(ToggleAccountStatus, {
+            variables: {
+            userForApproval: staffWithId
+            },
+            client,
+        });
+        
+    const handleAccountStatusChange = async () => {
+            try {
+                await toggleAccount({
+                    onCompleted(data) {
+                        if (data.ToggleAccountStatus.error) {
+                            toast.error(data.ToggleAccountStatus.error.message);  
+                            window.location.reload();
+                        } else {
+                            toast.success(data.ToggleAccountStatus.success.message);
+                        }     
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                // setIsLoading(false);
+            }
+    };
 
     return (
         <div>

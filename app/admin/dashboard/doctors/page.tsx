@@ -70,9 +70,11 @@ const Doctors = () => {
                         postal,
                         city,
                         state,
+                        referralBonus,
                         latitude,
                         longitude,
                         emailVerifiedAt,
+                        accountStatus,
                         deletedAt,
                         deletedBy,
                         createdAt,
@@ -104,7 +106,7 @@ const Doctors = () => {
                         state: patientState,
                         verified: active,
                         status: status,
-                        is_active: activity,
+                        is_active: accountStatus,
                         approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
                     };
 
@@ -373,7 +375,7 @@ const Doctors = () => {
                                 showTableHeadDetails={true}
                                 showPagination={true}
                                 showActions={true}
-                                testPage='staffs'
+                                testPage='doctors'
                                 marginTop='mt-4'
                             />
                         }

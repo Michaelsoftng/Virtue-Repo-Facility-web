@@ -382,10 +382,10 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                     <div className="mt-4 flex justify-end">
                                         
                                         <button onClick={handleAccountStatusChange} className="bg-red-500 text-white rounded px-2 py-1">
-                                            {
-                                                patientData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Account': 'Activate Account'
+                                            {patientDataLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> :
+                                                patientData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Organization' : 'Activate Organization'
+
                                             }
-                                            
                                         </button>
                                     </div>
                                 </div>

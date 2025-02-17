@@ -16,12 +16,10 @@ import { useMutation, useQuery } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import Loading from '../../loading'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
-import ToolsRequest from '@/src/reuseable/components/ToolsRequest'
 import { AiOutlineClose } from "react-icons/ai";
 import * as Form from '@radix-ui/react-form';
 import { ToggleAccountStatus } from '@/src/graphql/mutations'
 import { toast } from 'react-toastify';
-import Link from 'next/link'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -106,7 +104,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
     const [phlebotomistLoading, setIsLoading] = useState<boolean>(false);
     const { ID } = params;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const { data: phlebotomistData, loading: pageLoading } = useQuery(GetUserById, {
+    const { data: doctordData, loading: pageLoading } = useQuery(GetUserById, {
             variables: {
                 id: ID
             },
@@ -119,27 +117,27 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
             client,
         });
         
-        const handleAccountStatusChange = async () => {
-             try {
-                    await toggleAccount({
-                        onCompleted(data) {
-                            if (data.ToggleAccountStatus.error) {
-                                toast.error(data.ToggleAccountStatus.error.message);  
-                                window.location.reload();
-                            } else {
-                                toast.success(data.ToggleAccountStatus.success.message);
-                            }     
-                        },
-                        onError(error) {
-                            toast.error(error.message);
-                        },
-                    });
-                } catch (err) {
-                    console.error('Error creating user:', err);
-                } finally {
-                    // setIsLoading(false);
-                }
-        };
+    const handleAccountStatusChange = async () => {
+            try {
+                await toggleAccount({
+                    onCompleted(data) {
+                        if (data.ToggleAccountStatus.error) {
+                            toast.error(data.ToggleAccountStatus.error.message);  
+                            window.location.reload();
+                        } else {
+                            toast.success(data.ToggleAccountStatus.success.message);
+                        }     
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                // setIsLoading(false);
+            }
+    };
     if (pageLoading ) {
             return <Loading />;
     }
@@ -149,17 +147,14 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Phlebotomies" pageTitle="User" showExportRecord={true} />
+                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Doctors" pageTitle="User" showExportRecord={true} />
                     {
-                        !phlebotomistData?.getUserById.approvedAt &&
+                        !doctordData?.getUserById.approvedAt &&
                         <Approval
                             accountId={ID}
                             setLoading={setIsLoading}
                         />
                     }
-                    <ToolsRequest
-                        setIsOpenToolsModal={setIsOpenToolsModal}
-                    />
                     <div className="px-8 py-4 grid grid-cols-[30%_calc(35%-12px)_calc(35%-12px)] gap-6">
                         <div className="">
                             <DoughnutPieAnalytics className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
@@ -172,8 +167,8 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                             </div>
                             
                             <div className="bg-white shadow-lg rounded px-4 py-4 mt-8" >
-                                <h2>Cancellation reason</h2>
-                                <div>
+                                <h2 className="border-b-2  border-b-black">Cancellation reason</h2>
+                                <div className='pt-2'>
                                     <div className='flex justify-between '>
                                         <p className="flex space-x-4">
                                             <span className="rounded-full h-4 w-4 bg-blue-600 inline-block mt-1"></span>
@@ -212,13 +207,12 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-4 flex justify-between">
+                            <div className="mt-4 flex justify-end">
 
-                                <Link href={`${ID}/audit`} className="text-[#07AC85] bg-[#CAE9E2] px-6 py-2 rounded-sm">Go to audit</Link>
 
                                 <button onClick={handleAccountStatusChange} className="bg-red-500 text-white rounded px-2 py-1">
                                     {
-                                        phlebotomistData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Phlebotomist' : 'Activate Phlebotomist'
+                                        doctordData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Doctor' : 'Activate Doctor'
                                     }
 
                                 </button>
@@ -236,7 +230,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                             {
                                                 pageLoading
                                                     ? <NumberPreloader />
-                                                    : `${phlebotomistData.getUserById.firstName} ${phlebotomistData.getUserById.lastName}`
+                                                    : `${doctordData.getUserById.firstName} ${doctordData.getUserById.lastName}`
 
                                             }
                                         </div>
@@ -245,10 +239,20 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                                 pageLoading
                                                     ?
                                                     <div className="mt-[2px] w-[200px]"><NumberPreloader /></div>
-                                                    : `${phlebotomistData.getUserById.email}`
+                                                    : `${doctordData.getUserById.email}`
 
                                             }
+                                            
+                                        </div>
+                                        <div className="text-gray-500">
+                                            {
+                                                pageLoading
+                                                    ?
+                                                    <div className="mt-[2px] w-[200px]"><NumberPreloader /></div>
+                                                    : `${doctordData.getUserById.doctor.consultationHours}`
 
+                                            }
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -257,21 +261,21 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                             </div>
                             <div className="px-3 mt-6">
                                 <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4 gap-2">
-                                    <span className="text-[14px]">DOB</span>
-                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.dob || '?'}`}</span>
+                                    <span className="text-[14px]">Specialization</span>
+                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${doctordData?.getUserById?.doctor.specialization || '?'}`}</span>
                                 </div>
                                 <div className="w-full  text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
                                     <span className="text-[14px]">Gender</span>
                                     <span
-                                        title={`${phlebotomistData?.getUserById?.phlebotomist.gender || 'gender'}`}
+                                        title={`${doctordData?.getUserById?.doctor.gender || 'gender'}`}
                                         className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">
-                                        {pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.gender || '?'}`}
+                                        {pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${doctordData?.getUserById?.doctor.gender || '?'}`}
                                     </span>
                                 </div>
 
                                 <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
                                     <span className="text-[14px]">Phone</span>
-                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phoneNumber}`}</span>
+                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${doctordData?.getUserById?.phoneNumber}`}</span>
                                 </div>
                                 <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] pb-1 mt-4">
                                     <span className="text-[14px]">Address</span>

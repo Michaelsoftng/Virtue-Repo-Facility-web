@@ -15,7 +15,7 @@ import { BsFillCalendar2DateFill } from "react-icons/bs";
 import { TableData } from '@/src/types/TableData.type'
 import client from '@/lib/apolloClient';
 import { GetUserById } from '@/src/graphql/queries';
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import { getRequestByPatient } from '@/src/hooks/getPatientTestRequest'
 import { getConsultationsByPatient } from '@/src/hooks/getPatientConsultations'
@@ -23,6 +23,8 @@ import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useGetRequestStats } from '@/src/hooks/useGetRequestStat'
 import Preloader from '@/src/preLoaders/PreLoader'
 import { useGetConsultationStats } from '@/src/hooks/useGetConsultationStats'
+import { ToggleAccountStatus } from '@/src/graphql/mutations'
+import { toast } from 'react-toastify';
 
 const sampleCompletedData: TableData[] = [
     {
@@ -202,7 +204,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                         requestedDuration,
                         ...rest
                     } = singleConsultation;
-                    const doctorAssigned = doctor ? [null, `${doctor.user.firstName} ${doctor.user.lastName}}`, doctor.user.email] : [null, 'Not Set', 'email@labtraca.com']
+                    const doctorAssigned = doctor ? [null, `${doctor.user.firstName} ${doctor.user.lastName}`, doctor.user.email] : [null, 'Not Set', 'email@labtraca.com']
                     const newConsultationData = {
                         id,
                         doctor: doctorAssigned,
@@ -262,7 +264,34 @@ const Patients = ({ params }: { params: { ID: string } }) => {
         };
         fetchConsultationsRequests(10, offsets.current.consultation);
     }
-
+    const [toggleAccount] = useMutation(ToggleAccountStatus, {
+            variables: {
+                userForApproval: ID
+            },
+            client,
+        });
+        
+    const handleAccountStatusChange = async () => {
+            try {
+                await toggleAccount({
+                    onCompleted(data) {
+                        if (data.ToggleAccountStatus.error) {
+                            toast.error(data.ToggleAccountStatus.error.message);  
+                            window.location.reload();
+                        } else {
+                            toast.success(data.ToggleAccountStatus.success.message);
+                        }     
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                // setIsLoading(false);
+            }
+    };
     useEffect(() => {
         fetchPatientRequests(10, 0);
         fetchConsultationsRequests(10, 0);
@@ -282,6 +311,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                 ? <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
+                                    handleSearchData={() =>{}}
                                     currentPage={1}
                                     setCurrentPage={() => { }}
                                     deleteAction={() => { }}
@@ -297,9 +327,6 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                     testPage='patientrequests'
                                     marginTop='mt-4'
                                     dataCount={12}
-                                // currentPage={currentPage}
-                                // setCurrentPage={setCurrentPage}
-                                // changePage={handleFetchNextPage}
                                 />
                             }
                             <div className="mt-4">
@@ -309,6 +336,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                 :
                         
                                 <AdminFacilitiesTable
+                                    handleSearchData={()=>{}}
                                     currentPage={1}
                                     setCurrentPage={() => { }}
                                     deleteAction={() => { }}
@@ -323,11 +351,8 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                     showPagination={true}
                                     testPage='consultation'
                                     marginTop='mt-4'
-
                                     dataCount={12}
-                                // currentPage={currentPage}
-                                // setCurrentPage={setCurrentPage}
-                                // changePage={handleFetchNextPage}
+                                
                                 />
                             }
                             </div>
@@ -388,7 +413,16 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                         <span className="flex"><FaLocationDot /><span className="ml-3 text-[16px]">Address</span></span>
                                         <span className="text-[14px] text-black">{patientDataLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : patientData?.getUserById?.streetAddress ? `${patientData?.getUserById?.streetAddress} ${patientData?.getUserById?.city} ${patientData?.getUserById?.state}` : '?'}</span>
                                     </div>
+                                    <div className="mt-4 flex justify-end">
 
+
+                                        <button onClick={handleAccountStatusChange} className="bg-red-500 text-white rounded px-2 py-1">
+                                            {patientDataLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : 
+                                                patientData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Patient' : 'Activate Patient'
+                                            
+                                            }
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="bg-white shadow-lg rounded px-8 py-4 mt-4" >

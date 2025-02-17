@@ -44,6 +44,17 @@ export const GetUserById = gql`
         phlebotomist{
           id
           dob
+          gender
+        }
+        doctor{
+          id
+          gender
+          consultationHours
+          specialization
+          qualifications
+          licenseNumber
+          licenseExpiry
+          yearsOfExperience
         }
     }
   }
@@ -92,6 +103,7 @@ query getUserByUserType($userType: String!, $offset: Int!, $limit: Int!) {
         createdAt
         deletedAt
         deletedBy
+        accountStatus
         staff{
             id
             gender

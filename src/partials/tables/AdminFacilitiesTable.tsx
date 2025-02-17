@@ -203,13 +203,6 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                     }
                 </div>
                 <div className={`flex  ${searchBoxPosition ? searchBoxPosition : "justify-end" } `}>
-                    {/* <input
-                        type="text"
-                        placeholder="Search..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
-                    /> */}
                     <input
                         type="search"
                         placeholder="Search..."
@@ -279,7 +272,8 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                     {columns.map((column) => {
                                         
                                         switch (column) {
-                                            
+                                            case 'doctor':
+                                            case 'doctors':
                                             case 'organisations':
                                             case 'patients':
                                                 
@@ -551,7 +545,12 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     <Link href={`phlebotomies/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
+                                            {testPage === 'doctors' &&
 
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <Link href={`doctors/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
                                             {testPage === 'facility' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
