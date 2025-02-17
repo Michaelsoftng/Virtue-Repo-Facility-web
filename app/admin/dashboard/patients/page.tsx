@@ -7,17 +7,17 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { getUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType'
-import { PatientType } from '@/src/interface'
-import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { getUsersByType, SearchUsersByType } from '@/src/hooks/useGetUsersByType'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
-// import { PatientType } from '@/src/interface'
+
 
 const Patients = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [offsets, setOffsets]  = useState<number>(0);
-    const limit = 10;    
+    const limit = 10; 
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
     const dataCount = useRef<number>(0);
     const patientData = useRef<TableData[]>([]);
     const verifiedUsers = useRef<number>(0)
@@ -64,6 +64,8 @@ const Patients = () => {
                         longitude,
                         emailVerifiedAt,
                         createdAt,
+                        deletedAt,
+                        deletedBy,
                         ...rest
                     } = singlePatient;
 
@@ -117,13 +119,124 @@ const Patients = () => {
         }
     }, []);
 
-    const handleFetchNextPage = () => {
-        if (patientData.current.length < (limit * (currentPage + 1))) {
-            fetchPatients(limit, offsets); 
-        }
-        return;
-        
+    const handleSearch = useCallback(async (searchTerm: string,  limit: number, offset: number) => {
+            try {
+                setPageLoading(true)
+                const { data, error, loading: testsDataLoading } = await SearchUsersByType(searchTerm, 'patient', limit, offset);
+                
+                if (error) {
+                    console.log('Error fetching tests from api:', error);
+                    return;
+                }
+                
+                if (data && data.searchUsers?.users) {
+                    // Update the ref instead of state
+                    
+                    const patients = data.searchUsers?.users as TableData[]
+                    const updatedPatientData = patients?.map((singlePatient) => {
+
+                        const {
+                            __typename,
+                            id,
+                            approvalToken,
+                            doctor,
+                            phlebotomist,
+                            approvedAt,
+                            facilityAdmin,
+                            staff,
+                            firstName,
+                            streetAddress,
+                            streetAddress2,
+                            lastName,
+                            email,
+                            patient,
+                            country,
+                            postal,
+                            city,
+                            state,
+                            latitude,
+                            longitude,
+                            emailVerifiedAt,
+                            createdAt,
+                            deletedAt,
+                            deletedBy,
+                            ...rest
+                        } = singlePatient;
+
+                        if (emailVerifiedAt) {
+                            verifiedUsers.current += 1;
+                        } else {
+                            unverifedStaffs.current += 1;
+                        }
+                        const name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
+                        const status = emailVerifiedAt ? 'verified' : 'unverified'
+                        const patientCity = city ? city : 'Not set'
+                        const patientState = state ? state : 'Not set'
+                        const createdDate = new Date(createdAt);
+                        const oneWeekAgo = new Date();
+                        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                        if (createdDate >= oneWeekAgo) {
+                            newStaffs.current += 1;
+                        }
+                        const newPatientData = {
+                            id,
+                            patients: [null, name, singlePatient.email],
+                            ...rest,
+                            dob: patient.date_of_birth,
+                            gender: patient.gender ? patient.gender.toLowerCase() : '',
+                            city: patientCity,
+                            state: patientState,
+                            status: status
+
+                        };
+
+                        return newPatientData
+                    }) || []; // Default to an empty array if patientData is undefined
+
+    
+                    const allPatients = [...updatedPatientData];
+                    console.log(allPatients)
+                    // reset test data to an empty array before filling it with search data
+                    if (offset === 0) {
+                        patientData.current=[]  
+                    }
+                    patientData.current = Array.from(
+                        new Map(
+                            [...patientData.current, ...allPatients].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    );
+                    dataCount.current = data.searchUsers.usersCount;
+                    setOffsets(offset + limit)
+                    // offsets = limit + offsets;
+                }
+    
+            } catch (err) {
+                console.log('error fetching tests catch error', err);
+            } finally {
+                setPageLoading(false)
+            }
+    }, []);
+    
+    const handleSearchData = (searchTerm: string) => {
+        setOffsets(0)
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
     }
+    
+    const handleFetchNextPage = () => {
+        if (searchActive) {
+            if (patientData.current.length < (limit * (currentPage + 1))) {
+                handleSearch(searchTerm, limit, offsets);
+            } 
+        } else {
+            if (patientData.current.length < (limit * (currentPage + 1))) {
+                fetchPatients(limit, offsets);
+            }
+            return;
+        }
+    }
+    
 
     useEffect(() => {
         fetchPatients(limit, 0);
@@ -157,6 +270,7 @@ const Patients = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                handleSearchData={handleSearchData}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
                                 deleteAction={() => { }}

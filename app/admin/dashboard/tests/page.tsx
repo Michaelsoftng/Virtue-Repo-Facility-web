@@ -8,7 +8,7 @@ import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import { PlusIcon } from '@radix-ui/react-icons'
 import Link from 'next/link'
-import { getAllTests } from '@/src/hooks/useGetAllTest'
+import { getAllTests, searchAllTests } from '@/src/hooks/useGetAllTest'
 import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import { DeleteTest } from '@/src/graphql/mutations';
@@ -22,7 +22,8 @@ const Tests = () => {
     const [offsets, setOffsets]  = useState<number>(0);
     const limit = 10;    
     const dataCount = useRef<number>(0);
-    
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
     const testdata = useRef<TableData[]>([]);
     const [deleteTestWithId, setDeleteTestWithId] = useState <string | null>(null) // id of test to delete
 
@@ -116,11 +117,78 @@ const Tests = () => {
         }
     }, []);
     
-    const handleFetchNextPage = () => {
-        if (testdata.current.length < (limit * (currentPage + 1))) {
-            fetchTests(limit, offsets); 
+    const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
+        try {
+            setPageLoading(true)
+            const { data, error, loading: testsDataLoading } = await searchAllTests(searchTerm, limit, offset);
+            if (error) {
+                console.log('Error fetching tests from api:', error);
+                return;
+            }
+            
+            if (data && data.searchTest?.tests) {
+                // Update the ref instead of state
+                const tests = data.searchTest?.tests as TableData[]
+                const updateTestsData = tests.map((test) => {
+                    const {
+                        __typename,
+                        id,
+                        percentageIncrease,
+                        minimumIncrease,
+                        createdAt,
+                        ...rest
+                    } = test;
+
+                    const newTestData = {
+                        id,
+                        ...rest,
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
+
+                    };
+                    return newTestData
+                }) || [];
+
+                const allTests = [...updateTestsData];
+                // reset test data to an empty array before filling it with search data
+                if (offset === 0) {
+                    testdata.current=[]  
+                }
+                testdata.current = Array.from(
+                    new Map(
+                        [...testdata.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                    ).values()
+                );
+                dataCount.current = data.searchTest.testCount;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setPageLoading(false)
         }
-        return; 
+    }, []);
+
+    const handleSearchData = (searchTerm: string) => {
+        setOffsets(0)
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
+    }
+
+    const handleFetchNextPage = () => {
+        if (searchActive) {
+            if (testdata.current.length < (limit * (currentPage + 1))) {
+                handleSearch(searchTerm, limit, offsets);
+            } 
+        } else {
+            if (testdata.current.length < (limit * (currentPage + 1))) {
+                fetchTests(limit, offsets);
+            }
+            return; 
+        }
     }
 
     useEffect(() => {
@@ -155,6 +223,7 @@ const Tests = () => {
                                     
 
                                     <AdminFacilitiesTable
+                                        handleSearchData={handleSearchData}
                                         currentPage={currentPage}
                                         setCurrentPage={setCurrentPage}
                                         approveAction={() => { }} 
@@ -166,7 +235,7 @@ const Tests = () => {
                                         changePage={handleFetchNextPage}
                                         showActions={true}
                                         showPagination={true}
-                                        
+                                        searchBoxPosition={'justify-end'}
                                         testPage='tests'
                                         marginTop='mt-4'
                                     />

@@ -7,7 +7,7 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { getUsersByType } from '@/src/hooks/useGetUsersByType'
+import { getUsersByType, SearchUsersByType } from '@/src/hooks/useGetUsersByType'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
 import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
@@ -22,6 +22,8 @@ const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [offsets, setOffsets]  = useState<number>(0);
     const limit = 10;    
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
     const dataCount = useRef<number>(0);
     const doctorsData = useRef<TableData[]>([]);
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
@@ -129,12 +131,116 @@ const Doctors = () => {
         }
     }, []);
 
-    const handleFetchNextPage = () => {
-        if (doctorsData.current.length < (limit * (currentPage + 1))) {
-            fetchPatients(limit, offsets); 
-        }
-        return;
+    const handleSearch = useCallback(async (searchTerm: string,  limit: number, offset: number) => {
+            try {
+                setPageLoading(true)
+                const { data, error, loading: testsDataLoading } = await SearchUsersByType(searchTerm, 'doctor', limit, offset);
+                
+                if (error) {
+                    console.log('Error fetching tests from api:', error);
+                    return;
+                }
+                
+                if (data && data.searchUsers?.users) {
+                    // Update the ref instead of state
+                    
+                    const doctors = data.searchUsers?.users as TableData[]
+                    const updatedDoctors = doctors?.map((singleDoctor) => {
+
+                        const {
+                            id,
+                            __typename,
+                            approvalToken,
+                            approvedAt,
+                            facilityAdmin,
+                            doctor,
+                            phlebotomist,
+                            staff,
+                            firstName,
+                            streetAddress,
+                            streetAddress2,
+                            lastName,
+                            email,
+                            patient,
+                            country,
+                            postal,
+                            city,
+                            state,
+                            latitude,
+                            longitude,
+                            emailVerifiedAt,
+                            deletedAt,
+                            deletedBy,
+                            createdAt,
+                            ...rest
+                        } = singleDoctor;
+
+                        const name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
+                        const active = emailVerifiedAt ? 'verified' : 'unverified'
+                        const status = approvedAt ? 'approved' : 'pending approval'
+                        const patientCity = city ? city : 'Not set'
+                        const patientState = state ? state : 'Not set'
+                        const activity = deletedAt ? "deleted" : "active"
+                        
+                        const newDoctorData = {
+                            id,
+                            staff: [null, name, singleDoctor.email],
+                            ...rest,
+                            city: patientCity,
+                            state: patientState,
+                            verified: active,
+                            status: status,
+                            is_active: activity,
+                            approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
+                        };
+
+                        return newDoctorData
+                    }) || [];
+
+
+
+                    const allDoctors = [...updatedDoctors];
+                    console.log(allDoctors)
+                   
+                    if (offset === 0) {
+                        doctorsData.current=[]  
+                    }
+                    doctorsData.current = Array.from(
+                        new Map(
+                            [...doctorsData.current, ...allDoctors].map(item => [item.id, item])
+                        ).values()
+                    );
+                    dataCount.current = data.searchUsers.usersCount;
+                    setOffsets(offset + limit)
+                   
+                }
+    
+            } catch (err) {
+                console.log('error fetching tests catch error', err);
+            } finally {
+                setPageLoading(false)
+            }
+    }, []);
         
+    const handleSearchData = (searchTerm: string) => {
+        setOffsets(0)
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
+    }
+    
+    const handleFetchNextPage = () => {
+        if (searchActive) {
+            if (doctorsData.current.length < (limit * (currentPage + 1))) {
+                handleSearch(searchTerm, limit, offsets);
+            } 
+        } else {
+            if (doctorsData.current.length < (limit * (currentPage + 1))) {
+                fetchPatients(limit, offsets);
+            }
+            return;
+
+        }
     }
 
     useEffect(() => {
@@ -253,6 +359,7 @@ const Doctors = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                handleSearchData={handleSearchData}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
                                 deleteAction={handleDeleteStaff}

@@ -76,6 +76,7 @@ export const LoginAccount = gql`
         firstName
         lastName
         userType
+        state
         staff {
           id
           role
@@ -91,6 +92,27 @@ export const LoginAccount = gql`
     }
 }
 `;
+
+export const ToggleAccountStatus = gql`
+  mutation ToggleAccountStatus($userForApproval: ID!) {
+    ToggleAccountStatus(userForApproval: $userForApproval) {
+          success {
+          message
+          code
+          }
+          errors {
+          message
+          code
+          }
+          user {
+              id,
+              userType
+          }
+    }
+  }
+
+`;
+
 
 export const ChangePassword = gql`
   mutation ChangeUserPassword(

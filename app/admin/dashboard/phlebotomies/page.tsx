@@ -7,7 +7,7 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { getUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType'
+import { getUsersByType, SearchUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType'
 import { getAllAssignments } from '@/src/hooks/useGetAllAssignments'
 import { PatientType } from '@/src/interface'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
@@ -41,7 +41,8 @@ const Phlebotomies = () => {
             audits: 0,
             assignments: 0,
         });
-    
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
     const dataCount = useRef<{ [key: string]: number}>({
             phlebotomies: 0,
             audits: 0,
@@ -129,7 +130,6 @@ const Phlebotomies = () => {
                     return newPatientData
                 }) || [];
 
-
                 const allPhlebotomies = [...updatedPhlebotomiesData];
 
                 datas.current = {
@@ -161,6 +161,115 @@ const Phlebotomies = () => {
         }
     }, []);
 
+    const handleSearch = useCallback(async (searchTerm: string,  limit: number, offset: number) => {
+        try {
+            setLoading(true)
+            const { data, error, loading: testsDataLoading } = await SearchUsersByType(searchTerm, 'phlebotomist', limit, offset);
+            
+            if (error) {
+                console.log('Error fetching tests from api:', error);
+                return;
+            }
+            
+            if (data && data.searchUsers?.users) {
+                
+                const phlebotomies = data.getUserByUserType?.users as TableData[]
+                const updatedPhlebotomiesData = phlebotomies?.map((singleStaff) => {
+
+                    const {
+                        id,
+                        __typename,
+                        approvalToken,
+                        approvedAt,
+                        referralCode,
+                        referralBonus,
+                        facilityAdmin,
+                        doctor,
+                        phlebotomist,
+                        staff,
+                        firstName,
+                        streetAddress,
+                        streetAddress2,
+                        lastName,
+                        email,
+                        patient,
+                        country,
+                        postal,
+                        city,
+                        state,
+                        latitude,
+                        longitude,
+                        emailVerifiedAt,
+                        deletedAt,
+                        deletedBy,
+                        createdAt,
+                        ...rest
+                    } = singleStaff;
+
+
+                    const name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
+                    const active = emailVerifiedAt ? 'verified' : 'unverified'
+                    const status = approvedAt ? 'approved' : 'pending approval'
+                    const patientCity = city ? city : 'Not set'
+                    const patientState = state ? state : 'Not set'
+                    const activity = deletedAt ? "deleted" : "active"
+                   
+                   
+                    const newPatientData = {
+                        id,
+                        phlebotomist: [null, name, singleStaff.email],
+                        ...rest,
+                        city: patientCity,
+                        state: patientState,
+                        verified: active,
+                        status: status,
+                        is_active: activity,
+                        approved_at: approvedAt ? new Date(approvedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not approved'
+                    };
+
+                    return newPatientData
+                }) || [];
+
+
+                const allPhlebotomies = [...updatedPhlebotomiesData];
+                // reset test data to an empty array before filling it with search data
+                if (offset === 0) {
+                    datas.current.phlebotomies =[]  
+                }
+
+                datas.current = {
+                    ...datas.current,
+                    phlebotomies: Array.from(
+                        new Map(
+                            [...datas.current.phlebotomies, ...allPhlebotomies].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                };
+                dataCount.current = {
+                    ...dataCount.current,
+                    phlebotomies: data.searchUsers.usersCount
+                };
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    phlebotomies: prevOffsets.phlebotomies + limit, // Update the key you want
+                }));
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setLoading(false)
+        }
+    }, []);
+    const handleSearchData = (searchTerm: string) => {
+        setOffsets((prevOffsets) => ({
+            ...prevOffsets,
+            phlebotomies: 0, // Update the key you want
+        }));
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
+    }
     const [approveStaff, { loading: approveStaffLoading }] = useMutation(ApproveAccount, {
         variables: {
             userForApproval: staffWithId,
@@ -325,10 +434,16 @@ const Phlebotomies = () => {
     }
 
     const handleFetchPhlebNextPage = () => {
-        if (datas.current.phlebotomies.length < (limit * (currentPhlebPage + 1))) {
-            fetchPhlebotomies(limit, offsets.phlebotomies);
+       if (searchActive) {
+            if (datas.current.phlebotomies.length < (limit * (currentPhlebPage + 1))) {
+                handleSearch(searchTerm, limit, offsets.phlebotomies);
+            }
+        } else {
+            if (datas.current.phlebotomies.length < (limit * (currentPhlebPage + 1))) {
+                fetchPhlebotomies(limit, offsets.phlebotomies);
+            }
+            return;
         }
-        return;
 
     }
 
@@ -383,7 +498,8 @@ const Phlebotomies = () => {
                                 ?
                                 <TablePreloader />
                                 :
-                                <AdminFacilitiesTable
+                                    <AdminFacilitiesTable
+                                    handleSearchData={handleSearchData}
                                     currentPage={currentPhlebPage}
                                     setCurrentPage={setPhlebCurrentPage}
                                     deleteAction={handleDeleteTest}
@@ -396,7 +512,7 @@ const Phlebotomies = () => {
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}
-                                    showPagination={false}
+                                    showPagination={true}
                                     testPage='phlebotomies'
                                     marginTop='mt-4'
                                     />
@@ -410,6 +526,7 @@ const Phlebotomies = () => {
                                         <TablePreloader />
                                     ) : (
                                         <AdminFacilitiesTable
+                                            handleSearchData={handleSearchData}
                                             currentPage={1}
                                             setCurrentPage={() => { }}
                                             deleteAction={handleDeleteTest}
@@ -445,6 +562,7 @@ const Phlebotomies = () => {
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
+                                    handleSearchData={()=>{}}
                                     currentPage={currentAssignmentPage}
                                     setCurrentPage={setAssignmentCurrentPage}
                                     deleteAction={handleDeleteTest}
@@ -456,7 +574,7 @@ const Phlebotomies = () => {
                                     searchBoxPosition='justify-start'
                                     showTableHeadDetails={true}
                                     showActions={true}
-                                    showPagination={false}
+                                    showPagination={true}
                                     testPage='phlebotomies'
                                     marginTop='mt-4'
 

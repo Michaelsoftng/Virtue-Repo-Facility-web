@@ -9,17 +9,13 @@ import ConfirmDeactivateModal from '@/src/reuseable/components/DeactivateModal'
 import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import { formatMoney } from '@/src/partials/tables/NewRequesTable'
-import { DoughtPieAnalytics } from '@/src/partials/DoughtPieAnalytics'
+import { DoughnutPieAnalytics } from '@/src/partials/DoughtPieAnalytics'
 import Approval from '@/src/reuseable/components/Approval'
 import { GetUserById } from '@/src/graphql/queries';
 import { useQuery } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import Loading from '../../loading'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
-import { BsFillCalendar2DateFill } from 'react-icons/bs'
-import { PiGenderIntersexFill } from 'react-icons/pi'
-import { FaPhoneSquare } from 'react-icons/fa'
-import { FaLocationDot } from 'react-icons/fa6'
 import ToolsRequest from '@/src/reuseable/components/ToolsRequest'
 import { AiOutlineClose } from "react-icons/ai";
 import * as Form from '@radix-ui/react-form';
@@ -138,103 +134,17 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     <ToolsRequest
                         setIsOpenToolsModal={setIsOpenToolsModal}
                     />
-                    <div className="px-8 py-4 grid grid-cols-[30%_35%_35%] gap-1">
-                        <div className="mt-4">
-                            <DoughtPieAnalytics />
-                        </div>
-                        <div className="bg-white shadow-lg rounded px-4 py-4 ">
-                            <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total cash recieved</span> <span className="font-bold text-lg">{formatMoney(450090)}</span></p>
-                            <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
-                            <p className="flex justify-between mt-2"  ><span className="text-[#525C76] text-lg">Balance to be remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
-                        </div>
-                        <div className='shadow-xl bg-white px-6 py-6 mt-3 rounded-sm'>
-                            <div className="w-full gap-x-3 flex justify-center">
-                                <div className=''>
-                                    <div className="flex justify-center">
-                                        <Image src={FemalePhoto} alt='pprofile image' className="rounded-lg h-[70px] w-[70px]" />
-                                    </div>
-                                    <div className="text-center">
-                                        <div className="text-gray-700">
-                                            {
-                                                pageLoading
-                                                    ? <NumberPreloader />
-                                                    : `${phlebotomistData.getUserById.firstName} ${phlebotomistData.getUserById.lastName}`
-
-                                            }
-                                        </div>
-                                        <div className="text-gray-500">
-                                            {
-                                                pageLoading
-                                                    ?
-                                                    <div className="mt-[2px] w-[200px]"><NumberPreloader /></div>
-                                                    : `${phlebotomistData.getUserById.email}`
-
-                                            }
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                            <div className="px-5 mt-10">
-                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4 gap-2">
-                                    <span className="flex"><BsFillCalendar2DateFill /><span className="ml-3 text-[16px]">DOB</span></span>
-                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.dob || '?'}`}</span>
-                                </div>
-                                <div className="w-full  text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
-                                    <span className="flex"><PiGenderIntersexFill /><span className="ml-3 text-[16px]">Gender</span></span>
-                                    <span
-                                        title={`${phlebotomistData?.getUserById?.phlebotomist.gender || 'gender'}`}
-                                        className=" overflow-hidden text-nowrap text-[14px] text-black">
-                                        {pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.gender || '?'}`}
-                                    </span>
-                                </div>
-
-                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
-                                    <span className="flex"><FaPhoneSquare /><span className="ml-3 text-[16px]">Phone</span></span>
-                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phoneNumber}`}</span>
-                                </div>
-                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1 mt-4">
-                                    <span className="flex"><FaLocationDot /><span className="ml-3 text-[16px]">Address</span></span>
-                                    <span className="text-[14px] text-black">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : phlebotomistData?.getUserById?.streetAddress ? `${phlebotomistData?.getUserById?.streetAddress} ${phlebotomistData?.getUserById?.city} ${phlebotomistData?.getUserById?.state}` : '?'}</span>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="px-8 py-4 gap-4 grid grid-cols-[70%_30%] border-t-2 border-t-[#CACDD5] mt-4 pt-8">
-                        <div className="mt-10">
-                            <AdminFacilitiesTable
-                                currentPage={1}
-                                setCurrentPage={() => { }}
-                                deleteAction={() => { }}
-                                approveAction={() => { }} 
-                                setItemToDelete={() => { }}
-                                changePage={() => { }}
-                                tableHeadText='Activity information'
-                                tableData={sampleCompletedData}
-                                searchBoxPosition='justify-start'
-                                showTableHeadDetails={true}
-                                showActions={false}
-                                testPage='phlebotomies'
-                                marginTop='mt-4'
-                                showPagination={true} // used as opposite, pagination wont show when true
-
-                            />
+                    <div className="px-8 py-4 grid grid-cols-[30%_calc(35%-12px)_calc(35%-12px)] gap-6">
+                        <div className="">
+                            <DoughnutPieAnalytics className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
                         </div>
                         <div>
-                            <div className="bg-white shadow-lg rounded px-4 py-4 ">
+                            <div className="bg-white shadow-lg  px-4 py-7 rounded-lg ">
                                 <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total cash recieved</span> <span className="font-bold text-lg">{formatMoney(450090)}</span></p>
                                 <p className="flex justify-between mt-2"><span className="text-[#525C76] text-lg">Total remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
                                 <p className="flex justify-between mt-2"  ><span className="text-[#525C76] text-lg">Balance to be remitted</span><span className="font-bold text-lg">{formatMoney(450090)}</span></p>
                             </div>
-                            <div className="mt-4">
-                                <DoughtPieAnalytics />
-                            </div>
-
-                            <div className="bg-white shadow-lg rounded px-4 py-4 mt-4" >
+                            <div className="bg-white shadow-lg rounded px-4 py-7 mt-8" >
                                 <h2>Cancellation reason</h2>
                                 <div>
                                     <div className='flex justify-between '>
@@ -242,9 +152,9 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                             <span className="rounded-full h-4 w-4 bg-blue-600 inline-block mt-1"></span>
                                             <span>You cancelled</span>
                                         </p>
-                                        
+
                                         <span>34%</span>
-                                       
+
                                     </div>
                                     <div className='flex justify-between mt-4'>
                                         <p className="flex space-x-4">
@@ -276,6 +186,86 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                 </div>
                             </div>
                         </div>
+                        
+                        <div className='shadow-xl bg-white px-6 py-4 rounded-lg '>
+                            <div className="w-full gap-x-3 flex justify-center">
+                                <div className=''>
+                                    <div className="flex justify-center mt-4">
+                                        <Image src={FemalePhoto} alt='profile image' className="rounded-full h-[70px] w-[70px]" />
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-[#525252]">
+                                            {
+                                                pageLoading
+                                                    ? <NumberPreloader />
+                                                    : `${phlebotomistData.getUserById.firstName} ${phlebotomistData.getUserById.lastName}`
+
+                                            }
+                                        </div>
+                                        <div className="text-gray-500">
+                                            {
+                                                pageLoading
+                                                    ?
+                                                    <div className="mt-[2px] w-[200px]"><NumberPreloader /></div>
+                                                    : `${phlebotomistData.getUserById.email}`
+
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div className="px-3 mt-6">
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4 gap-2">
+                                    <span className="text-[14px]">DOB</span>
+                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.dob || '?'}`}</span>
+                                </div>
+                                <div className="w-full  text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
+                                    <span className="text-[14px]">Gender</span>
+                                    <span
+                                        title={`${phlebotomistData?.getUserById?.phlebotomist.gender || 'gender'}`}
+                                        className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">
+                                        {pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phlebotomist.gender || '?'}`}
+                                    </span>
+                                </div>
+
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] border-b-2 pb-1  mt-4">
+                                    <span className="text-[14px]">Phone</span>
+                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : `${phlebotomistData?.getUserById?.phoneNumber}`}</span>
+                                </div>
+                                <div className="text-slate-400 text-2xl grid grid-cols-[100px_calc(100%-100px)] pb-1 mt-4">
+                                    <span className="text-[14px]">Address</span>
+                                    <span className="text-[14px] text-[#737272] whitespace-pre-line break-words text-right">{pageLoading ? <div className="mt-[2px] w-[200px] "><NumberPreloader /></div> : 'wertyuiopwesdrftgyuhiwerftgyhujkesdfghjklertfyhujikotyuiol'}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="px-8 py-4 gap-4 border-t-2 border-t-[#CACDD5] mt-4 pt-8">
+                        <div className="mt-10">
+                            <AdminFacilitiesTable
+                                handleSearchData={()=>{}}
+                                currentPage={1}
+                                setCurrentPage={() => { }}
+                                deleteAction={() => { }}
+                                approveAction={() => { }} 
+                                setItemToDelete={() => { }}
+                                changePage={() => { }}
+                                tableHeadText='Activity information'
+                                tableData={sampleCompletedData}
+                                searchBoxPosition='justify-start'
+                                showTableHeadDetails={true}
+                                showActions={false}
+                                testPage='phlebotomies'
+                                marginTop='mt-4'
+                                showPagination={true} // used as opposite, pagination wont show when true
+
+                            />
+                        </div>
+                        
                     </div>
                 </div>
             </div>

@@ -15,50 +15,16 @@ import PlusIcon from '@/src/reuseable/icons/PlusIcon'
 import client from '@/lib/apolloClient';
 import { GetUserById } from '@/src/graphql/queries';
 import { getFacilityTests, useGetAvailableTestByFacility } from '@/src/hooks/useGetAvailableTestByFacility'
-import { toast } from 'react-toastify';
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { useRouter } from 'next/navigation';
 import Approval from '@/src/reuseable/components/Approval'
 import Loading from '../../loading'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import { useGetRecentTests } from '@/src/hooks/useGetRecentTests'
+import { toast } from 'react-toastify';
+import { ToggleAccountStatus } from '@/src/graphql/mutations'
 
-const sampleCompletedData: TableData[] = [
-    {
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    }
-];
 
 const chartData = [
     { test: "Covid", visitors: 275, fill: "red" },
@@ -101,9 +67,9 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        console.log("the request data", request)
+        
         const newPatientData = {
-            patients: [null, `${request.patient.user.firstName}  ${request.patient.user.lastName}`, request.patient.user.email],
+            patients: request.patient.user.firstName ? [null, `${request.patient.user.firstName.trim()} ${request.patient.user.lastName.trim()}`, request.patient.user.email] : [null, 'Not Set', 'email@labtraca.com'],
             ...rest,
 
         };
@@ -165,6 +131,35 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
         }
     }, [facilityData]);
 
+
+    const [toggleAccount] = useMutation(ToggleAccountStatus, {
+        variables: {
+            userForApproval: ID
+        },
+        client,
+    });
+    
+    const handleAccountStatusChange = async (e: React.FormEvent) => {
+         try {
+                await toggleAccount({
+                    onCompleted(data) {
+                        if (data.ToggleAccountStatus.error) {
+                            toast.error(data.ToggleAccountStatus.error.message);  
+                        } else {
+                            toast.success(data.ToggleAccountStatus.success.message);
+                        }     
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                // setIsLoading(false);
+            }
+    };
+    
     useEffect(() => {
         if (facilityId) {
             fetchFacilityTests(facilityId as string, 10);
@@ -174,7 +169,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     if (pageLoading ) {
         return <Loading />;
     }
-
+    console.log("the reupdatedrecentTestsData request data", updatedrecentTestsData)
     return (
         <div>
             <AdminHeader />
@@ -197,6 +192,15 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 </p>
                                 <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiClock2 style={{ width: '25px', height: '25px' }} /><span>Opening hours : MON-SAT 6:00 AM , SUN 8:00 AM</span></p>
                                 <p className="flex gap-2 text-[#8C93A3] text-[16px] mt-2"><CiPhone style={{ width: '25px', height: '25px' }} /><span>Contact line : {facilityData.getUserById.phoneNumber}</span></p>
+                                <div className="mt-4 flex justify-end">
+
+                                    <button onClick={handleAccountStatusChange} className="bg-red-500 text-white rounded px-2 py-1">
+                                        {
+                                            facilityData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Facility' : 'Activate Facility'
+                                        }
+
+                                    </button>
+                                </div>
                             </div>
                             <div className="shadow-md bg-white px-8 py-4 flex gap-6 rounded-md">
                                 <div className="bg-green-100 h-[50px] px-4 py-4 flex items-center justify-center mt-5">
@@ -222,6 +226,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
 
                         <div className="grid grid-cols-[calc(100%-25rem)_23rem] gap-x-8 mt-8">
                             <AdminFacilitiesTable
+                                handleSearchData={() => { }}
                                 currentPage={1}
                                 setCurrentPage={() => { }}
                                 approveAction={() => { }} 
@@ -278,20 +283,21 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                handleSearchData={() => { }}
                                 currentPage={1}
                                 setCurrentPage={() => { }}
-                            marginTop={'mt-6'}
-                            approveAction={() => { }} 
-                            changePage={() => { }}
-                            tableHeadText='53 Facilities'
-                            tableData={updatedTestData.current}
-                            searchBoxPosition='justify-start'
-                            showTableHeadDetails={false}
-                            showActions={true}
-                            deleteAction={() => { }}
-                            setItemToDelete={() => { }}
-                            showPagination={false}
-                            testPage='singleFacility'
+                                marginTop={'mt-6'}
+                                approveAction={() => { }} 
+                                changePage={() => { }}
+                                tableHeadText='53 Facilities'
+                                tableData={updatedTestData.current}
+                                searchBoxPosition='justify-start'
+                                showTableHeadDetails={false}
+                                showActions={true}
+                                deleteAction={() => { }}
+                                setItemToDelete={() => { }}
+                                showPagination={false}
+                                testPage='singleFacility'
                             >
 
 

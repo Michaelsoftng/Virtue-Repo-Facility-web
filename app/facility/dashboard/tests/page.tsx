@@ -116,6 +116,7 @@ const Requests = () => {
                     const {
                         __typename,
                         id,
+                        description,
                         percentageIncrease,
                         minimumIncrease,
                         createdAt,

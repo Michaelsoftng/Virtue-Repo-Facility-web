@@ -14,7 +14,7 @@ import { FaLocationDot, FaPersonShelter } from "react-icons/fa6";
 import { TableData } from '@/src/types/TableData.type'
 import client from '@/lib/apolloClient';
 import { GetUserById } from '@/src/graphql/queries';
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import { getRequestByPatient } from '@/src/hooks/getPatientTestRequest'
 import { getConsultationsByPatient } from '@/src/hooks/getPatientConsultations'
@@ -23,43 +23,8 @@ import { useGetRequestStats } from '@/src/hooks/useGetRequestStat'
 import Preloader from '@/src/preLoaders/PreLoader'
 import { useGetConsultationStats } from '@/src/hooks/useGetConsultationStats'
 import { MdPeopleAlt } from "react-icons/md";
-const sampleCompletedData: TableData[] = [
-    {
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-    {
-
-        facility: 'MRS specialist',
-        location: '15 jumble street, Garki',
-        available_test: 300,
-        rating: 5,
-    },
-
-
-];
+import { ToggleAccountStatus } from '@/src/graphql/mutations'
+import { toast } from 'react-toastify';
 
 const Patients = ({ params }: { params: { ID: string } }) => {
     const { ID } = params;
@@ -262,6 +227,34 @@ const Patients = ({ params }: { params: { ID: string } }) => {
         fetchConsultationsRequests(10, offsets.current.consultation);
     }
 
+    const [toggleAccount] = useMutation(ToggleAccountStatus, {
+        variables: {
+            userForApproval: ID
+        },
+        client,
+    });
+
+    const handleAccountStatusChange = async (e: React.FormEvent) => {
+
+        try {
+            await toggleAccount({
+                onCompleted(data) {
+                    if (data.ToggleAccountStatus.error) {
+                        toast.error(data.ToggleAccountStatus.error.message);  
+                    } else {
+                        toast.success(data.ToggleAccountStatus.success.message);
+                    }     
+                },
+                onError(error) {
+                    toast.error(error.message);
+                },
+            });
+        } catch (err) {
+            console.error('Error creating user:', err);
+        } finally {
+            // setIsLoading(false);
+        }
+    };
     useEffect(() => {
         fetchPatientRequests(10, 0);
         fetchConsultationsRequests(10, 0);
@@ -281,6 +274,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                 ? <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
+                                    handleSearchData={()=>{}}
                                     currentPage={1}
                                     setCurrentPage={() => { }}
                                     deleteAction={() => { }}
@@ -296,9 +290,6 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                     testPage='patientrequests'
                                     marginTop='mt-4'
                                     dataCount={12}
-                                // currentPage={currentPage}
-                                // setCurrentPage={setCurrentPage}
-                                // changePage={handleFetchNextPage}
                                 />
                             }
                             <div className="mt-4">
@@ -308,6 +299,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                 :
                         
                                 <AdminFacilitiesTable
+                                    handleSearchData={()=>{}}
                                     currentPage={1}
                                     setCurrentPage={() => { }}
                                     deleteAction={() => { }}
@@ -322,11 +314,7 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                     showPagination={true}
                                     testPage='consultation'
                                     marginTop='mt-4'
-
                                     dataCount={12}
-                                // currentPage={currentPage}
-                                // setCurrentPage={setCurrentPage}
-                                // changePage={handleFetchNextPage}
                                 />
                             }
                             </div>
@@ -391,7 +379,15 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                                         <span className="flex"><FaLocationDot /><span className="ml-3 text-[16px]">Address</span></span>
                                         <span className="text-[14px] text-black">{patientDataLoading ? <div className="mt-[2px] w-[200px]"><NumberPreloader /></div> : patientData?.getUserById?.streetAddress ? `${patientData?.getUserById?.streetAddress} ${patientData?.getUserById?.city} ${patientData?.getUserById?.state}` : '?'}</span>
                                     </div>
-
+                                    <div className="mt-4 flex justify-end">
+                                        
+                                        <button onClick={handleAccountStatusChange} className="bg-red-500 text-white rounded px-2 py-1">
+                                            {
+                                                patientData.getUserById.accountStatus == 'ACTIVE' ? 'Deactivate Account': 'Activate Account'
+                                            }
+                                            
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="bg-white shadow-lg rounded px-8 py-4 mt-4" >
@@ -542,165 +538,6 @@ const Patients = ({ params }: { params: { ID: string } }) => {
                         </div>
 
                     </div>
-
-                    {/* <Form.Root >
-                        <div className="px-8 py-4 grid grid-cols-[75%_25%] gap-8">
-                            <div>
-                                <div className="w-full  grid grid-cols-[50%_50%]  gap-x-3 px-4 py-3">
-
-                                    <div className="">
-                                        <h3 className="text-black font-bold">Personal information</h3>
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-semibold text-[#B2B7C2]">First name</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='text'
-                                                className="mt-2 font-bold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Last name</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Address</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">DOB</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='date'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Gender</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873]  border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-black font-bold">Account information</h3>
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2] capitalize">Email</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='email'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-
-                                        <Form.Field name='referralSource' className="mt-4">
-                                            <Form.Label><span className="text-sm font-bold text-[#B2B7C2]">Phone no</span></Form.Label>
-                                            <Form.Control
-                                                required={true}
-                                                
-                                                type='text'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3" />
-                                        </Form.Field>
-                                        
-                                        <Form.Field name="password_confirmation" className="relative block mt-5">
-                                            <Form.Label className="text-sm font-bold text-[#B2B7C2] block ">Current password</Form.Label>
-                                            <Form.Control
-                                                onChange={handleFormChange}
-                                                required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
-                                                className="mt-2 font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
-
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
-                                        </Form.Field>
-                                        <Form.Field name="password_confirmation" className="relative block mt-4">
-                                            <Form.Label className="text-[#B2B7C2] block font-bold text-[14px]">New password</Form.Label>
-                                            <Form.Control
-                                                onChange={handleFormChange}
-                                                required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
-                                                className="mt-[10px] font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
-
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
-                                        </Form.Field>
-                                        <Form.Field name="password_confirmation" className="relative block mt-5">
-                                            <Form.Label className="text-[#B2B7C2] block font-semibold text-[14px]">Confirm password</Form.Label>
-                                            <Form.Control
-                                                onChange={handleFormChange}
-                                                required
-                                                type={passwordVisibility ? "text" : "password"}
-                                                placeholder='Re-type Password'
-                                                className="mt-[10px] font-semibold text-sm block text-[#B2B7C2] bg-[#e2e4e873] border-solid border-2 border-gray-300 rounded w-full px-3 py-3"
-                                            />
-
-                                            <span
-                                                onClick={() => setPasswordVisibility(!passwordVisibility)}
-                                                data-testid='confirmToggleButton'
-                                                id='confirmtoggleButton'
-                                                className='absolute top-[52%] bottom-[55%] right-[20px] color text-gray-500 text-[1rem] transform -translate-y-1/2 cursor-pointer'
-                                            >
-                                                {passwordVisibility ? <FaEye /> : <FaEyeSlash />}
-                                            </span>
-                                            <Form.Message
-                                                className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                match={() => formValidationErrors.hasError}
-                                            >
-                                                <IoIosWarning className="text-[19px]" /> <span>{formValidationErrors.hasError && formValidationErrors.confirmPasswordError}</span>
-                                            </Form.Message>
-                                        </Form.Field>
-                                    </div>
-                                </div>
-                                        
-                                <div className="flex justify-start w-full pl-5 pt-5">
-                                    <Form.Submit className="border-2 border-[#FF3236] px-10 py-1 text-sm text-[#FF3236] rounded hover:bg-slate-800" onClick={() => setShowDeleteModal(true)}>Deactivate Account</Form.Submit>
-                                </div>
-                            
-                            </div>
-                            <div className=" gap-x-3 mt-10 px-4 pt-6">
-                                <Image src={FemalePhoto} alt='pprofile image' className="rounded-lg h-[300px] w-[300px]"/>
-                                
-                            </div>
-                        </div>
-                    </Form.Root> */}
                 </div>
             </div>
             {/* <ConfirmDeactivateModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('confirem')} /> */}

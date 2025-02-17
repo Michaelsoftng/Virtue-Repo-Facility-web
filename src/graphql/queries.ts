@@ -20,6 +20,7 @@ export const GetUserById = gql`
         longitude
         referralBonus
         createdAt
+        accountStatus
         facilityAdmin{
           id
           role
@@ -125,6 +126,71 @@ query getUserByUserType($userType: String!, $offset: Int!, $limit: Int!) {
 }
 `;
 
+export const SearchUsers = gql`
+  query searchUsers($search: String!, $user_type: String!, $limit: Int, $offset: Int){
+    searchUsers(search: $search, userType: $user_type, limit: $limit, offset: $offset) {
+      usersCount
+      users{
+          accountStatus
+          firstName
+          lastName
+          email
+          id
+          phoneNumber
+          approvalToken
+          referralCode
+          emailVerifiedAt
+          streetAddress
+          streetAddress2
+          city
+          state
+          country
+          postal
+          latitude
+          longitude
+          referralBonus
+          approvedAt
+          createdAt
+          deletedAt
+          deletedBy
+          staff{
+              id
+              gender
+          }
+          patient{
+            id
+            gender
+            dateOfBirth
+            organisationName
+            organisationName
+            patientType
+            organisationType
+            noOfEmployees
+          }
+          facilityAdmin{
+              id
+              facilityName
+              facilityType
+          }  
+
+          doctor{
+            id
+            gender
+          }
+
+          phlebotomist{
+            id
+            gender
+          }
+        
+      }
+
+    }
+  }
+
+`;
+
+
 export const GetPhlebotomistByProximity = gql`
   query getPhlebotomistByProximity($requestId: String!) {
     getPhlebotomistByProximity(requestId: $requestId) {
@@ -201,6 +267,27 @@ export const GetAllTest = gql`
   }
 
 `;
+
+export const SearchTest = gql`
+  query searchTest($search: String!, $limit: Int, $offset: Int){
+    searchTest(search: $search, limit: $limit, offset: $offset) {
+      testCount
+      tests{
+          id
+          name
+          code
+          testType
+          group
+          description
+          percentageIncrease
+          minimumIncrease
+      }
+
+    }
+  }
+
+`;
+
 
 export const GetAllPackage = gql`
   query getAllPackages($limit: Int,  $offset: Int){

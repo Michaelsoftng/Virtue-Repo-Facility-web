@@ -48,13 +48,17 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-export const DoughtPieAnalytics = () => {
+interface DoughnutPieAnalyticsProps {
+    className?: string;
+}
+
+export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ className = "" }) => {
     const totalVisitors = React.useMemo(() => {
         return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
     }, [])
 
     return (
-        <Card className="flex flex-col">
+        <Card className={`flex flex-col ${className}`}>
             <CardHeader className="items-left pb-0">
                 <CardTitle>55 request made</CardTitle>
             </CardHeader>

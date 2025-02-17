@@ -79,47 +79,23 @@ const chartData = [
 ]
 
 
-const Facilities = ({ params }: { params: { ID: string } }) => {
+const TestRequest = ({ params }: { params: { ID: string } }) => {
     // const data.getTestRequestById = useRef<TableData[]>([]);
     const { ID } = params;
     const { data, error, loading: testDataLoading } = useGetTestRequestById(ID)
     // const data.getTestRequestById = data.getTestRequestById as TableData[]
+
     if (testDataLoading ) {
         return <Loading />;
     }
-    // if (data.getTestRequestById) {
-    //     console.log("request", data.getTestRequestById)
-    // }
-    // if (requestData) {
-    //     data.getTestRequestById.current = requestData.getTestRequestById
-    // }
-    // const data.getTestRequestById = testData?.getRequest[0]?.testRequest as TableData[]
-    // const updatedTestRequestData = data.getTestRequestById?.map((request) => {
-    //     const {
-    //         __typename,
-    //         test,
-    //         facility,
-    //         patientName,
-    //         patientAge,
-    //         testResult,
-    //         resultDate,
-    //         package: testpackage,
-    //         ...rest
-    //     } = request;
-        
-    //     const newRequestData = {
-    //         test: test.name,
-    //         package:  testpackage ? testpackage.package_name: "single test",
-    //         patient_name: patientName,
-    //         patient_age: patientAge,
-    //         test_result: testResult,
-    //         resultDate: resultDate,
-    //         ...rest,
 
-    //     };
-
-    //     return newRequestData
-    // }) || []; // Default to an empty array if patientData is undefined
+    if (data.getTestRequestById) {
+        if (localStorage.getItem("testRequestForResult")) {
+            localStorage.removeItem("testRequestForResult");
+        }
+        localStorage.setItem("testRequestForResult", JSON.stringify(data.getTestRequestById)); // Store in localStorage
+        // console.log("request", data.getTestRequestById)
+    }
 
     return (
         <div>
@@ -408,4 +384,4 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     )
 }
 
-export default Facilities
+export default TestRequest

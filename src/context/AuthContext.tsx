@@ -12,6 +12,7 @@ interface Staff {
 
 interface FacilityAdmin {
     id: string;
+    facilityName?: string
 }
 
 interface User {
@@ -22,6 +23,7 @@ interface User {
     phoneNumber: string;
     userType: string;
     approvalToken: string;
+    state: string | null;
     facilityAdmin: FacilityAdmin | null;
     staff: Staff | null;
 }
@@ -90,8 +92,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(userData);
         // sessionStorage.setItem('user', JSON.stringify(userData));
     };
-
-    
 
     const logout = () => {
         const user_type = user?.userType;

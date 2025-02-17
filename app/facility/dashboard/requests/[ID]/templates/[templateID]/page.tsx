@@ -15,19 +15,12 @@ import Loading from '@/app/admin/dashboard/loading'
 import { useAuth } from '@/src/context/AuthContext'
 
 const NewTemplate = ({ params }: { params: { ID: string, templateID: string } }) => {
+    const [result, setResult] = useState<SectionWithRows[]>([]);
     const { ID, templateID } = params;
     const { data, error, loading: templatesDataLoading } = useGetResultTemplateById(templateID)
-    const [showRename, setShowRename] = useState(false)
     const { user } = useAuth();
-    console.log(user)
-    // const template = data?.getResultTemplateById;
-    // const { __typename, id, name, templateFields, ...rest } = template
-    // const updatedtemplate = JSON.parse(templateFields)
-    // const parsedTempate: SectionWithRows[] = JSON.parse(updatedtemplate) 
-    // if (templatesDataLoading || !template) {
-    //     return <Loading />;
-    // }
-    
+    const testRequestData = localStorage.getItem("testRequestForResult");
+    const testRequest = (JSON.parse(testRequestData as string) )
     if (templatesDataLoading) {
         return <Loading />;
     }
@@ -39,16 +32,108 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
     }
 
     const { __typename, id, name, templateFields, ...rest } = template;
-
     let parsedTemplate: SectionWithRows[] = [];
-    try {
-        if (templateFields) {
-            const updatedtemplate = JSON.parse(templateFields)
-            parsedTemplate = JSON.parse(updatedtemplate) 
-        }
-    } catch (error) {
-        console.error("Error parsing templateFields JSON:", error);
+
+
+    // const handleFieldChange = (
+    //     sectionIndex: number,
+    //     rowIndex: number,
+    //     columnIndex: number,
+    //     fieldIndex: number,
+    //     value: string
+    // ) => {
+    //     setResult((prev) => {
+    //         const updated = prev.map((section, index) => {
+    //             if (index === sectionIndex) {
+    //                 const newSectionFields = section.section_fields.map((row, rIndex) => {
+    //                     if (rIndex === rowIndex) {
+    //                         const newColumns = row.section_fields.map((column, cIndex) => {
+    //                             if (cIndex === columnIndex) {
+    //                                 const updatedField = [...column.section_fields]; // Copy the field array
+    //                                 updatedField[fieldIndex] = value; // Update the field at the specific index
+    //                                 return {
+    //                                     ...column,
+    //                                     section_fields: updatedField, // Assign the updated field array
+    //                                 };
+    //                             }
+    //                             return column;
+    //                         });
+
+    //                         return {
+    //                             ...row,
+    //                             section_fields: newColumns,
+    //                         };
+    //                     }
+    //                     return row;
+    //                 });
+
+    //                 return {
+    //                     ...section,
+    //                     section_fields: newSectionFields,
+    //                 };
+    //             }
+    //             return section;
+    //         });
+
+    //         return updated;
+    //     });
+    // };
+    
+    const handleFieldChange = (
+        sectionIndex: number,
+        rowIndex: number,
+        columnIndex: number,
+        fieldIndex: number,
+        value: string
+    ) => {
+        setResult((prev) => {
+            const newResult = [...prev]; // Shallow copy of the main array
+            const section = { ...newResult[sectionIndex] }; // Copy only the modified section
+            const row = { ...section.section_fields[rowIndex] }; // Copy only the modified row
+            const column = { ...row.section_fields[columnIndex] }; // Copy only the modified column
+
+            // Update the specific field
+            const updatedFields = [...column.section_fields];
+            updatedFields[fieldIndex] = value;
+
+            // Assign updated data back
+            column.section_fields = updatedFields;
+            row.section_fields[columnIndex] = column;
+            section.section_fields[rowIndex] = row;
+            newResult[sectionIndex] = section;
+
+            return newResult;
+        });
+    };
+
+    function formatDate(date: Date): string {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
+    console.log(result); // Logs the updated state correctly
+    useEffect(() => {
+        if (templateFields) {
+            try {
+                
+                const updatedtemplate = JSON.parse(templateFields)
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                parsedTemplate = JSON.parse(updatedtemplate)
+                setResult(parsedTemplate)
+                
+            } catch (error) {
+                console.error("Error parsing templateFields JSON:", error);
+            }
+        }
+    }, [templateFields]); // Runs only when templateFields changes
+
+
+    
     return (
         <div>
             <AdminHeader />
@@ -67,7 +152,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                         <div className="flex justify-center">
                                             <div className="ml-[-60px]">
                                                 <h1 className="text-xl font-[600] text-black uppercase">
-                                                    {/* {user?.facilityAdmin?.facilityName}, Abuja */}
+                                                    {user?.facilityAdmin?.facilityName}, Abuja
                                                 </h1>
                                                 <p className="text-[12px] font-[600] text-black text-center mt-2 uppercase">
                                                     LABORATORY REPORT FORM - {name}
@@ -83,7 +168,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                         </div>
                                         <div>
                                             <p className="py-[5px] bg-[#121E3F] pl-8 text-white font-[600] text-[13.32px]">Report Date</p>
-                                            <p className="py-[6px]"></p>
+                                            <p className="py-[6px]">{formatDate(new Date())}</p>
                                         </div>
                                     </div>
 
@@ -97,9 +182,9 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                 <li className="mt-2 flex gap-4"><b>Doctor</b><span>SELF REFERRAL</span></li>
                                             </ul>
                                             <ul className="mt-11">
-                                                <li className="mt-1 grid grid-cols-2"><span>Date Entered</span><span>10/02/2024 09:18:57</span></li>
-                                                <li className="mt-1 grid grid-cols-2"><span>Date Printed</span><span>10/02/2024 09:18:57</span></li>
-                                                <li className="mt-1 grid grid-cols-2"><span>Collection Date</span><span>10/02/2024 09:18:57</span></li>
+                                                <li className="mt-1 grid grid-cols-2"><span>Date Entered</span><span>{formatDate(new Date())}</span></li>
+                                                <li className="mt-1 grid grid-cols-2"><span>Date Printed</span><span>{formatDate(new Date())}</span></li>
+                                                <li className="mt-1 grid grid-cols-2"><span>Collection Date</span><span>{formatDate(new Date())}</span></li>
                                             </ul>
 
                                             <div className="mt-7 text-[10px]"><p>Thank you for your request. We are reporting the following results:</p></div>
@@ -107,12 +192,12 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                         <div className="ml-4">
                                             <ul>
                                                 <li className="mt-2 grid grid-cols-[35%_65%]"><b>Patient Information</b><span></span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Patient</b><span>JOHN DOE</span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Email</b><span>info@labtraca.com</span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Age</b><span>27 years</span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Gender</b><span>Male</span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Phone No</b><span>+23490000000000</span></li>
-                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Address</b><span>No. 5 Gana street maitama, abuja</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Patient</b><span>{testRequest?.patientName}</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Email</b><span>{testRequest?.request.patient.user.email}</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Age</b><span>{testRequest?.patientAge} years</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Gender</b><span>{testRequest?.request.patient.gender}</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Phone No</b><span>{testRequest?.request.patient.user.phoneNumber}</span></li>
+                                                <li className="mt-1 grid grid-cols-[35%_65%]"><b>Address</b><span>{testRequest?.request.samplePickUpAddress}</span></li>
                                                 <li className="mt-1 grid grid-cols-[35%_65%]"><b>Specimen Type</b><span>SST</span></li>
                                                 <li className="mt-1 grid grid-cols-[35%_65%]"><b>Clinical Data</b><span>NA</span></li>
                                             </ul>
@@ -143,6 +228,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                                                                         key={idx}
                                                                                                         type="text"
                                                                                                         placeholder="result here..."
+                                                                                                        onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, idx, e.target.value)}
                                                                                                     />
                                                                                                 ) : (
                                                                                                     <p key={idx} className={` ${idx === 0 ? "mt-0" : ""} ${(idx === column.section_fields.length - 1 && columnIndex == 0) ? "border-b-4 border-dotted border-black pb-1 mb-3" : ""
@@ -160,6 +246,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                                                             key={columnIndex}
                                                                                             type="text"
                                                                                             placeholder="result here..."
+                                                                                            onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, 0, e.target.value)}
                                                                                         />
                                                                                     ) : (
                                                                                         <p key={columnIndex} className={`${columnIndex === 0 ? "flex justify-start" : "flex justify-center"}`} >{column.section_fields[0]}</p>

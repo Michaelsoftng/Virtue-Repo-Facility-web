@@ -120,7 +120,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
         currentPage * rowsPerPage
     );
 
-    console.log('filtered Data', filteredData.length);
+    // console.log('filtered Data', filteredData.length);
   
     const handlePageChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev' && currentPage > 1) {
@@ -373,7 +373,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                     Previous
                 </button>
 
-                <p>page {currentPage}</p>
+                <p>page {currentPage} of {totalPages}</p>
                 <button
                     onClick={() => handlePageChange('next')}
                     disabled={currentPage === totalPages}

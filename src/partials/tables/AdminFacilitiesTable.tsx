@@ -24,6 +24,7 @@ export interface TestModalProps {
 
 export type AdminFacilitiesTableProps = {
     deleteAction: () => void
+    handleSearchData: (searchTerm: string) => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approveAction: (data?:  any) => void,
     viewMoreAction?: () => void,
@@ -84,7 +85,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
     marginTop, showPagination, showActions, 
     deleteAction, setItemToDelete, searchBoxPosition, approveAction, viewMoreAction, changePage,
     showTableHeadDetails, children, currentPage,  setCurrentPage,
-    testPage, tableHeadText, queryId
+    testPage, tableHeadText, queryId, handleSearchData
 }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -103,6 +104,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
         setSearchTerm(e.target.value);
         setCurrentPage(1); // Reset to page 1 on search
     };
+
+    const handleSearch = () => {
+        handleSearchData(searchTerm) 
+    }
     // Filter the data based on the search term
     const filteredData = tableData.filter((row) => {
         return Object.values(row).some((value) =>
@@ -184,25 +189,35 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
 
         return <Loading />;
     }
+    console.log(tableData)
     return (
         <div className={`${marginTop ? marginTop : "mt-[-20px]"} container mx-auto `}>
 
             
             <div className="flex justify-between my-4">
-                {showTableHeadDetails && 
-                    <div>
-                        <h2 className="text-lg font-bold">{tableHeadText }</h2>
-                    </div>
-                }
+                <div>
+                    {showTableHeadDetails &&
+                        <div>
+                            <h2 className="text-lg font-bold">{tableHeadText}</h2>
+                        </div>
+                    }
+                </div>
                 <div className={`flex  ${searchBoxPosition ? searchBoxPosition : "justify-end" } `}>
-                    <input
+                    {/* <input
                         type="text"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                         className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
-                    />
-
+                    /> */}
+                    <input
+                        type="search"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="w-[300px] px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
+                         />
+                    <button onClickCapture={handleSearch} className="bg-green-700 text-white px-4 py-1 rounded-r-lg">Go</button>
                 </div>
 
             </div>
@@ -228,6 +243,11 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                     <table className="w-full">
                         <thead>
                             <tr>
+                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
+                                    <div>
+                                        <span className="text-[#434D64] font-bold">S/N</span>
+                                    </div>
+                                </td>
                                 {columns.map((column) =>
                                     (column === 'id' || column === 'userTypeId') ? null : (
                                         <th
@@ -251,6 +271,11 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                         <tbody>
                             {currentData.map((row, index) => (
                                 <tr key={index} className="border-solid border-2 border-gray-100">
+                                    <td key={index} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">
+                                        <div>
+                                            <span className="text-[#434D64]">{index + 1}</span>
+                                        </div>
+                                    </td>
                                     {columns.map((column) => {
                                         
                                         switch (column) {
@@ -583,6 +608,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                         >
                             Previous
                         </button>
+                        <p>page {currentPage} of {totalPages}</p>
                         <button
                             onClick={() => handlePageChange('next')}
                             disabled={currentPage === totalPages}

@@ -256,6 +256,7 @@ const Staffs = () => {
                             <TablePreloader />
                             :
                             <AdminFacilitiesTable
+                                handleSearchData={() =>{}}
                                 currentPage={currentPage}
                                 setCurrentPage={setCurrentPage}
                                 deleteAction={handleDeleteTest}
