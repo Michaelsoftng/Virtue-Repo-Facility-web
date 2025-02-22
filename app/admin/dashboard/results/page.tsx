@@ -248,7 +248,8 @@ const Tests = () => {
                                     (activeTab === 'tests'
                                     ? (
 
-                                        <AdminFacilitiesTable
+                                            <AdminFacilitiesTable
+                                                handleSearchData={() => { }}
                                             currentPage={currentPage}
                                             setCurrentPage={setCurrentPage}
                                             approveAction={() => { }} 
@@ -268,7 +269,8 @@ const Tests = () => {
                                     )
                                     : (
 
-                                        <AdminFacilitiesTable
+                                            <AdminFacilitiesTable
+                                                handleSearchData={() => { }}
                                             currentPage={1}
                                             setCurrentPage={() => { }}
                                             setItemToDelete={setDeleteTestWithId}

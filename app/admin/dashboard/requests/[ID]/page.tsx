@@ -256,9 +256,9 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 ?
                                 <TablePreloader /> : */}
                                
-                        <AdminFacilitiesTable
-                            currentPage={1}
-                            
+                            <AdminFacilitiesTable
+                                currentPage={1}
+                                handleSearchData={() => { }}
                                 setCurrentPage={() => { }}
                                 marginTop={'mt-6'}
                                 approveAction={() => { }} 
