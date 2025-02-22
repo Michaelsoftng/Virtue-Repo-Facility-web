@@ -199,6 +199,7 @@ const Referrals = () => {
                                     <TablePreloader />
                                 ) : (
                                         <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                             currentPage={1}
                                             setCurrentPage={() => { }}
                                         deleteAction={() => { }}
@@ -226,6 +227,7 @@ const Referrals = () => {
                                     <TablePreloader />
                                 ) : (
                                         <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                             currentPage={1}
                                             setCurrentPage={() => { }}
                                         deleteAction={() => { }}

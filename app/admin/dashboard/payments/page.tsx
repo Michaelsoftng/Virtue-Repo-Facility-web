@@ -173,6 +173,7 @@ const Payments = () => {
                                     <TablePreloader />
                                 ) : (
                                         <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                         currentPage={1}
                                         setCurrentPage={() => { }}
                                         deleteAction={() => { }}
@@ -200,6 +201,7 @@ const Payments = () => {
                                     <TablePreloader />
                                 ) : (
                                     <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                     currentPage={1}
                                     setCurrentPage = {() => { }}
                                         deleteAction={() => { }}
