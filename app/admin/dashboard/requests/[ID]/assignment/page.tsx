@@ -151,6 +151,7 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
                                 <TablePreloader />
                                 :
                             <AdminFacilitiesTable
+                                handleSearchData={() => { }}
                                 currentPage={1}
                                 setCurrentPage={() => { }}
                                 deleteAction={() => {}}
