@@ -189,6 +189,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
 
                         <div className="mt-8">
                             <AdminFacilitiesTable
+                                handleSearchData={() => { }}
                                 currentPage={1}
                                 setCurrentPage={() => { }}
                                 approveAction={() => { }}
@@ -251,6 +252,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
                                 <TablePreloader />
                                 :
                                 <AdminFacilitiesTable
+                                    handleSearchData={() => { }}
                                     currentPage={1}
                                     setCurrentPage={() => { }}
                                     marginTop={'mt-6'}
