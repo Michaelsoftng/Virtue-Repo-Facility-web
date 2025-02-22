@@ -91,6 +91,7 @@ const Requests = () => {
                                 :
                         
                         <AdminFacilitiesTable
+                            handleSearchData={() => { }}
                             tableHeadText={`Requests (${requestCount})`}
                             dataCount={requestCount}
                             tableData={cachedRequestData.current}
