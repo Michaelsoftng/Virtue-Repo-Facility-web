@@ -179,6 +179,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                                     (
 
                                         <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                             currentPage={currentPage}
                                             setCurrentPage={setCurrentPage}
                                             approveAction={handleCreateTestPackage} 
