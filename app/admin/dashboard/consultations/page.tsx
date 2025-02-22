@@ -128,7 +128,7 @@ const Consultations = () => {
         } finally {
             setPageLoadingFromClick(false);
         }
-    }, []);
+    }, [activeTab, offsets.completed]);
 
     const fetchPendingAssgnData = async (filterStatus: string, offset: number, tab: string) => {
         setPageLoadingFromClick(true);
@@ -367,7 +367,8 @@ const Consultations = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                     currentPage={currentCompletedPage}
                                     setCurrentPage={setCompletedCurrentPage}
                                     deleteAction={() => {}}
@@ -396,6 +397,7 @@ const Consultations = () => {
                                     <TablePreloader />
                                 ) : (
                                         <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                             currentPage={currentAssignmentPage}
                                             setCurrentPage={setAssignmentCurrentPage}
                                             deleteAction={() => { }}
@@ -420,7 +422,8 @@ const Consultations = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                <AdminFacilitiesTable
+                                        <AdminFacilitiesTable
+                                            handleSearchData={() => { }}
                                     currentPage={currentPendingpaymentPage}
                                     setCurrentPage = {setPendingpaymentCurrentPage}
                                     deleteAction={() => {}}
