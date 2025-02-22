@@ -285,6 +285,7 @@ const AddFacilityTest = ({ params }: { params: { ID: string } }) => {
                         
                         <div>
                             <AdminFacilitiesTable
+                                handleSearchData={() => { }}
                                 currentPage={1}
                                 setCurrentPage={() => { }}
                                 approveAction={handleSubmit}
