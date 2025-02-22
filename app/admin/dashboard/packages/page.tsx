@@ -155,7 +155,8 @@ const Packages = () => {
                                 ?
                                 <TablePreloader />
                                 :
-                                <AdminFacilitiesTable
+                                    <AdminFacilitiesTable
+                                        handleSearchData={() => { }}
                                     currentPage={currentPage}
                                     setCurrentPage={setCurrentPage}
                                     approveAction={() => { }}

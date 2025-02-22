@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
 import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -9,6 +10,11 @@ import RoundedImage from '@/src/partials/RoundedImage'
 import RoundedNoImage from '@/src/partials/RoundedNoImage'
 import Image from 'next/image'
 import PDFImage from '@/public/assets/images/utilities/pdf.png'
+import { GetResults } from '@/src/graphql/queries'
+import { getResults } from '@/src/hooks/useGetResultTemplateById'
+import { toast } from 'react-toastify'
+import TablePreloader from '@/src/preLoaders/TablePreloader'
+import Link from 'next/link'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -69,7 +75,66 @@ const Requests = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [showResultDetails, setShowResultDetail] = useState<boolean>(false);
     const [activeDataRow, setActiveDataRow] = useState<TableData | null>(null);
+    const [offsets, setOffsets] = useState<number>(0);
+    const limit = 10;
+    const dataCount = useRef<number>(0);
+    const [resultLoading, setResultLoading] = useState(false)
+    const result = useRef<TableData[]>([]);
 
+    const fetchResults = useCallback(async (limit: number, offset: number) => {
+        try {
+            setResultLoading(true)
+            const { data, error } = await getResults( limit, offset);
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            if (!result.current) {
+                console.log("invalid ref for data.current")
+            }
+
+            if (data && data.getResultTests?.results) {
+                // Update the ref instead of state
+                const resultsData = data.getResultTests?.results as TableData[]
+                const updatedResultData = resultsData?.map((singleResult) => {
+
+                    const {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        id,
+                        patient,
+                        generatedPdfUrl,
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        ...rest
+                    } = singleResult;
+
+                    const newResultData = {
+                        id,
+                        generatedPdfUrl,
+                        patients: [null, `${patient.firstName} ${patient.lastName}`, patient.email],   
+                    };
+
+                    return newResultData
+                }) || []; // Default to an empty array if patientData is undefined
+
+                console.log('updatedResultData', updatedResultData);
+                const allTestResults = [...updatedResultData];
+                result.current = Array.from(
+                    new Map(
+                        [...result.current, ...allTestResults].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                    ).values()
+                );
+                dataCount.current = data.getUserByUserType.usersCount;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            toast.error('Error fetching tests');
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setResultLoading(false)
+        }
+    }, []);
 
     const handleShowResult = (data: TableData) => {
         setShowResultDetail(true)
@@ -107,6 +172,18 @@ const Requests = () => {
         }
     };
 
+    const handleFetchNextPage = () => {
+       if (result.current.length < (limit * (currentPage + 1))) {
+            fetchResults(limit, offsets);
+        }
+        return;
+        
+    }
+
+    useEffect(() => {
+        fetchResults(limit, 0);
+    }, [fetchResults, limit]);
+    
     return (
         <div>
             <FacilityHeader />
@@ -120,7 +197,7 @@ const Requests = () => {
                                 <div>
                                     <h2 className="text-lg font-bold">Result files</h2>
                                 </div>
-                                <div className={`flex justify-end `}>
+                                {/* <div className={`flex justify-end `}>
                                     <input
                                         type="text"
                                         placeholder="Search..."
@@ -129,13 +206,17 @@ const Requests = () => {
                                         className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
                                     />
                                     
-                                </div>
+                                </div> */}
 
                             </div>
                             <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
-                                {currentData.map((row, index) => (
-                                    <ResultComponent key={index} data={row} onClick={handleShowResult} />
-                                ))}
+                                {resultLoading ? <TablePreloader /> :
+                                   (
+                                        result.current.map((row, index) => (
+                                            <Link href='' key={row.id}> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
+                                        ))
+                                    )
+                                }
                             </div>
                             {/* Pagination Controls */}
                             <div className="flex justify-between mt-4 w-full">

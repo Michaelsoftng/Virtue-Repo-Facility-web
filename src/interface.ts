@@ -146,3 +146,55 @@ export interface Template {
     template_name: string;
     sections: SectionWithRows[];
 }
+
+
+interface NestedPatient {
+    id: string;
+    gender?: string;
+}
+
+interface Patient {
+    id: string;
+    image?: string | null;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    patient: NestedPatient;
+}
+
+interface Test {
+    id: string;
+    name: string;
+}
+
+interface Package {
+    id: string;
+    packageName: string;
+}
+
+interface Request {
+    sampleCollectionDate: string;
+    samepleDropOffDate: string;
+    sampleStatus: string;
+    samplePickUpAddress: string;
+}
+
+interface TestRequest {
+    id: string;
+    request: Request;
+    test: Test;
+    patientName: string;
+    patientAge: number;
+    package: Package;
+}
+
+export interface Result {
+    id: string;
+    patient: Patient;
+    testRequest: TestRequest;
+    requisitionNumber: string;
+    resultFields: string; // JSON string, consider parsing it into a structured type
+    generatedPdfUrl: string;
+    createdAt: string
+}

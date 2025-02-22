@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -9,76 +9,29 @@ import Link from 'next/link'
 import * as Form from '@radix-ui/react-form';
 import { IoIosWarning } from 'react-icons/io'
 import { AiOutlineClose } from "react-icons/ai";
-import { useGetResultTemplateById } from '@/src/hooks/useGetResultTemplateById'
+import { getResultTemplateById, useGetResultTemplateById } from '@/src/hooks/useGetResultTemplateById'
 import { SectionWithRows } from '@/src/interface'
 import Loading from '@/app/admin/dashboard/loading'
 import { useAuth } from '@/src/context/AuthContext'
+import { CreateResult } from '@/src/graphql/mutations'
+import { useMutation } from '@apollo/client'
+import client from '@/lib/apolloClient';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation'
 
-const NewTemplate = ({ params }: { params: { ID: string, templateID: string } }) => {
-    const [result, setResult] = useState<SectionWithRows[]>([]);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const NewTemplate: React.FC<any> = ({ params }: { params: { ID: string, templateID: string } }) => {
+    const [pageLoading, setPageLoading] = useState(false)
+    const [resultBody, setResultBody] = useState<SectionWithRows[]>([]);
+    const [templateName, setTemplateName] = useState<string>('');
     const { ID, templateID } = params;
-    const { data, error, loading: templatesDataLoading } = useGetResultTemplateById(templateID)
+    const router = useRouter();
     const { user } = useAuth();
     const testRequestData = localStorage.getItem("testRequestForResult");
     const testRequest = (JSON.parse(testRequestData as string) )
-    if (templatesDataLoading) {
-        return <Loading />;
-    }
-
-    const template = data?.getResultTemplateById;
-
-    if (!template) {
-        return <p>Error: No template found</p>;
-    }
-
-    const { __typename, id, name, templateFields, ...rest } = template;
-    let parsedTemplate: SectionWithRows[] = [];
-
-
-    // const handleFieldChange = (
-    //     sectionIndex: number,
-    //     rowIndex: number,
-    //     columnIndex: number,
-    //     fieldIndex: number,
-    //     value: string
-    // ) => {
-    //     setResult((prev) => {
-    //         const updated = prev.map((section, index) => {
-    //             if (index === sectionIndex) {
-    //                 const newSectionFields = section.section_fields.map((row, rIndex) => {
-    //                     if (rIndex === rowIndex) {
-    //                         const newColumns = row.section_fields.map((column, cIndex) => {
-    //                             if (cIndex === columnIndex) {
-    //                                 const updatedField = [...column.section_fields]; // Copy the field array
-    //                                 updatedField[fieldIndex] = value; // Update the field at the specific index
-    //                                 return {
-    //                                     ...column,
-    //                                     section_fields: updatedField, // Assign the updated field array
-    //                                 };
-    //                             }
-    //                             return column;
-    //                         });
-
-    //                         return {
-    //                             ...row,
-    //                             section_fields: newColumns,
-    //                         };
-    //                     }
-    //                     return row;
-    //                 });
-
-    //                 return {
-    //                     ...section,
-    //                     section_fields: newSectionFields,
-    //                 };
-    //             }
-    //             return section;
-    //         });
-
-    //         return updated;
-    //     });
-    // };
     
+
+
     const handleFieldChange = (
         sectionIndex: number,
         rowIndex: number,
@@ -86,7 +39,8 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
         fieldIndex: number,
         value: string
     ) => {
-        setResult((prev) => {
+        console.log(resultBody)
+        setResultBody((prev) => {
             const newResult = [...prev]; // Shallow copy of the main array
             const section = { ...newResult[sectionIndex] }; // Copy only the modified section
             const row = { ...section.section_fields[rowIndex] }; // Copy only the modified row
@@ -106,7 +60,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
         });
     };
 
-    function formatDate(date: Date): string {
+     function formatDate(date: Date): string {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
         const year = date.getFullYear();
@@ -116,31 +70,74 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
 
         return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
-    console.log(result); // Logs the updated state correctly
-    useEffect(() => {
-        if (templateFields) {
-            try {
-                
-                const updatedtemplate = JSON.parse(templateFields)
-                // eslint-disable-next-line react-hooks/exhaustive-deps
-                parsedTemplate = JSON.parse(updatedtemplate)
-                setResult(parsedTemplate)
-                
-            } catch (error) {
-                console.error("Error parsing templateFields JSON:", error);
-            }
+
+    const fetchTemplate = useCallback(async () => {
+        try {
+            setPageLoading(true)
+            const { data, error, loading: templatesDataLoading } = await getResultTemplateById(templateID)
+            const { __typename, id, name, templateFields, ...rest } = data?.getResultTemplateById;
+            const parsedTemplate = JSON.parse(JSON.parse(templateFields));
+            setResultBody(JSON.parse(JSON.parse(templateFields)));
+            setTemplateName(name);  
+        } catch (error) {
+            console
+        } finally {
+            setPageLoading(false)  
         }
-    }, [templateFields]); // Runs only when templateFields changes
+        
 
-
+    }, [templateID]);
     
+    const [createResult, { loading: createResultLoading }] = useMutation(CreateResult, {
+        
+        client,
+    });
+
+    const createandsendResult = async (e: React.FormEvent) => {
+        setPageLoading(true)
+        try {
+            const { data } = await createResult({
+                variables: {
+                    patient: testRequest.request.patient.user.id,
+                    testRequest: testRequest.id,
+                    result_fields: JSON.stringify(resultBody),
+
+                },
+                async onCompleted(data) {
+                    if (data.CreateResult.result) {
+                        toast.success("created test result successfully");
+                       router.push(`/facility/dashboard/requests/${ID}/results`);
+                    } else {
+                        toast.success(data?.CreateResult?.errors?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            }); // Execute the mutation
+
+        } catch (err) {
+            console.error('Error creating user:', err);
+        } finally {
+            setPageLoading(false)
+        }
+    };
+    useEffect(() => {
+        fetchTemplate()
+    }, [fetchTemplate]);
+
+    if (pageLoading) {
+        return <Loading />;
+    }
     return (
         <div>
             <AdminHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
                 <AdminMenu />
                 <div className="bg-gray-100">
-                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Templates" pageTitle={name} showExportRecord={false} />
+                    <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Templates" pageTitle={templateName} showExportRecord={false} />
                     <div className="px-8 py-4">
                         <div className="w-full grid grid-cols-[70%_30%] pt-6">
                             <div className="bg-[#EEFEF4] w-[776px] py-[21px] px-[35px]" id="pdf-content">
@@ -155,7 +152,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                     {user?.facilityAdmin?.facilityName}, Abuja
                                                 </h1>
                                                 <p className="text-[12px] font-[600] text-black text-center mt-2 uppercase">
-                                                    LABORATORY REPORT FORM - {name}
+                                                    LABORATORY REPORT FORM - {templateName}
                                                 </p>
                                             </div>
                                         </div>
@@ -168,7 +165,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                         </div>
                                         <div>
                                             <p className="py-[5px] bg-[#121E3F] pl-8 text-white font-[600] text-[13.32px]">Report Date</p>
-                                            <p className="py-[6px]">{formatDate(new Date())}</p>
+                                            <p className="py-[6px] text-[12px]">{formatDate(new Date())}</p>
                                         </div>
                                     </div>
 
@@ -209,7 +206,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                         <div>
                                             <ul>
                                                 {
-                                                    parsedTemplate.map((section, sectionIndex) => (
+                                                    resultBody.map((section, sectionIndex) => (
                                                         <section key={sectionIndex} className={`${section.section_style} ${(sectionIndex == 0) ? "" : "border-t-2 pt-1"
                                                             }`} >
                                                             {
@@ -222,13 +219,14 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                                                     <div key={columnIndex}>
                                                                                         {
                                                                                             column.section_fields.map((field, idx) => (
-                                                                                                field === "___" ? (
+                                                                                                field === "___" || typeof field === "string" && field.startsWith("input:") ? (
                                                                                                     <input
                                                                                                         className={`w-full pl-2 ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
                                                                                                         key={idx}
                                                                                                         type="text"
                                                                                                         placeholder="result here..."
-                                                                                                        onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, idx, e.target.value)}
+                                                                                                        value={field === "___" ? "" : field.replace("input:", "")}
+                                                                                                        onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, idx, `input:${e.target.value}`)}
                                                                                                     />
                                                                                                 ) : (
                                                                                                     <p key={idx} className={` ${idx === 0 ? "mt-0" : ""} ${(idx === column.section_fields.length - 1 && columnIndex == 0) ? "border-b-4 border-dotted border-black pb-1 mb-3" : ""
@@ -240,13 +238,14 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                                                                         }
                                                                                     </div>
                                                                                     :
-                                                                                    column.section_fields[0] === "___" ? (
+
+                                                                                    column.section_fields[0] === "___" || typeof column.section_fields[0] === "string" && column.section_fields[0].startsWith("input:") ? (
                                                                                         <input
                                                                                             className={`w-full pl-2  ${columnIndex === 0 ? "mt-0" : "mt-1"}`}
                                                                                             key={columnIndex}
                                                                                             type="text"
                                                                                             placeholder="result here..."
-                                                                                            onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, 0, e.target.value)}
+                                                                                            onChange={(e) => handleFieldChange(sectionIndex, rowIndex, columnIndex, 0, `input:${e.target.value}`)}
                                                                                         />
                                                                                     ) : (
                                                                                         <p key={columnIndex} className={`${columnIndex === 0 ? "flex justify-start" : "flex justify-center"}`} >{column.section_fields[0]}</p>
@@ -265,7 +264,7 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
 
                                             </ul>
                                         </div>
-
+                                      
                                     </div>
                                 </main>
                                 <footer id="footer" >
@@ -276,55 +275,8 @@ const NewTemplate = ({ params }: { params: { ID: string, templateID: string } })
                                     <div className="text-[11px] mt-2"><i>RC Number:&nbsp;489766</i></div>
                                 </footer>
                             </div>
-                            <div>
-                                <div className="grid grid-cols-3 gap-x-2 h-[40px] text-white">
-                                    {/* <div><button onClick={() => { }}>Download</button></div> */}
-                                    <div className="bg-gray-500 flex justify-center text-center items-center rounded-sm"><button className="" onClick={() => setShowRename(true)}>Rename</button></div>
-                                    <div className="bg-blue-500 flex justify-center text-center items-center rounded-sm"><Link href='#'>Edit template</Link></div>
-                                    <div className="bg-red-500 flex justify-center text-center items-center rounded-sm"><button>Delete</button></div>
-
-
-                                </div>
-                                {
-                                    showRename &&
-                                    <div className="mt-6 bg-white shadow-lg py-3 px-4">
-                                        <Form.Root className="w-full mx-auto " method='post' onSubmit={() => { }}>
-                                            <div className="grid grid-cols-[80%_20%]">
-                                                <h3 className="text-black font-bold text-[20px] lg:text-[24px] text-center">Rename Template</h3>
-                                                    <div className="text-gray-500 flex justify-end text-center items-center "><button className="" onClick={() => setShowRename(false)}><AiOutlineClose/></button></div>
-
-                                            </div>
-                                            
-
-
-                                            <Form.Field name="first_name" className="block my-4">
-                                                <Form.Label className="block font-semibold text-[14px] ">Rename Template</Form.Label>
-                                                <Form.Control
-                                                    onChange={() => { }}
-                                                    required
-                                                    type="text"
-                                                    placeholder='template name'
-                                                    className="focus:outline focus:outline-offset-0 focus:outline-[#09CFA0] px-[15px] py-[10px] text-[14px] font-medium text-black border-solid block border-[1.5px] rounded-sm border-gray-300 w-[100%] mx-auto" />
-                                                <Form.Message
-                                                    className="text-sm text-red-500 grid grid-cols-[25px_calc(100%-25px)] mt-1 font-semibold"
-                                                    match={(error) => error === "typeMismatch" || error === "valueMissing"}
-                                                >
-                                                    <IoIosWarning className="text-[19px]" /> <span>Enter a name for this template</span>
-                                                </Form.Message>
-                                            </Form.Field>
-
-                                            <Form.Submit
-                                                className="mt-2 w-full bg-[#08AC85] px-4 py-2 text-lg text-white rounded-sm disabled:bg-[#08ac865b]"
-                                                disabled={true}
-                                            >
-                                                {true ? "Renaming..." : "Rename"}
-                                            </Form.Submit>
-
-
-                                            {/* disabled={disableSubmitBtn()} */}
-                                        </Form.Root>
-                                    </div>
-                                }
+                            <div className="grid grid-cols-6 gap-3">
+                                <button className="bg-gray-600 font-600 py-2 px-3 text-[14px] block mt-2 rounded-md text-white " onClick={createandsendResult}>Send Result</button>
                                 
                             </div>
                             

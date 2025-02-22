@@ -566,3 +566,51 @@ export const CreateResultTemplate = gql`
     }
   }
 `;
+
+export const CreateResult = gql`
+  mutation CreateResult(
+    $patient: ID!,
+    $testRequest: ID!,
+    $result_fields: String!
+
+  ) {
+    CreateResult(
+      patient: $patient,
+      testRequest: $testRequest,
+      resultFields: $result_fields,
+    ) {
+      result{
+        id
+          patient{
+          id
+        }
+          testRequest{
+          id
+        }
+        resultFields
+        generatedPdfUrl
+      }
+
+    }
+  }
+`;
+
+export const SendTestResult = gql`
+  mutation CreateResultTemplate(
+      $name: String!, 
+      $template_fields: String!, 
+      ) {
+    CreateResultTemplate(
+    name: $name, 
+      templateFields: $template_fields
+    
+    ) {
+      template{
+          id
+          name
+          templateFields
+      }
+
+    }
+  }
+`;

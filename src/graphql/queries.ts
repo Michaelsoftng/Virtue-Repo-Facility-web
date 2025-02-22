@@ -1044,6 +1044,71 @@ export const GetResultTemplateById = gql`
 
 `;
 
+export const GetResultById = gql`
+query getResultById($id: String!) {
+    getResultById(id: $id) {
+        id
+        patient{
+            id
+        }
+        testRequest{
+            id
+        }
+        requisitionNumber
+        resultFields
+        generatedPdfUrl
+    }
+}
+
+
+`;
+
+export const GetResultByTestRequest = gql`
+query getResultByTestRequest($id: ID!) {
+  getResultByTestRequest(id: $id) {
+    id
+    patient{
+      id
+      image
+      firstName
+      lastName
+      email
+      phoneNumber
+      patient{
+        id
+        gender
+
+      }
+    }
+    testRequest{
+      id
+      request{
+        sampleCollectionDate
+        samepleDropOffDate
+        sampleStatus
+        samplePickUpAddress
+      }
+      test{
+          id
+          name
+      }
+      patientName
+      patientAge
+      package{
+        id
+        packageName
+      }
+    }
+    requisitionNumber
+    resultFields
+    generatedPdfUrl
+    createdAt
+    deletedAt
+  }
+}
+`;
+
+
 export const GetTestRequestById = gql`
   query getTestRequestById($id: ID!) {
     getTestRequestById(id: $id) {
@@ -1056,6 +1121,7 @@ export const GetTestRequestById = gql`
         patient{
           id
           user{
+            id
             image
             firstName
             lastName
@@ -1096,5 +1162,58 @@ export const GetTestRequestById = gql`
       createdAt    
     }
   }
+
+`;
+
+export const GetResults = gql`
+query getResultTests($limit: Int, $offset: Int){
+  getResultTests(limit: $limit, offset: $offset) {
+
+    resultsCount
+    results{
+      id
+      patient{
+        id
+        image
+        firstName
+        lastName
+        email
+        phoneNumber
+        patient{
+          id
+          gender
+
+        }
+      }
+    testRequest{
+      id
+      request{
+        sampleCollectionDate
+        samepleDropOffDate
+        sampleStatus
+        samplePickUpAddress
+      }
+      test{
+          id
+          name
+      }
+      patientName
+      patientAge
+      package{
+        id
+        packageName
+      }
+    }
+    requisitionNumber
+    resultFields
+    generatedPdfUrl
+    createdAt
+    deletedAt
+  }   
+    }
+ }
+
+
+
 
 `;
