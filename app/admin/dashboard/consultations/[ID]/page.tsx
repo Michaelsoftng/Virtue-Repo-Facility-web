@@ -258,7 +258,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                
                         <AdminFacilitiesTable
                             currentPage={1}
-                            
+                            handleSearchData={() => { }}
                                 setCurrentPage={() => { }}
                                 marginTop={'mt-6'}
                                 approveAction={() => { }} 
