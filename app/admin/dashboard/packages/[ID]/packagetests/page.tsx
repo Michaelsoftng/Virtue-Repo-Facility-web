@@ -99,17 +99,71 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
 
     }
 
+    // const fetchTests = useCallback(async (limit: number, offset: number) => {
+    //     try {
+    //         setPageLoading(true)
+    //         const { data, error, loading: testsDataLoading } = await getAllTests(limit, offset);
+    //         if (error) {
+    //             return;
+    //         }
+    //         if (data && data.getAllTest?.tests) {
+    //             // Update the ref instead of state
+    //             const tests = data.getAllTest?.tests as TableData[] 
+    //             const updateTestsData = tests.map((test) => {
+    //                 const {
+    //                     __typename,
+    //                     id,
+    //                     percentageIncrease,
+    //                     minimumIncrease,
+    //                     createdAt,
+    //                     ...rest
+    //                 } = test;
+
+    //                 const newTestData = {
+    //                     id,
+    //                     ...rest,
+
+    //                 };
+    //                 return newTestData
+    //             }) || [];
+
+    //             const allTests = [...updateTestsData];
+    //             testdata.current =Array.from(
+    //                     new Map(
+    //                         [...testdata.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+    //                     ).values()
+    //                 );
+    //             dataCount.current = data.getAllTest.testCount;
+    //             offsets.current = limit + offsets.current;
+    //         }
+    //     } catch (err) {
+    //         console.log('error fetching tests catch error', err);
+    //     } finally {
+    //         setPageLoading(false)
+    //         console.log("finally")
+    //     }
+    // }, []);
+    
+    // const handleFetchNextPage = () => {
+    //     offsets.current = 10 + offsets.current ;
+    // }
+
     const fetchTests = useCallback(async (limit: number, offset: number) => {
         try {
             setPageLoading(true)
             const { data, error, loading: testsDataLoading } = await getAllTests(limit, offset);
             if (error) {
+                console.log('Error fetching tests from api:', error);
                 return;
+            }
+            if (!testdata.current) {
+                console.log("invalid ref for data.current")
             }
             if (data && data.getAllTest?.tests) {
                 // Update the ref instead of state
                 const tests = data.getAllTest?.tests as TableData[] 
                 const updateTestsData = tests.map((test) => {
+                    const updateTestsData = tests.map((test) => {
                     const {
                         __typename,
                         id,
@@ -126,26 +180,100 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                     };
                     return newTestData
                 }) || [];
+                //     return newTestData
+                // }) || [];
 
                 const allTests = [...updateTestsData];
-                testdata.current =Array.from(
+                testdata.current = Array.from(
                         new Map(
                             [...testdata.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
                         ).values()
                     );
                 dataCount.current = data.getAllTest.testCount;
-                offsets.current = limit + offsets.current;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
             }
+
         } catch (err) {
             console.log('error fetching tests catch error', err);
         } finally {
             setPageLoading(false)
-            console.log("finally")
+            // console.log("finally")
         }
     }, []);
     
+    const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
+        try {
+            setPageLoading(true)
+            const { data, error, loading: testsDataLoading } = await searchAllTests(searchTerm, limit, offset);
+            if (error) {
+                console.log('Error fetching tests from api:', error);
+                return;
+            }
+            
+            if (data && data.searchTest?.tests) {
+                // Update the ref instead of state
+                const tests = data.searchTest?.tests as TableData[]
+                const updateTestsData = tests.map((test) => {
+                    const {
+                        __typename,
+                        id,
+                        percentageIncrease,
+                        minimumIncrease,
+                        createdAt,
+                        ...rest
+                    } = test;
+
+                    const newTestData = {
+                        id,
+                        ...rest,
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
+
+                    };
+                    return newTestData
+                }) || [];
+
+                const allTests = [...updateTestsData];
+                // reset test data to an empty array before filling it with search data
+                if (offset === 0) {
+                    testdata.current=[]  
+                }
+                testdata.current = Array.from(
+                    new Map(
+                        [...testdata.current, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                    ).values()
+                );
+                dataCount.current = data.searchTest.testCount;
+                setOffsets(offset + limit)
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setPageLoading(false)
+        }
+    }, []);
+
+    const handleSearchData = (searchTerm: string) => {
+        setOffsets(0)
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
+    }
+
     const handleFetchNextPage = () => {
-        offsets.current = 10 + offsets.current ;
+        if (searchActive) {
+            if (testdata.current.length < (limit * (currentPage + 1))) {
+                handleSearch(searchTerm, limit, offsets);
+            } 
+        } else {
+            if (testdata.current.length < (limit * (currentPage + 1))) {
+                fetchTests(limit, offsets);
+            }
+            return; 
+        }
     }
     useEffect(() => {
         fetchTests(10, 0);

@@ -545,6 +545,15 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     <Link href={`phlebotomies/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
                                                 </div>
                                             }
+
+                                            {testPage === 'consultations' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <Link href={`consultations/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+                                                </div>
+                                            }
+
+                                            
                                             {testPage === 'doctors' &&
 
                                                 <div className="flex justify-between gap-2 w-[150px]">

@@ -752,6 +752,53 @@ query getConsultationsByPatient($patientId: ID!, $limit: Int, $offset: Int){
 }
 `;
 
+export const GetConsultationById = gql`
+query getConsultationById($id: ID!){
+    getConsultationById(id: $id){
+        status
+        patient{
+          id
+          user{
+            id
+            firstName
+            lastName
+            email
+          }
+        }
+        doctor{
+          id
+          user{
+            id
+            firstName
+            lastName
+            email
+          }
+        }
+        total
+        purpose
+        medicalhistory
+        currentSyptoms
+        prescription
+        doctorsReport
+        doctorEarning
+        labtracaProfit
+        attachments
+        otherdetails
+        requestedDoctorType
+        requestedDuration
+        consultationTime
+        consultationStartedAt
+        payment{
+          id
+          amountPaid
+          amountCharged
+        },
+        createdAt
+        updatedAt
+    }
+}
+`;
+
 export const GetRequestStats = gql`
   query getRequestStatsByUser($patientId: ID, $phlebotomist: ID){
     getRequestStatsByUser(patientId: $patientId, phlebotomist: $phlebotomist){

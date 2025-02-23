@@ -411,7 +411,7 @@ const Consultations = () => {
                                             showTableHeadDetails={true}
                                             showActions={true}
                                             showPagination={true}
-                                            testPage="phlebotomies"
+                                            testPage="consultations"
                                             marginTop="mt-4"
                                     />
                                 )
@@ -422,8 +422,8 @@ const Consultations = () => {
                                 pageLoadingFromClick ? (
                                     <TablePreloader />
                                 ) : (
-                                        <AdminFacilitiesTable
-                                            handleSearchData={() => { }}
+                                <AdminFacilitiesTable
+                                    handleSearchData={() => { }}
                                     currentPage={currentPendingpaymentPage}
                                     setCurrentPage = {setPendingpaymentCurrentPage}
                                     deleteAction={() => {}}
@@ -437,7 +437,7 @@ const Consultations = () => {
                                     showTableHeadDetails={true}
                                     showActions={true}
                                     showPagination={true}
-                                    testPage='phlebotomies'
+                                    testPage='consultations'
                                     marginTop='mt-4'
                                 />
 

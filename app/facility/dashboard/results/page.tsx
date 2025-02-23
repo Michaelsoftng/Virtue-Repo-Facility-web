@@ -299,7 +299,7 @@ const Requests = () => {
                                     <div className="mt-10">
                                         <h2 className='text-[#0F1D40] font-bold'>File</h2>
                                         <div className="mt-4">
-                                                <div className="flex justify-between mt-4 ">
+                                            <div className="flex justify-between mt-4 ">
                                                 <div className="flex gap-4">
                                                     <Image src={PDFImage} alt='' width={35}/>
                                                         <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>

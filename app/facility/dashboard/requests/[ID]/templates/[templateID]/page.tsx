@@ -18,6 +18,8 @@ import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation'
+import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
+import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const NewTemplate: React.FC<any> = ({ params }: { params: { ID: string, templateID: string } }) => {
@@ -133,9 +135,9 @@ const NewTemplate: React.FC<any> = ({ params }: { params: { ID: string, template
     }
     return (
         <div>
-            <AdminHeader />
+            <FacilityHeader />
             <div className="grid grid-cols-[250px_calc(100%-250px)]">
-                <AdminMenu />
+                <FacilityMenu />
                 <div className="bg-gray-100">
                     <BreadCrump pageWrapper="Dashboard &nbsp;&nbsp;/&nbsp;&nbsp;Templates" pageTitle={templateName} showExportRecord={false} />
                     <div className="px-8 py-4">
