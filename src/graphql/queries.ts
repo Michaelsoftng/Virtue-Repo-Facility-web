@@ -413,6 +413,24 @@ export const GetPackageById = gql`
 
 `;
 
+export const SearchPackages = gql`
+  query SearchPackages($search: String!, $limit: Int, $offset: Int){
+    SearchPackages(search: $search, limit: $limit, offset: $offset) {
+      packagesCount
+      packages{
+          id
+          description
+          packageName
+          percentageIncrease
+          minimumIncrease
+          
+      }
+
+    }
+  }
+
+`;
+
 
 export const GetAvailableTestByFacility = gql`
   query getAvailableTestByFacility($facilityId: ID!, $limit: Int, $offset: Int

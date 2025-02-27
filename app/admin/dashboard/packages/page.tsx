@@ -8,7 +8,7 @@ import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import { PlusIcon } from '@radix-ui/react-icons'
 import Link from 'next/link'
-import { getAllPackages } from '@/src/hooks/getAllPackages'
+import { getAllPackages, searchAllPackage } from '@/src/hooks/getAllPackages'
 import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import { DeletePackage } from '@/src/graphql/mutations';
@@ -19,6 +19,9 @@ import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 
 const Packages = () => {
     const router = useRouter();
+    const limit = 10;
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const offsets = useRef< number >(0);
@@ -123,6 +126,68 @@ const Packages = () => {
         // fetchTests(10, offsets.current); // Add this line to trigger the fetch
     }
 
+    const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
+        try {
+            setPageLoading(true)
+            const { data, error, loading: testsDataLoading } = await searchAllPackage(searchTerm, limit, offset);
+            if (error) {
+                console.log('Error fetching tests from api:', error);
+                return;
+            }
+            
+            if (data && data.SearchPackages?.packages) {
+                // Update the ref instead of state
+                const tests = data.SearchPackages?.packages as TableData[]
+                const updateTestsData = tests.map((testpackage) => {
+                    const {
+                        __typename,
+                        id,
+                        percentageIncrease,
+                        minimumIncrease,
+                        createdAt,
+                        ...rest
+                    } = testpackage;
+
+                    const newTestData = {
+                        id,
+                        ...rest,
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
+
+                    };
+                    return newTestData
+                }) || [];
+
+                const allTests = [...updateTestsData];
+                // reset test data to an empty array before filling it with search data
+                if (offsets.current === 0) {
+                    setPackageData([]) 
+                }
+                setPackageData((prevData) => {
+                    const newMap = new Map([...prevData, ...allTests].map(item => [item.id, item]));
+                    const updatedData = Array.from(newMap.values()); // Convert Map to array
+
+                    return updatedData;
+                });
+                dataCount.current = data.SearchPackages.packagesCount;
+                offsets.current = limit + offset
+                // offsets = limit + offsets;
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setPageLoading(false)
+        }
+    }, []);
+
+    const handleSearchData = (searchTerm: string) => {
+        offsets.current = 0
+        setSearchActive(true)
+        setSearchTerm(searchTerm)
+        handleSearch(searchTerm, limit, 0);
+    }
+
     useEffect(() => {
         if (packagedata.length == 0) {
             fetchTests(10, 0);
@@ -155,8 +220,8 @@ const Packages = () => {
                                 ?
                                 <TablePreloader />
                                 :
-                                    <AdminFacilitiesTable
-                                        handleSearchData={() => { }}
+                                <AdminFacilitiesTable
+                                    handleSearchData={handleSearchData}
                                     currentPage={currentPage}
                                     setCurrentPage={setCurrentPage}
                                     approveAction={() => { }}

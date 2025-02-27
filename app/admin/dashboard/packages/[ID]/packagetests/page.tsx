@@ -8,7 +8,7 @@ import { TableData } from '@/src/types/TableData.type'
 import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import { PlusIcon } from '@radix-ui/react-icons'
 import Link from 'next/link'
-import { getAllTests } from '@/src/hooks/useGetAllTest'
+import { getAllTests, searchAllTests } from '@/src/hooks/useGetAllTest'
 import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
 import { CreateTestPackage } from '@/src/graphql/mutations';
@@ -17,6 +17,9 @@ import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useRouter } from 'next/navigation';
 
 const PackageTests = ({ params }: { params: { ID: string } }) => {
+    const [searchActive, setSearchActive] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
+    const limit = 10; 
     const { ID } = params;
     const [pageLoading, setPageLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -163,7 +166,6 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                 // Update the ref instead of state
                 const tests = data.getAllTest?.tests as TableData[] 
                 const updateTestsData = tests.map((test) => {
-                    const updateTestsData = tests.map((test) => {
                     const {
                         __typename,
                         id,
@@ -180,9 +182,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                     };
                     return newTestData
                 }) || [];
-                //     return newTestData
-                // }) || [];
-
+               
                 const allTests = [...updateTestsData];
                 testdata.current = Array.from(
                         new Map(
@@ -190,7 +190,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                         ).values()
                     );
                 dataCount.current = data.getAllTest.testCount;
-                setOffsets(offset + limit)
+                offsets.current = offset + limit
                 // offsets = limit + offsets;
             }
 
@@ -245,8 +245,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                     ).values()
                 );
                 dataCount.current = data.searchTest.testCount;
-                setOffsets(offset + limit)
-                // offsets = limit + offsets;
+                offsets.current  = limit + offset;
             }
 
         } catch (err) {
@@ -257,7 +256,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
     }, []);
 
     const handleSearchData = (searchTerm: string) => {
-        setOffsets(0)
+        offsets.current = 0
         setSearchActive(true)
         setSearchTerm(searchTerm)
         handleSearch(searchTerm, limit, 0);
@@ -266,11 +265,11 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
     const handleFetchNextPage = () => {
         if (searchActive) {
             if (testdata.current.length < (limit * (currentPage + 1))) {
-                handleSearch(searchTerm, limit, offsets);
+                handleSearch(searchTerm, limit, offsets.current);
             } 
         } else {
             if (testdata.current.length < (limit * (currentPage + 1))) {
-                fetchTests(limit, offsets);
+                fetchTests(limit, offsets.current);
             }
             return; 
         }
@@ -307,7 +306,7 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                                     (
 
                                         <AdminFacilitiesTable
-                                            handleSearchData={() => { }}
+                                            handleSearchData={handleSearchData}
                                             currentPage={currentPage}
                                             setCurrentPage={setCurrentPage}
                                             approveAction={handleCreateTestPackage} 
