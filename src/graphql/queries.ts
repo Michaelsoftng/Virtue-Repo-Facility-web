@@ -640,23 +640,28 @@ export const GetRequest = gql`
               name
               code 
           }
-        facility{
-            id
-            facilityName
-            user{
+          facility{
               id
-              firstName  
-            lastName
-            email
+              facilityName
+              user{
+                id
+                firstName  
+              lastName
+              email
+            }
           }
-        }
-        patientName
-        patientAge
-        package{
-          id
-        }
-        testResult
-        resultDate
+          patientName
+          patientAge
+          package{
+            id
+          }
+          testResult
+          resultDate
+          result{
+              id
+              createdAt
+              generatedPdfUrl
+          }
         }
       
     }

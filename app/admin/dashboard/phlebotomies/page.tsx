@@ -103,7 +103,7 @@ const Phlebotomies = () => {
                     } else {
                         unverifedStaffs.current += 1;
                     }
-                    const name = (firstName && lastName) ? `${firstName} ${lastName}` : 'Not Set'
+                    const name = (firstName && lastName) ? `${firstName.trim()} ${lastName.trim()}` : 'Not Set'
                     const active = emailVerifiedAt ? 'verified' : 'unverified'
                     const status = approvedAt ? 'approved' : 'pending approval'
                     const patientCity = city ? city : 'Not set'
