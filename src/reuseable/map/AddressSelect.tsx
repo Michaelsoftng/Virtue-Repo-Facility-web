@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
 export interface AddressProps {
+    setLocation: (address: string) => void;
     setAddress: (address: string) => void;
     setBuilding: (building: string) => void;
     setPostalCode: (postalCode: string) => void;
@@ -14,6 +15,7 @@ export interface AddressProps {
 }
 
 const AddressSearch: React.FC<AddressProps> = ({
+    setLocation,
     setAddress,
     setBuilding,
     setPostalCode,
@@ -40,6 +42,7 @@ const AddressSearch: React.FC<AddressProps> = ({
     const handlePlaceSelect = () => {
         if (autocomplete) {
             const place = autocomplete.getPlace();
+            setLocation(place.formatted_address || '')
             if (place.address_components) {
                 
                 let cityDetails = "";

@@ -27,6 +27,7 @@ const Settings = () => {
     const [FormData, setFormData] = useState<IUpdateAccount | null>(null)
     const [chargesFormData, setChargesFormData] = useState<ICharges | null>(null)
     const [address, setAddress] = useState<IUpdateAccount['streetAddress']>('');
+    const [location, setLocation] = useState<IUpdateAccount['location']>('');
     const [building, setBuilding] = useState<IUpdateAccount['streetAddress2']>('');
     const [postalCode, setPostalCode] = useState<IUpdateAccount['postal']>('');
     const [state, setState] = useState<IUpdateAccount['state']>('');
@@ -41,17 +42,13 @@ const Settings = () => {
     const { data: userData, loading: userDataLoading } = useQuery(GetUserById, {
         variables: {
             id: decodeJwtEncodedId(user?.id as string),
-
         },
         client,
     });
-
     
     const { data: chargesData, loading: chargesDataLoading } = useQuery(GetCharges, {
         client,
     });  
-    
-
     
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
@@ -59,7 +56,6 @@ const Settings = () => {
 
     const handleFormDataChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        console.log(name, value)
         setFormData((prevData) => ({
             ...prevData,
             [name]: value,
@@ -87,6 +83,7 @@ const Settings = () => {
         city,
         latitude,
         longitude,
+        location,
     }
 
     const [updateAccount] = useMutation(UpdateAccount, {
@@ -319,6 +316,7 @@ const Settings = () => {
                                                     </div>
                                                 </div>
                                                 <AddressSearch
+                                                    setLocation={setLocation}
                                                     setAddress={setAddress}
                                                     setBuilding={setBuilding}
                                                     setPostalCode={setPostalCode}

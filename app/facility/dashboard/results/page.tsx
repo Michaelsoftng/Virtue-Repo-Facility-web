@@ -68,6 +68,7 @@ const sampleCompletedData: TableData[] = [
         files: 3,
     }
 ];
+
 const Requests = () => {
     // const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -164,6 +165,7 @@ const Requests = () => {
         'bg-yellow-500 text-black',
         'bg-green-500 text-white',
     ];
+
     const handlePageChange = (direction: 'prev' | 'next') => {
         if (direction === 'prev' && currentPage > 1) {
             setCurrentPage(currentPage - 1);

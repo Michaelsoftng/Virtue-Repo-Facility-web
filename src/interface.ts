@@ -35,6 +35,7 @@ export interface IUpdateAccount {
     firstName?: string,
     lastName?: string,
     phoneNumber?: string,
+    location?: string,
     role?: Role,
     password?: string,
     facilityName?: string

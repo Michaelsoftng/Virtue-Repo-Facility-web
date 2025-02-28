@@ -24,6 +24,7 @@ import { FaHospitalUser } from "react-icons/fa";
 const Settings = () => {
     const [activeTab, setActiveTab] = useState<string>("account")
     const [FormData, setFormData] = useState<IUpdateAccount | null>(null)
+    const [location, setLocation] = useState<IUpdateAccount['location']>('');
     const [address, setAddress] = useState<IUpdateAccount['streetAddress']>('');
     const [building, setBuilding] = useState<IUpdateAccount['streetAddress2']>('');
     const [postalCode, setPostalCode] = useState<IUpdateAccount['postal']>('');
@@ -76,6 +77,7 @@ const Settings = () => {
         city,
         latitude,
         longitude,
+        location,
     }
 
     const [updateAccount] = useMutation(UpdateAccount, {
@@ -283,6 +285,7 @@ const Settings = () => {
                                                     </div>
                                                 </div>
                                                 <AddressSearch
+                                                    setLocation={setLocation}
                                                     setAddress={setAddress}
                                                     setBuilding={setBuilding}
                                                     setPostalCode={setPostalCode}

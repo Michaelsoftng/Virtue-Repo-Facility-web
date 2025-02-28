@@ -147,6 +147,7 @@ mutation UpdateUser($userId: String, $updateData: UpdateUserDataInput!) {
       postal
       latitude
       longitude
+      location
       facilityAdmin{
         facilityName
         id

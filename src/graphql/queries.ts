@@ -1258,6 +1258,7 @@ query getResultTests($limit: Int, $offset: Int){
     testRequest{
       id
       request{
+        id
         sampleCollectionDate
         samepleDropOffDate
         sampleStatus

@@ -290,11 +290,6 @@ const PackageTests = ({ params }: { params: { ID: string } }) => {
                             <div>
                                 <p className="font-bold text-xl px-4 py-2 mr-2" >{dataCount.current } Available Tests</p>
                             </div>
-
-                            <Link href='tests/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
-                                <PlusIcon />
-                                <span >Add Test</span>
-                            </Link>
                         </div>
                         
                         <div>
