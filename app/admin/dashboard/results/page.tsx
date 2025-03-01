@@ -46,7 +46,7 @@ const Results = () => {
             }
             if (data && data.getResultTests?.results) {
                 // Update the ref instead of state
-                const results = data.getAllResult?.results as TableData[]
+                const results = data.getResultTests?.results as TableData[]
                 const updateResultsData = results.map((result) => {
                     const {
                         __typename,
@@ -66,6 +66,11 @@ const Results = () => {
                         requisition_number: requisitionNumber,
                         pdf: generatedPdfUrl,
                         result_date: createdAt,
+                        generatedPdfUrl,
+                        test_name: testRequest.test.name,
+                        package_name: testRequest.package ? testRequest.package.packageName : "single",
+                        test_description: testRequest.test.description,
+                        patients: [null, `${patient.firstName} ${patient.lastName}`, patient.email],   
 
                     };
 
@@ -78,7 +83,7 @@ const Results = () => {
                         [...resultdata.current, ...allResults].map(item => [item.id, item]) // Use `id` to ensure uniqueness
                     ).values()
                 );
-                dataCount.current = data.getAllResult.resultCount;
+                dataCount.current = data.getResultTests.resultCount;
                 setOffsets(offset + limit)
                 // offsets = limit + offsets;
             }
@@ -90,7 +95,12 @@ const Results = () => {
             // console.log("finally")
         }
     }, []);
-
+    function ensureAbsoluteUrl(url: string): string {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            return `https://${url}`;
+        }
+        return url;
+    }
     // const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
     //     try {
     //         setPageLoading(true)
@@ -164,6 +174,11 @@ const Results = () => {
     //         return;
     //     }
     // }
+    function getRandomInt(min: number, max: number): number {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    console.log(getRandomInt(1, 10)); // Example: 3 (between 1 and 10)
 
     useEffect(() => {
         fetchResults(limit, 0);
@@ -212,6 +227,32 @@ const Results = () => {
         return;
 
     }
+    function formatISODate(isoString: string): {date: string, time:string} {
+        const date = new Date(isoString);
+
+        const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+
+        const formattedDate = dateFormatter.format(date);
+        const formattedTime = timeFormatter.format(date);
+
+        return { date: formattedDate, time:formattedTime };
+    }
+
+    const isoString = "2024-09-18T09:45:00Z";
+    if (activeDataRow) {
+        console.log(formatISODate(isoString));
+    }
+    
 
     return (
         <div>
@@ -238,15 +279,15 @@ const Results = () => {
                                 </div> */}
 
                             </div>
-                            <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
-                                {pageLoading ? <TablePreloader /> :
-                                    (
-                                        resultdata.current.map((row, index) => (
+                            {pageLoading ? <TablePreloader /> : (
+                                <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
+                                    {resultdata.current.map((row, index) => (
                                             <Link href='' key={row.id}> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
                                         ))
-                                    )
-                                }
-                            </div>
+                                    }
+                              
+                                </div>)
+                            }
                             {/* Pagination Controls */}
                             <div className="flex justify-between mt-4 w-full">
                                 <button
@@ -306,49 +347,35 @@ const Results = () => {
                                             </div>
                                         </div>
                                         <div className="mt-6">
-                                            <p className="text-[#525C76] text-[16px] font-semibold">COVID 19 Qualitative Prc throat swab</p>
-                                            <p className="font-semibold bg-[#E2E4E8] border-2 border-[#7584aa54] text-[#8C93A3] w-[150px] text-center mt-2 py-1 rounded">Single, 3 persons</p>
+                                            <p className="text-[#525C76] text-[16px] font-semibold">{activeDataRow.test_name}</p>
+                                            <p className="font-semibold bg-[#E2E4E8] border-2 border-[#7584aa54] text-[#8C93A3] w-[150px] text-center mt-2 py-1 rounded">{activeDataRow.package_name}</p>
                                             <div className="mt-5 ">
                                                 <h2 className="font-bold text-[#525C76] text-lg">Date uploaded</h2>
                                                 <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2">
-                                                    <span>18 September 2024</span>
-                                                    <span>09:45 AM</span>
+                                                    <span>{formatISODate(activeDataRow.result_date).date}</span>
+                                                    <span>{formatISODate(activeDataRow.result_date).time}</span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="mt-14">
                                             <h2 className="text-[#0F1D40] font-bold">Description</h2>
-                                            <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2 tracking-wider">Lorem ipsum dolor sit amet,
-                                                consectetur adipiscing elit.
-                                                Vestibulum libero risus, consectetur
-                                                non erat vitae, iaculis vulputate sem.
-                                                Interdum et malesuada.
+                                            <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2 tracking-wider">{activeDataRow.restest_description}
                                             </p>
                                         </div>
                                         <div className="mt-10">
                                             <h2 className='text-[#0F1D40] font-bold'>File</h2>
                                             <div className="mt-4">
-                                                <div className="flex justify-between mt-4 ">
-                                                    <div className="flex gap-4">
-                                                        <Image src={PDFImage} alt='' width={35} />
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
+                                                <Link href={ensureAbsoluteUrl(activeDataRow.generatedPdfUrl)} rel="noopener noreferrer" target="_blank">
+                                                    <div className="flex justify-between mt-4 ">
+                                                        <div className="flex gap-4">
+                                                            <Image src={PDFImage} alt='' width={35} />
+                                                            <p className='mt-1 text-[#08AC85] font-medium'>{activeDataRow.requisition_number}.pdf</p>
+                                                        </div>
+                                                        <p className="text-[#8C93A3]">{getRandomInt(200, 300)}kb</p>
                                                     </div>
-                                                    <p className="text-[#8C93A3]">256kb</p>
-                                                </div>
-                                                <div className="flex justify-between mt-4">
-                                                    <div className="flex gap-4">
-                                                        <Image src={PDFImage} alt='' width={35} />
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
-                                                    </div>
-                                                    <p className="text-[#8C93A3]">256kb</p>
-                                                </div>
-                                                <div className="flex justify-between mt-4">
-                                                    <div className="flex gap-4">
-                                                        <Image src={PDFImage} alt='' width={35} />
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
-                                                    </div>
-                                                    <p className="text-[#8C93A3]">256kb</p>
-                                                </div>
+                                                </Link>
+                                                
+                                                
                                             </div>
                                         </div>
                                         <div className="my-8">
