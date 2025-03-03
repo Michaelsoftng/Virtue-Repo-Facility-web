@@ -379,6 +379,27 @@ export const CreateTestUpload = gql`
 }
 `;
 
+export const UpdateTest = gql`
+  mutation UpdateTest(
+          $test: ID!, 
+      $updateData: UpdateTestDataInput!
+      ) {
+    UpdateTest(
+      test:$test,
+    updateData: $updateData
+      ) {
+      test {
+        id
+        name
+        code
+        testType
+        group
+      }
+  }
+  }
+`;
+
+
 export const DeleteTest = gql`
 mutation DeleteTest(
 		$code: String, 
@@ -397,6 +418,7 @@ mutation DeleteTest(
 `;
 
 export const DeletePackage = gql`
+
   mutation DeletePackage(
       $id: ID!, 
     ) {
@@ -410,6 +432,20 @@ export const DeletePackage = gql`
     }
   }
 `;
+
+export const UpdatePackage = gql`
+mutation UpdatePackage($packageId: ID!, $updateData: UpdatePackageDataInput!) {
+  UpdatePackage(packageId: $packageId, updateData: $updateData) {
+    package {
+      id
+      packageName
+      percentageIncrease
+      minimumIncrease
+    }
+}
+}
+`;
+
 
 export const DeleteTestPackage = gql`
   mutation DeleteTestPackage(
@@ -512,6 +548,42 @@ export const CreateFacilityTest = gql`
   }
   }
 `
+export const UpdateFacilityTest = gql`
+mutation UpdateFacilityTest(
+        $facilitytest: ID!, 
+		$updateData: UpdateFacilityTestDataInput!
+		) {
+  UpdateFacilityTest(
+    facilitytest:$facilitytest,
+	updateData: $updateData
+    ) {
+    facilityTest {
+      test{
+                id
+                name
+                code
+                group
+                testType
+            }
+            price
+            facilityPrice
+            preparation
+            duration
+            facility{
+                id  
+                facilityName
+                facilityType
+                
+                user{
+                    id
+                    email
+                    phoneNumber
+                }
+            }
+    }
+}
+}
+`;
 
 export const UpdateCharges = gql`
   mutation UpdateCharges($admin: String!, $updateData: UpdateChargesDataInput!) {

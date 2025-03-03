@@ -836,6 +836,13 @@ export const GetRequestStats = gql`
   }
 `;
 
+export const GetTodaysRequest = gql`
+query getTodaysRequest{
+    getTodaysRequest
+
+  }
+`;
+
 export const GetConsultationStats = gql`
   query getConsultationStatsByUser($patientId: ID, $doctor: ID){
     getConsultationStatsByUser(patientId: $patientId, doctor: $doctor){

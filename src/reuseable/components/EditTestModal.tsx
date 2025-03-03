@@ -5,26 +5,32 @@ import { TestModalProps } from '@/src/partials/tables/NewRequesTable';
 export interface ITestModalProps extends TestModalProps{
     id?: string
 }
+
 interface EditModalProps {
     isOpen: boolean;
     onClose: () => void;
     test: TestModalProps | null
-    handleEditTest: (id: string, data: TestModalProps) => void
+    handleEditTest: (data: TestModalProps) => void
 }
+
 const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handleEditTest }) => {
     const [formData, setFormData] = useState<TestModalProps | null>(null);
+
     useEffect(() => {
         if (test) {
             const numericString = test?.percentage_increase as string
             const numericValue = parseFloat(numericString.replace('%', ''));
             test.percentage_increase = numericValue;  
         }
+        setFormData(test)
     }, [test]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         onClose()
-        handleEditTest(test!.id as string, formData as TestModalProps);
+        handleEditTest( formData as TestModalProps);
     };
+
     const handleFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         if (!name) {
@@ -78,7 +84,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                                 type="text"  // Change to text instead of number
                                 id="name"
                                 className="appearance-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                                value={test?.name}
+                                value={formData?.name}
                                 onChange={handleFormChange} 
                                 
                             />
@@ -91,7 +97,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                             <input
                                 style={{ appearance: 'textfield' }}  // Removes number input spinner
                                 type="number"  // Change to text instead of number
-                                value={test?.percentage_increase}
+                                value={formData?.percentage_increase}
                                 name="percentage_increase"
                                 className="appearance-none mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 onChange={handleFormChange}// Handling as string
@@ -106,7 +112,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                             <input
                                 type="number"  // Change to text instead of number
                                 step='100'
-                                value={test?.minimum_increase}
+                                value={formData?.minimum_increase}
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 name="minimum_increase"
                                 onChange={handleFormChange}
@@ -165,6 +171,7 @@ const EditTestModal: React.FC<EditModalProps> = ({ isOpen, onClose, test, handle
                             <textarea
                                 name="description"
                                 id="description"
+                                value={formData?.description as string}
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 onChange={handleFormChange}
                                 rows={3}

@@ -13,11 +13,10 @@ import client from '@/lib/apolloClient';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { decodeJwtEncodedId } from '@/src/utils/decode'
 import { IFacilityTest } from '@/src/interface'
-import { CreateFacilityTest, UpdateFacilityTest } from '@/src/graphql/mutations'
+import { CreateFacilityTest } from '@/src/graphql/mutations'
 import { useMutation } from '@apollo/client'
 import { toast } from 'react-toastify'
 import { getAllTests } from '@/src/hooks/useGetAllTest'
-import { FacilityTestData } from '@/src/reuseable/components/EditFacilityTestModal'
 
 const Requests = () => {
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
@@ -224,44 +223,6 @@ const Requests = () => {
 
         }
     };
-    const [updateTestData, { loading: updateTestLoading }] = useMutation(UpdateFacilityTest, {
-        client,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleUpdateTest = async (testdata: FacilityTestData) => {
-        setPageLoadingFromClick(true)
-        try {
-            const { id, test,  ...rest } = testdata;
-            const { data } = await updateTestData({
-                variables: {
-                    test: id,
-                    updateData: {...rest}
-                },
-                async onCompleted(data) {
-                 
-                    if (data.UpdateFacilityTest.facilityTest) {
-                        toast.success("you successsfully updated a test");
-                        window.location.reload();
-                    } else {
-                        toast.error(data?.UpdateFacilityTest?.error?.message);
-                    }
-
-                },
-                onError(e) {
-                    toast.error(e.message);
-
-                },
-            });
-
-        } catch (err) {
-            console.error('Error editing test:', err);
-        } finally {
-            setPageLoadingFromClick(false)
-
-        }
-
-    }
 
     useEffect(() => {
         if (user) {

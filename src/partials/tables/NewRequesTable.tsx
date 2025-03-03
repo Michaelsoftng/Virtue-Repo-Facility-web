@@ -12,6 +12,7 @@ import ConfirmDeleteModal from '@/src/reuseable/components/DeleteTestModal';
 import { formatWord } from './AdminFacilitiesTable';
 import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
 import Link from 'next/link';
+import EditFacilityTestModal from '@/src/reuseable/components/EditFacilityTestModal';
 
 export interface TestModalProps{
     id?: string
@@ -30,7 +31,14 @@ export interface TestModalProps{
     minimum_increase?: number;
 }
 
+export interface FacilityTestProps {
+    id?: string;
+    test?: string;
+    amount?: string;
+    duration?: string;
+    preparation?: string;
 
+}
 export type NewRequestTableProps = {
     tableData: TableData[];
     searchBoxPosition: string,
@@ -101,7 +109,9 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     // const [activeDataId, setActiveDataId] = useState<string | null>(null);
-    const [activeData, setActiveData] = useState<TestModalProps|null> (null)
+    const [activeData, setActiveData] = useState<TestModalProps | null>(null)
+    const [activeFacilityTestData, setActiveFacilityTestData] = useState<FacilityTestProps | null>(null)
+    // const [activePackageData, setActivePackageData] = useState<IpackageData | null>(null)
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1); // Reset to page 1 on search
@@ -133,11 +143,17 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
 
     const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
     const showModalFunc = (dataIndex: number, modalType: string) => {
-        // const dataToDisplay = tableData[dataIndex]
+        const dataToDisplay2 = tableData[dataIndex]
+        console.log({ dataToDisplay2 })
         const dataToDisplay = tableData.find(item => item.id === dataIndex);
         switch (modalType) {
             case 'edit':
                 setShowEditModal(true)
+                setActiveFacilityTestData(dataToDisplay2)
+                break;
+            case 'editFacilityTest':
+                setShowEditModal(true)
+                setActiveFacilityTestData(dataToDisplay2)
                 break;
             case 'remove':
                 setShowDeleteModal(true)
@@ -331,7 +347,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                             {testPage === 'facilityTest' &&
                                                
                                                 <div className="flex justify-between gap-2 w-[150px]">
-                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(row.id, 'edit')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'editFacilityTest')}>Edit</button>
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(row.id, 'remove')}>Remove</button>
                                                 </div>
                                               
@@ -382,7 +398,11 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                     Next
                 </button>
             </div>
-            <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeData} handleEditTest={()=>{}} />
+
+            
+            <EditFacilityTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeFacilityTestData} handleEditTest={approveAction} />
+
+            {/* <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeFacilityTestData} handleEditTest={()=>{}} /> */}
             {/* <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} /> */}
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddModal} onClose={() => setShowAddModal(false)} test={activeData} facilityId={facilityId as string} />
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('cllosed')} />

@@ -11,11 +11,12 @@ import Link from 'next/link'
 import { getAllPackages, searchAllPackage } from '@/src/hooks/getAllPackages'
 import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
-import { DeletePackage } from '@/src/graphql/mutations';
+import { DeletePackage, UpdatePackage } from '@/src/graphql/mutations';
 import { toast } from 'react-toastify';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useRouter } from 'next/navigation';
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
+import { PackageDataL } from '@/src/reuseable/components/EditPackageModal'
 
 const Packages = () => {
     const router = useRouter();
@@ -61,6 +62,55 @@ const Packages = () => {
         }
 
     }
+
+    const [updatePackageData, { loading: updateTestLoading }] = useMutation(UpdatePackage, {
+
+        client,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleUpdatePackage = async (packagedata: PackageDataL) => {
+            setPageLoading(true)
+            try {
+                const { id, package_name, description, percentage_increase, minimum_increase, ...rest } = packagedata;
+    
+                const transformedData = {
+                    ...rest,
+                    packageName: package_name,
+                    percentageIncrease: percentage_increase,
+                    minimumIncrease: minimum_increase
+                };
+    
+                const { data } = await updatePackageData({
+                    variables: {
+                        packageId: id,
+                        updateData: transformedData
+                    },
+                    async onCompleted(data) {
+                     
+                        if (data.UpdatePackage.package) {
+                            toast.success("you successsfully updated a package");
+                            window.location.reload();
+                        } else {
+                            toast.error(data?.UpdatePackage?.error?.message);
+                        }
+    
+                    },
+                    onError(e) {
+                        toast.error(e.message);
+    
+                    },
+                });
+    
+            } catch (err) {
+                console.error('Error editing test:', err);
+            } finally {
+                setPageLoading(false)
+    
+            }
+    
+    }
+    
     const fetchTests = useCallback(async (limit: number, offset: number) => {
         try {
             setPageLoading(true)
@@ -192,7 +242,6 @@ const Packages = () => {
         if (packagedata.length == 0) {
             fetchTests(10, 0);
         }
-        console.log('packaged data', packagedata )
     }, [fetchTests, packagedata]);
 
     return (
@@ -205,7 +254,8 @@ const Packages = () => {
                     <div className="px-8 py-4">
                         <div className="flex justify-between">
                             <div>
-                                <p className="px-4 py-2 bg-[#B2B7C2] w-full mr-2" onClick={() => handleTabChange('tests')}>Tests Bundles {pageLoading ? <NumberPreloader /> : <>({dataCount.current})</>}</p>
+                                <div className="px-4 py-2 bg-[#B2B7C2] w-full mr-2" onClick={() => handleTabChange('tests')}>
+                                    Bundles {pageLoading ? <NumberPreloader /> : <>({dataCount.current})</>}</div>
                             </div>
 
                             <Link href='packages/new' className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
@@ -224,7 +274,7 @@ const Packages = () => {
                                     handleSearchData={handleSearchData}
                                     currentPage={currentPage}
                                     setCurrentPage={setCurrentPage}
-                                    approveAction={() => { }}
+                                    approveAction={handleUpdatePackage}
                                     deleteAction={handleDeletePackage}
                                     setItemToDelete={setDeletePackagetWithId}
                                     tableHeadText='Packages'

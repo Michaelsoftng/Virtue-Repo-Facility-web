@@ -26,7 +26,7 @@ export type AdminFacilitiesTableProps = {
     deleteAction: () => void
     handleSearchData: (searchTerm: string) => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approveAction: (data?:  any) => void,
+    approveAction: ( data?:  any) => void,
     viewMoreAction?: () => void,
     changePage: () => void
     setItemToDelete: (id: string) => void
@@ -97,7 +97,8 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
     const [showEditPackageModal, setShowEditPackageModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [showAddFacilityTestModal, setShowAddFacilityTestModal] = useState<boolean>(false);
-    const [activeData, setActiveData] = useState<TestModalProps | IpackageData | null>(null)
+    const [activeData, setActiveData] = useState<TestModalProps | null>(null)
+    const [activePackageData, setActivePackageData] = useState<IpackageData | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -135,9 +136,9 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
 
     const showModalFunc = (dataIndex: number, modalType: string, id?:string) => {
         const dataToDisplay = tableData[dataIndex]
-        
         switch (modalType) {
             case 'edit':
+                setItemToDelete(id as string)
                 setShowEditModal(true)
                 setActiveData(dataToDisplay)
                 break;
@@ -158,7 +159,9 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                 setShowAddFacilityTestModal(true)
                 break;
             case 'editPackage':
-                setActiveData(dataToDisplay)
+                setItemToDelete(id as string)
+                setActivePackageData(dataToDisplay)
+                // setActiveData(dataToDisplay)
                 setShowEditPackageModal(true)
                 break;
             case 'viewTestRequest':
@@ -632,7 +635,10 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
             }
             
             <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeData} handleEditTest={approveAction} />
-            <EditPackageModal isOpen={showEditPackageModal} onClose={() => setShowEditPackageModal(false)} packageData={activeData} handleEditPackage={approveAction} />
+            
+            {showEditPackageModal &&
+                <EditPackageModal isOpen={showEditPackageModal} onClose={() => setShowEditPackageModal(false)} packageData={activePackageData} handleEditPackage={approveAction} />
+            }
             <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} />
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddFacilityTestModal} onClose={() => setShowAddFacilityTestModal(false)} test={activeData} facilityId={queryId as string}/>
             <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />

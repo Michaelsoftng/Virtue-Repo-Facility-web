@@ -79,7 +79,8 @@ const Signin: React.FC = () => {
                         expiresIn.setTime(expiresIn.getTime() + minutes * 60 * 1000); // 60 minutes in milliseconds
 
                         // Cookies.set('user', JSON.stringify(user), { expires: 1, path: '/' });
-                        Cookies.set('accessToken', data.TokenAuth.token, { expires: expiresIn, path: '/' });
+                        // Cookies.set('accessToken', data.TokenAuth.token, { expires: expiresIn, path: '/' });
+                        Cookies.set('accessToken', data.TokenAuth.token, { expires: 23 / 24, path: '/' }); // 1 hour in days
                         Cookies.set('refreshToken', data.TokenAuth.refreshToken, { expires: 7, path: '/', secure: true });
 
 
@@ -210,7 +211,7 @@ const Signin: React.FC = () => {
                             <Link href={'#'} className="text-green-400 text-[12px] font-semibold">Forgot password ?</Link>
                         </div>
                         <div className="w-full text-center mt-1">
-                            <p>Or</p>
+                            <p>Or </p>
                         </div>
 
                         <div className="w-full mt-2">

@@ -11,9 +11,10 @@ import Link from 'next/link'
 import { getAllTests, searchAllTests } from '@/src/hooks/useGetAllTest'
 import { useMutation } from '@apollo/client'
 import client from '@/lib/apolloClient';
-import { DeleteTest } from '@/src/graphql/mutations';
+import { DeleteTest, UpdateTest } from '@/src/graphql/mutations';
 import { toast } from 'react-toastify';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
+import { TestModalProps } from '@/src/partials/tables/NewRequesTable'
 
 
 const Tests = () => {
@@ -62,6 +63,53 @@ const Tests = () => {
 
         }
        
+    }
+
+    const [updateTestData, { loading: updateTestLoading }] = useMutation(UpdateTest, {
+
+        client,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleUpdateTest = async (testdata: TestModalProps) => {
+        setPageLoading(true)
+        try {
+            const { id, code, test, description, percentage_increase, minimum_increase, ...rest } = testdata;
+
+            const transformedData = {
+                ...rest,
+                percentageIncrease: percentage_increase,
+                minimumIncrease: minimum_increase
+            };
+
+            const { data } = await updateTestData({
+                variables: {
+                    test: testdata.id,
+                    updateData: transformedData
+                },
+                async onCompleted(data) {
+                 
+                    if (data.UpdateTest.test) {
+                        toast.success("you successsfully updated a test");
+                        window.location.reload();
+                    } else {
+                        toast.error(data?.UpdateTest?.error?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error editing test:', err);
+        } finally {
+            setPageLoading(false)
+
+        }
+
     }
 
     const fetchTests = useCallback(async (limit: number, offset: number) => {
@@ -226,7 +274,7 @@ const Tests = () => {
                                         handleSearchData={handleSearchData}
                                         currentPage={currentPage}
                                         setCurrentPage={setCurrentPage}
-                                        approveAction={() => { }} 
+                                        approveAction={handleUpdateTest} 
                                         deleteAction={handleDeleteTest}
                                         setItemToDelete={setDeleteTestWithId}
                                         tableHeadText='Tests'
