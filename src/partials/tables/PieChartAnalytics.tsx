@@ -9,13 +9,13 @@ import {
 
 export const description = "A simple pie chart"
 
-type ChartDataProps = { test: string, visitors: number, fill: string }
+type ChartDataProps = { test_Name: string, requestCount: number, fill: string }
 interface PieChartAnalyticsProps {
     chartData: ChartDataProps[];
     chartStyle?:string
 }
 const chartConfig = {
-    visitors: {
+    requestCount: {
         label: "Top Tests",
     },
     chrome: {
@@ -54,7 +54,7 @@ export const PieChartAnalytics: React.FC<PieChartAnalyticsProps> = ({ chartData,
                             cursor={false}
                             content={<ChartTooltipContent hideLabel />}
                         />
-                        <Pie data={chartData} dataKey="visitors" nameKey="browser" />
+                        <Pie data={chartData} dataKey="requestCount" nameKey="browser" />
                     </PieChart>
                 </ChartContainer>
                 

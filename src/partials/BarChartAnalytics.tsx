@@ -32,15 +32,17 @@ const chartConfig = {
     // },
 } satisfies ChartConfig
 
-// interface StylesProp {
-//     classNames: string
-// }
+interface BarChartAnalyticsProps {
+    chartData: { month: string, count: number }[]
+    chartStyle?: string
+    setYear:(year:number)=>void
+}
 
 
 
-const BarChartAnalytics = () => {
+const BarChartAnalytics: React.FC<BarChartAnalyticsProps> = ({ chartData, chartStyle, setYear })  => {
     const [activeIndex, setActiveIndex] = useState(null);
-
+   
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleMouseEnter = (data: any, index: any) => {
         setActiveIndex(index);
@@ -49,10 +51,29 @@ const BarChartAnalytics = () => {
     const handleMouseLeave = () => {
         setActiveIndex(null);
     };
-   const updatedChartData = chartData.map((entry, index) => ({
-       ...entry,
-       fill: index === activeIndex || index === chartData.length - 1 ? "#08AC85" : "#08AC851A"  // Change color for index 1
-   }));
+    const currentYear = new Date().getFullYear();
+    const months = Array.from({ length: 12 }, (_, i) => {
+        const date = new Date(currentYear, i, 1);
+        return {
+            month: date.toLocaleString("en-US", { month: "short" }),
+            count: 0, // Default count is 0
+            fill: "#08AC851A" // Default fill color
+        };
+    });
+
+    // Map existing data
+    const updatedChartData = months.map((monthEntry, index) => {
+        const foundEntry = chartData.find((entry) =>
+            new Date(entry.month).getMonth() === index
+        );
+
+        return {
+            ...monthEntry,
+            count: foundEntry ? foundEntry.count : 0, // Use existing count or 0
+            fill: index === activeIndex || index === 11 ? "#08AC85" : "#08AC851A" // Highlight last month & activeIndex
+        };
+    });
+    console.log(updatedChartData)
     return (
         <div className="rounded p-4 bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1)">
             <div className='grid grid-cols-[250px_80px] gap-[calc(100%-330px)] mb-4'>
@@ -60,15 +81,24 @@ const BarChartAnalytics = () => {
                     <h3 className="font-bold text-black text-[18px] pl-4 pt-4"> Recieved requests</h3>
                 </div>
 
-                <div className={`h-[30px] `}>
-                    <select name="gender" id="" className="w-full h-full font-semibold text-xs text-gray-400 px-3 py-1 bg-transparent border-solid block border-2 rounded border-gray-300">
-                        <option value="" >2024</option>
-                        <option value="male">2023</option>
-                        <option value="female">2022</option>
-
+                <div className="h-[30px]">
+                    <select
+                        onChange={(e) => setYear(parseInt(e.target.value))} // Use onChange instead of onSelect
+                        name="year"
+                        className="w-full h-full font-semibold text-xs text-gray-400 px-3 py-1 bg-transparent border-solid block border-2 rounded border-gray-300"
+                    >
+                        {Array.from({ length: 10 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            );
+                        })}
                     </select>
-                    
+
                 </div>
+
             </div>  
            
             <div>
@@ -94,7 +124,7 @@ const BarChartAnalytics = () => {
                             isAnimationActive={true} 
                         />
                         <Bar
-                            dataKey="requests"
+                            dataKey="count"
                             fill={activeIndex !== null ? "#08AC85" : "#08AC851A"} // Static default fill for compatibility
                             radius={[40, 40, 0, 0]} // Border radius
                             onMouseEnter={handleMouseEnter}

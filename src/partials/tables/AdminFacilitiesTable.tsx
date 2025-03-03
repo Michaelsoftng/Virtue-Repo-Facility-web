@@ -277,6 +277,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                         switch (column) {
                                             case 'doctor':
                                             case 'doctors':
+                                            case 'assigned_to':
                                             case 'organisations':
                                             case 'patients':
                                                 
@@ -331,7 +332,11 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     </td>
                                                 );
                                             case 'amount_paid':
-                                            case 'amount_charged':    
+                                            case 'amount_charged': 
+                                            case 'logistics_estimate': 
+                                            case 'phlebotomist_earning': 
+                                            case 'distance_charge': 
+                                            case 'labtraca_profit':     
                                             case 'amount':
                                                 return (
                                                     <td key={column} className="first:pl-4 px-2 py-2 whitespace-no-wrap border-b border-gray-200 text-sm font-thin">
@@ -341,6 +346,7 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     </td>
                                                 );
                                             case 'facility_price':
+                                            case 'potential_Earning':
                                             case 'minimum_increase':
                                             case 'balance':
                                                 return (

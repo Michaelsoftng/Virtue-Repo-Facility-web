@@ -17,10 +17,10 @@ import {
 
 export const description = "A donut chart with text"
 
-const chartData = [
-    { browser: "completed", visitors: 35, fill: "#6CB9E3" },
-    { browser: "cancelled", visitors: 20, fill: "#FFC152" },
-]
+// const chartData = [
+//     { browser: "completed", visitors: 35, fill: "#6CB9E3" },
+//     { browser: "cancelled", visitors: 20, fill: "#FFC152" },
+// ]
 
 const chartConfig = {
     visitors: {
@@ -48,19 +48,51 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
+const statusColors = {
+    completed: "#6CB9E3",
+    ongoing: "#08AC85",
+    pending: "#FF8C42",
+    cancelled: "#FFC152",
+    scheduled: "#A569BD",
+    unpaid: "#E74C3C"
+};
+
 interface DoughnutPieAnalyticsProps {
     className?: string;
+    chartData: {
+        completed: number,
+        ongoing: number,
+        pending: number,
+        cancelled: number,
+        scheduled: number,
+        unpaid: number
+    }
 }
 
-export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ className = "" }) => {
+export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ className = "", chartData }) => {
+    const formattedData = Object.entries(chartData).map(([status, count]) => ({
+        status,
+        count: Number(count) || 0, // Convert count to a number,
+        fill: (statusColors as Record<string, string>)[status] || "#CCCCCC" // Type assertion
+    }));
+
+
     const totalVisitors = React.useMemo(() => {
-        return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-    }, [])
+        let total = 0;
+        // console.log(typeof total )
+        formattedData.forEach((value) => {
+            total += value.count
+        });
+        return total;
+    }, [formattedData]);
+
+
+
 
     return (
         <Card className={`flex flex-col ${className}`}>
             <CardHeader className="items-left pb-0">
-                <CardTitle>55 request made</CardTitle>
+                <CardTitle>55 request Assigned</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
                 <ChartContainer
@@ -73,9 +105,9 @@ export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ clas
                             content={<ChartTooltipContent hideLabel />}
                         />
                         <Pie
-                            data={chartData}
-                            dataKey="visitors"
-                            nameKey="browser"
+                            data={formattedData}
+                            dataKey="count"
+                            nameKey="status"
                             innerRadius={60}
                             strokeWidth={5}
                         >
@@ -101,7 +133,7 @@ export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ clas
                                                     y={(viewBox.cy || 0) + 24}
                                                     className="fill-muted-foreground"
                                                 >
-                                                    Requests made
+                                                    Requests Assigned
                                                 </tspan>
                                             </text>
                                         )

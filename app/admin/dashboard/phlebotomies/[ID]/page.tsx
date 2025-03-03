@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-import React, {  useState } from 'react'
+import React, {  useCallback, useEffect, useRef, useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
@@ -22,6 +23,9 @@ import * as Form from '@radix-ui/react-form';
 import { ToggleAccountStatus } from '@/src/graphql/mutations'
 import { toast } from 'react-toastify';
 import Link from 'next/link'
+import { getRequestByPhlebotomist } from '@/src/hooks/useGetAllRequest'
+import TablePreloader from '@/src/preLoaders/TablePreloader'
+import { useGetRequestStats } from '@/src/hooks/useGetRequestStat'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -100,6 +104,8 @@ const sampleCompletedData: TableData[] = [
 
 ];
 const Singlefacility = ({ params }: { params: { ID: string } }) => {
+    const limit = 10;  
+    const [currentPage, setCurrentPage] = useState<number>(1);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isOpenToolsModal, setIsOpenToolsModal] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -112,6 +118,84 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
             },
             client,
     });
+    const [offsets, setOffsets] = useState<number>(0);
+    const dataCount = useRef< number >(0);
+
+    const datas = useRef<TableData[]>([]);
+    const { data: requestStatsData, loading: requestStatsDataLoading } = useGetRequestStats(undefined, ID )
+    const fetchPhlebotomiesRequests = useCallback(async (limit: number, offset: number) => {
+        try {
+            setIsLoading(true)
+            const { data, error, loading: testsDataLoading } = await getRequestByPhlebotomist(ID, limit, offset);
+            if (error) {
+                console.log('Error fetching phleb activities from api:', error);
+                return;
+            }
+            if (data && data.getRequestByPhlebotomist?.requests) {
+                // Update the ref instead of state
+                const phlebotomies = data.getRequestByPhlebotomist?.requests as TableData[]
+                const updatedPhlebotomiesData = phlebotomies?.map((singleStaff) => {
+
+                    const {
+                        id,
+                        __typename,
+                        hasPhlebotomistBeenPaid,
+                        requestProfitMargin,
+                        logisticsEstimate,
+                        phlebotomistEarning,
+                        distanceCharge,
+                        labtracaProfit,
+                        requestDate,
+                        pickupDistance,
+                        dropOffDistance,
+                        sampleCollectionDate,
+                        samepleDropOffDate,
+                        samplePickUpAddress,
+                        requestStatus,
+                        sampleStatus,
+                        createdAt,
+                        patient,
+                        ...rest
+                    } = singleStaff;
+
+                    const name = (patient.user.firstName && patient.user.lastName) ? `${patient.user.firstName.trim()} ${patient.user.lastName.trim()}` : 'Not Set'
+                    
+                    const newPatientData = {
+                        id,
+                        patients: [null, name, patient.user.email],
+                        logistics_estimate: logisticsEstimate,
+                        phlebotomist_earning: phlebotomistEarning,
+                        distance_charge: distanceCharge,
+                        labtraca_profit: labtracaProfit,
+                        pickup_distance: `${pickupDistance}km`,
+                        drop_off_distance: `${dropOffDistance}km`,
+                        request_status: requestStatus,
+                        sample_status: sampleStatus
+                    };
+
+                    return newPatientData
+                }) || [];
+
+                const allPhlebotomies = [...updatedPhlebotomiesData];
+
+                datas.current = Array.from(
+                        new Map(
+                            [...datas.current, ...allPhlebotomies].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                
+                dataCount.current = data.getRequestByPhlebotomist.requestsCount
+
+                setOffsets (offset + limit);
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setIsLoading(false)
+            // console.log("finally")
+        }
+    }, [ID]);
     const [toggleAccount] = useMutation(ToggleAccountStatus, {
             variables: {
                 userForApproval: ID
@@ -139,7 +223,21 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                 } finally {
                     // setIsLoading(false);
                 }
-        };
+    };
+    
+    const handleFetchPhlebNextPage = () => {
+        
+        if (datas.current.length < (limit * (currentPage + 1))) {
+            fetchPhlebotomiesRequests(limit, offsets);
+        }
+        return;
+        
+
+    }
+
+    useEffect(() => {
+        fetchPhlebotomiesRequests(limit, 0);
+    }, [fetchPhlebotomiesRequests, limit]);
     if (pageLoading ) {
             return <Loading />;
     }
@@ -162,7 +260,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     />
                     <div className="px-8 py-4 grid grid-cols-[30%_calc(35%-12px)_calc(35%-12px)] gap-6">
                         <div className="">
-                            <DoughnutPieAnalytics className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
+                            <DoughnutPieAnalytics chartData={requestStatsData.getRequestStatsByUser} className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
                         </div>
                         <div>
                             <div className="bg-white shadow-lg  px-4 py-4 rounded-lg ">
@@ -284,16 +382,23 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     
                     <div className="px-8 py-4 gap-4 border-t-2 border-t-[#CACDD5] mt-4 pt-8">
                         <div className="mt-10">
+                            {phlebotomistLoading
+
+                                ?
+                                <TablePreloader />
+                                : 
+                                
                             <AdminFacilitiesTable
                                 handleSearchData={()=>{}}
-                                currentPage={1}
-                                setCurrentPage={() => { }}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
                                 deleteAction={() => { }}
                                 approveAction={() => { }} 
                                 setItemToDelete={() => { }}
-                                changePage={() => { }}
-                                tableHeadText='Activity information'
-                                tableData={sampleCompletedData}
+                                changePage={handleFetchPhlebNextPage}
+                                tableHeadText='Activity information '
+                                tableData={datas.current}
+                                dataCount={dataCount.current}
                                 searchBoxPosition='justify-start'
                                 showTableHeadDetails={true}
                                 showActions={false}
@@ -301,7 +406,8 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                                 marginTop='mt-4'
                                 showPagination={true} // used as opposite, pagination wont show when true
 
-                            />
+                                />
+                            }
                         </div>
                         
                     </div>

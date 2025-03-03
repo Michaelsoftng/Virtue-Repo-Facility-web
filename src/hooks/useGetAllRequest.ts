@@ -1,5 +1,5 @@
 
-import { GetAllRequest, GetTodaysRequest } from '@/src/graphql/queries'
+import { GetAllRequest, GetRequestByPhlebotomist, GetTodaysRequest } from '@/src/graphql/queries'
 import client from '@/lib/apolloClient';
 import { useQuery } from '@apollo/client';
 
@@ -20,4 +20,11 @@ export const getTodaysRequest = async () => {
     });
 };
 
+
+export const getRequestByPhlebotomist = async (phlebotomistId: string, limit: number, offset: number) => {
+    return await client.query({
+        query: GetRequestByPhlebotomist,
+        variables: { phlebotomistId, limit, offset }
+    });
+};
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import BarChartAnalytics from '@/src/partials/BarChartAnalytics'
 import { LineChartAnalytics } from '@/src/partials/LineChartAnllytics'
@@ -13,42 +14,24 @@ import Profile2UserIconn from '@/src/reuseable/icons/Profile2UserIconn'
 import { TableData } from '@/src/types/TableData.type'
 import { useAuth } from '@/src/context/AuthContext'
 import NumberPreloader from '@/src/preLoaders/NumberPreloader'
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import Loading from '../loading'
 import { useQuery } from '@apollo/client'
-import { GetUsersCount } from '@/src/graphql/queries'
+import { GetMonthlyRequest, GetTodaysRequest, GetTopRequestTest, GetUsersCount } from '@/src/graphql/queries'
 
 import client from '@/lib/apolloClient';
+import { useGetAllRequest } from '@/src/hooks/useGetAllRequest'
+import TablePreloader from '@/src/preLoaders/TablePreloader'
+import PieChartPreloader from '@/src/preLoaders/PiechartPreloader'
+import { chartColors, PieChartAnalytics2 } from '@/src/partials/tables/PieChartAnalytics2'
 
-const sampleData: TableData[] = [
-	{
-		patients: [null, 'John Doe', 'egeregav@gmail.com'],
-		test: 'Covid 19',
-		amount: 30000,
-		facility: 'MRS specialist',
-	},
-	{
-		patients: ['female.jpg', 'Robert Brown', 'robertbrown@example.com'],
-		test: 'Typhoid',
-		amount: 15000,
-		facility: 'MRS specialist',
-	},
-	{
-		patients: ['male.jpg', 'Alice Green', 'alicegreen@example.com'],
-		test: 'Blood Test',
-		amount: 25000,
-		facility: 'MRS specialist',
-	},
+export interface chartEntry {
+	test_Name:string,
+	requestCount: number,
+	__typename: string
+}
 
-];
 
-const chartData = [
-	{ test: "Covid", visitors: 275, fill: "red" },
-	{ test: "Malaria", visitors: 200, fill: "green" },
-	{ test: "RVS", visitors: 187, fill: "purple" },
-	{ test: "Hyperloric A.", visitors: 173, fill: "blue" },
-	{ test: "others", visitors: 90, fill: "#44AC21" },
-]
 
 function formatMoney(amount: number) {
 	return new Intl.NumberFormat('en-NG', {
@@ -73,14 +56,58 @@ const linechartData = [
 ]
 
 const Page: React.FC = () => {
-
-	const { data, loading: countLoading } = useQuery(GetUsersCount, {
-		client,
-	});
-
+	const [year, setYear] = useState(new Date().getFullYear());
+	const { data, loading: countLoading } = useQuery(GetUsersCount, {client,});
+	const { data: todaysRequest, loading: todaysRequestCountLoading } = useQuery(GetTodaysRequest, { client, });
+	const { data: topTestRequest, loading: topTestRequestLoading } = useQuery(GetTopRequestTest, { client, });
+	const { data: monthlyRequest, loading: monthlyRequestLoading } = useQuery(GetMonthlyRequest, { client, variables:{year} });
+	
+	
 	const userCount = data?.getUsersCount; // Use data only when available
-	console.log(userCount)
 
+	// RECENT REQUEST
+	const { data: recentRequestData, error, loading:requestDataLoading } = useGetAllRequest(3, 0)
+	const requestCount = recentRequestData?.getAllRequests.requestsCount
+	const requestData = recentRequestData?.getAllRequests.requests as TableData[]
+	const cachedRequestData = useRef<TableData[]>([])
+
+	const updatedRequestData = requestData?.map((request) => {
+		const {
+			__typename,
+			requestDate,
+			patient,
+			phlebotomist,
+			tests,
+			payment,
+			testRequest,
+			facility,
+			package: packageData,
+			samplePickUpAddress,
+			requestStatus,
+			sampleStatus,
+			isPaid,
+			balance,
+			total,
+			sampleCollectionDate,
+			samepleDropOffDate, 
+			createdAt,
+			id,
+			...rest
+		} = request;
+		const patientname = (patient.user.firstName) ? `${patient.user.firstName} ${patient.user.lastName}` : 'Not Set'
+		const phlebotomistname = (phlebotomist && phlebotomist.user.firstName) ? `${phlebotomist.user.firstName} ${phlebotomist.user.lastName}` : 'Not Set'
+		const newRequestData = {
+			patients: [null, patientname, patient.user.email],
+			test: tests.length,
+			amount: total,
+			phlebotomist: phlebotomist ? [null, phlebotomistname, phlebotomist.user.email] : [null, phlebotomistname, "info@labtraca.com"],
+			
+		};
+		
+		return newRequestData
+	}) || []; 
+	
+	cachedRequestData.current = [...updatedRequestData];
 	const { loading: authLoading } = useAuth();
 	if (authLoading) {
 		return <Loading />; // Show loading screen if loading is true
@@ -142,8 +169,16 @@ const Page: React.FC = () => {
 									</div>
 									<div className="bg-white rounded-lg shadow-md px-7 py-4">
 										<div className="bg-[#D3E5FE80] px-2 py-2 w-[3rem]"><FiledRequestIcon /></div>
-										<p className="mt-4">Today’s request</p>
-										<p className="font-bold text-3xl">1000</p>
+									<p className="mt-4">Today’s request</p>
+									
+									{todaysRequestCountLoading
+
+										?
+										<NumberPreloader />
+										:
+										<p className="font-bold text-3xl">{todaysRequest.getTodaysRequest}</p>
+									}
+									
 									</div>
 								</div>
 								<div className="grid grid-cols-[70%_30%] gap-x-4 mt-6">
@@ -171,35 +206,41 @@ const Page: React.FC = () => {
 									</div>
 									<div className="bg-white rounded-lg shadow-md px-6 py-5 ">
 										<h2 className="text-[20px] font-bold text-black">Top Test</h2>
-										<div>
-											<PieChartAnalytics chartData={chartData} chartStyle='max-h-[240px]' />
-										</div>
+										{topTestRequestLoading ? <PieChartPreloader /> : (
+											<div>
+												<PieChartAnalytics2 chartData={topTestRequest.getTopRequestedTests} chartStyle='100' />
 
-
-										<div className="grid grid-cols-3 px-4">
-
-											{chartData.map((entry, index) => (
-												<div key={index} className="" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-													<span className="rounded-full p-[1.5]"
-														style={{
-															backgroundColor: entry.fill,
-															display: 'inline-block',
-															width: '12px',
-															height: '12px',
-															marginRight: '8px'
-														}}
-													></span>
-													<span className="text-[#555555] text-[10px] poppins leading-5">{entry.test}</span>
+												{/* Legend Section */}
+												<div className="grid grid-cols-2 px-4">
+													{topTestRequest.getTopRequestedTests.map((entry: chartEntry, index: number) => (
+														<div key={index} className="grid grid-cols-[12px_calc(100%-12px)] gap-2 items-center mb-2">
+															<span
+																className="rounded-full p-[1.5]"
+																style={{
+																	backgroundColor: chartColors[index % chartColors.length],
+																	display: 'inline-block',
+																	width: '12px',
+																	height: '12px',
+																	marginRight: '8px'
+																}}
+															></span>
+															<span className="text-[#555555] text-[10px] poppins leading-5">
+																{entry.test_Name}
+															</span>
+														</div>
+													))}
 												</div>
-											))}
+											</div>
+											)}
 
-										</div>
+										
 									</div>
 								</div>
-								<div className="grid grid-cols-2 gap-x-4 ">
-									<RequestTable tableData={sampleData} />
-									<div className="mt-6">
-										<BarChartAnalytics />
+							<div className="grid grid-cols-2 gap-x-4 ">
+								{requestDataLoading ? <TablePreloader/> : <RequestTable tableData={cachedRequestData.current} />}
+								<	div className="mt-6">
+									{monthlyRequestLoading ? <TablePreloader /> : <BarChartAnalytics setYear={setYear} chartData={monthlyRequest.getMonthlyRequestCount} />}
+										
 									</div>
 									
 									

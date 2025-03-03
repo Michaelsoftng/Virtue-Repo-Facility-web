@@ -332,12 +332,18 @@ export const GetAllAssignment = gql`
             }
             assignedBy {
                 id
+                firstName
+                lastName
+                email
                 staff{
                     id
                 }
             }
             assigned{
                 id
+                firstName
+                lastName
+                email
                 doctor{
                     id
                 }
@@ -346,6 +352,7 @@ export const GetAllAssignment = gql`
                 }
             }
             assignmentDate
+            potentialEarning
             lastAssignmentTime
             taskObjectId
             distance     
@@ -1294,4 +1301,60 @@ query getResultTests($limit: Int, $offset: Int){
 
 
 
+`;
+
+export const GetTopRequestTest = gql`
+  query getTopRequestedTests{
+      getTopRequestedTests{
+          test_Name
+          requestCount
+  }
+  }
+`;
+
+export const GetMonthlyRequest = gql`
+query getMonthlyRequestCount($year:String!){
+    getMonthlyRequestCount(year:$year){
+        month
+        count
+    }
+}
+`;
+
+export const GetRequestByPhlebotomist = gql`
+query getRequestByPhlebotomist($phlebotomistId: ID!, $limit: Int, $offset: Int,){
+    getRequestByPhlebotomist(phlebotomistId: $phlebotomistId, limit: $limit, offset: $offset){
+      requestsCount
+      requests {
+        id
+        hasPhlebotomistBeenPaid
+        requestProfitMargin
+        logisticsEstimate
+        phlebotomistEarning
+        distanceCharge
+        labtracaProfit
+        requestDate
+        pickupDistance
+        dropOffDistance
+        sampleCollectionDate
+        samepleDropOffDate
+        samplePickUpAddress
+        requestStatus
+        sampleStatus
+        patient{
+            id
+            user{
+                id
+              firstName  
+              lastName
+              email
+              phoneNumber
+
+            }
+        }
+        
+      }
+    }
+
+  }
 `;

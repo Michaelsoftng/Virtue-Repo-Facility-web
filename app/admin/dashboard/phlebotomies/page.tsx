@@ -382,7 +382,7 @@ const Phlebotomies = () => {
                         id,
                         ...rest,
                         
-                        assigned_to: [null, assigned.firstName, assigned.lastName],
+                        assigned_to: [null, `${assigned.firstName} ${assigned.lastName}`, assigned.email],
                         potential_Earning: potentialEarning,
                         assignment_Date: new Date(assignmentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
                         last_assigned: new Date(lastAssignmentTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
@@ -459,7 +459,6 @@ const Phlebotomies = () => {
         fetchPhlebotomies(limit, 0);
     }, [fetchPhlebotomies, limit]);
 
-    console.log(dataCount.current.phlebotomies)
     return (
         <div>
             <AdminHeader />
