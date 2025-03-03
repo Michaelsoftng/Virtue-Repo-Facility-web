@@ -18,6 +18,7 @@ import RoundedImage from '@/src/partials/RoundedImage'
 import RoundedNoImage from '@/src/partials/RoundedNoImage'
 import Image from 'next/image'
 import PDFImage from '@/public/assets/images/utilities/pdf.png'
+import { SendResult } from '@/src/graphql/mutations'
 
 const Results = () => {
     const [pageLoading, setPageLoading] = useState(false)
@@ -51,6 +52,7 @@ const Results = () => {
                     const {
                         __typename,
                         patient,
+                        id,
                         testRequest,
                         requisitionNumber,
                         resultFields,
@@ -61,6 +63,7 @@ const Results = () => {
                     } = result;
 
                     const newResultData = {
+                        resultId: id,
                         id: testRequest.request.id,
                         ...rest,
                         requisition_number: requisitionNumber,
@@ -95,12 +98,14 @@ const Results = () => {
             // console.log("finally")
         }
     }, []);
+
     function ensureAbsoluteUrl(url: string): string {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return `https://${url}`;
         }
         return url;
     }
+
     // const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
     //     try {
     //         setPageLoading(true)
@@ -174,6 +179,8 @@ const Results = () => {
     //         return;
     //     }
     // }
+
+
     function getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -253,7 +260,37 @@ const Results = () => {
         console.log(formatISODate(isoString));
     }
     
+    const [SendTestResult] = useMutation(SendResult, {
+        client,
+    });
 
+    const handleSendResult = async (e: React.FormEvent) => {
+
+        e.preventDefault();
+        setPageLoading(true);
+        try {
+            await SendTestResult({
+                variables: {
+                    resultId: activeDataRow!.resultId
+                },
+                onCompleted(data) {
+                    if (data.SendResult.error) {
+                        toast.error('An error occured could not send test result');
+                    } else {
+                        toast.success('Test result sent successfully');  
+                    }
+                },
+                onError(error) {
+                    toast.error(error.message);
+                },
+            });
+        } catch (err) {
+            console.error('Error creating user:', err);
+        } finally {
+            setPageLoading(false);
+        }
+    };
+    
     return (
         <div>
             <AdminHeader />
@@ -379,7 +416,7 @@ const Results = () => {
                                             </div>
                                         </div>
                                         <div className="my-8">
-                                            <button className="bg-[#08AC85] text-white text-center w-full py-4 font-bold text-lgrounded">Send result</button>
+                                            <button className="bg-[#08AC85] text-white text-center w-full py-4 font-bold text-lgrounded" onClick={handleSendResult}>Send result</button>
                                         </div>
                                     </div>
                                 )

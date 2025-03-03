@@ -47,7 +47,7 @@ const Phlebotomies = ({ params }: { params: { ID: string } }) => {
         } else {
             unverifedPhlebotomiess += 1;
         }
-        name = (user.firstName && user.lastName) ? `${user.firstName} ${user.lastName}` : 'Not Set'
+        name = (user.firstName && user.lastName) ? `${user.firstName.trim()} ${user.lastName.trim()}` : 'Not Set'
         const active = user.emailVerifiedAt ? 'verified' : 'unverified'
         const status = user.approvedAt ? 'approved' : 'pending approval'
         const patientCity = user.city ? user.city : 'Not set'

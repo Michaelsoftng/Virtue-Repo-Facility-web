@@ -20,12 +20,14 @@ import FacilityHeader from '@/src/reuseable/components/FacilityHeader'
 import FacilityMenu from '@/src/reuseable/components/FacilityMenu'
 import { getResultByTestRequestId } from '@/src/hooks/useGetResultTemplateById'
 import { Result, SectionWithRows } from '@/src/interface'
-
+import { UpdateTestRequest } from '@/src/graphql/mutations';
+import { useMutation } from '@apollo/client';
+import client from '@/lib/apolloClient';
+import { toast } from 'react-toastify'
 
 const TestRequest = ({ params }: { params: { ID: string } }) => {
     const { ID } = params;
     const { data, error, loading: testDataLoading } = useGetTestRequestById(ID)
-    // const { data: testresultData,  loading: testresultDataLoading } = useGetResultByTestRequestId(ID)
     const [resultLoading, setResultLoading] = useState(false)
     const [result, setResult] = useState<Result| null>(null);
     const [resultFields, setResultFields] = useState<SectionWithRows[]>([]);
@@ -59,8 +61,45 @@ const TestRequest = ({ params }: { params: { ID: string } }) => {
     }, [ID]);
 
 
+    
 
-
+    const [updateTestRequest] = useMutation(UpdateTestRequest, {
+            client,
+        });
+        
+    const handleUpdateRequest = async (sampleStatus?: string, status?: string,) => {
+            setResultLoading(true);
+            try {
+                await updateTestRequest({
+                    variables: {
+                        testrequestId: ID,
+                        updateData: {
+                            sampleStatus: sampleStatus ? sampleStatus : undefined,
+                            status: status ? status : undefined,
+                            cancellationReason: status ? "Facility cancelled test request" : undefined
+                        }
+                    },
+                    onCompleted(data) {
+                        if (data.UpdateTestRequest.error) {
+                            toast.error('An error occured could not update test request');
+                        } else {
+                            if (status) {
+                                toast.success('Test request cancelled successfully');  
+                            } else {
+                                toast.success('test request updated successfully');   
+                            }
+                        }
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                setResultLoading(false);
+            }
+    };
     
     useEffect(() => {
         fetchResult()
@@ -302,9 +341,8 @@ const TestRequest = ({ params }: { params: { ID: string } }) => {
                             <div className="">
                                 <div className=""><Link href={`${ID}/templates`} className="rounded px-4 py-2 text-white bg-green-600">Send result</Link></div>
                                 {result?.id && <div className="mt-2"><Link href={`../results/${result?.id}`} className="rounded px-4 py-2 mt-2 text-white bg-green-600">Edit result</Link></div>}
-                                <div className="mt-2"><button className="rounded px-4 py-2 text-white bg-gray-800">Contact Patient</button></div>
-                                <div className="mt-2"><button className="rounded px-4 py-2 text-white bg-red-500">Cancel Request</button></div>
-                                <div className="mt-2"><button className="rounded px-4 py-2 text-white bg-blue-500">Sample Recieved</button></div>
+                                <div className="mt-2"><button className="rounded px-4 py-2 text-white bg-red-500" onClick={() => handleUpdateRequest(undefined, "cancelled")}>Cancel Request</button></div>
+                            <div className="mt-2"><button className="rounded px-4 py-2 text-white bg-blue-500" onClick={() => handleUpdateRequest("received")}>Sample Recieved</button></div>
 
                             </div>
                         </div>

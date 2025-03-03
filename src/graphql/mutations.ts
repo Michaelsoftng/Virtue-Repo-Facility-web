@@ -596,22 +596,106 @@ export const CreateResult = gql`
   }
 `;
 
-export const SendTestResult = gql`
-  mutation CreateResultTemplate(
-      $name: String!, 
-      $template_fields: String!, 
+export const SendResult = gql`
+  mutation SendResult(
+      $resultId: ID!
       ) {
-    CreateResultTemplate(
-    name: $name, 
-      templateFields: $template_fields
-    
+    SendResult(
+      resultId: $resultId
     ) {
-      template{
+      result{
+        id
+          patient{
           id
-          name
-          templateFields
+        }
+          testRequest{
+          id
+        }
+        resultFields
+        generatedPdfUrl
       }
 
     }
   }
+`;
+
+export const UpdateRequest = gql`
+  mutation UpdateRequest($requestId: String!, $updateData: UpdateRequestDataInput!) {
+    UpdateRequest(requestId: $requestId, updateData:$updateData
+    ) {
+      request{
+          requestDate
+          samplePickUpAddress
+          sampleCollectionDate
+          sampleStatus
+          samepleDropOffDate
+          requestStatus
+          patient{
+              id
+              user{
+                  id
+                  firstName
+                  lastName
+              }
+          }
+          phlebotomist{
+              id
+              user{
+                  id
+                  firstName
+                  lastName
+              }
+          }
+          tests {
+              id
+              name
+              code
+              testType
+              group
+          }
+      }
+
+    }
+  }
+`;
+
+
+export const UpdateTestRequest = gql`
+  mutation UpdateTestRequest($testrequestId: String!, $updateData: UpdateTestRequestInput!) {
+  UpdateTestRequest(testrequestId: $testrequestId, updateData:$updateData
+  ) {
+    testRequest{
+         id
+        request{
+            id
+        }
+        test{
+            id
+            name
+        }
+        facility{
+            id
+        }
+        facilityDistance
+        facilityEarning
+        patientName
+        patientAge
+        package{
+            id
+            packageName
+        }
+        testResult
+        resultDate
+        status
+        sampleStatus
+        cancellationReason
+        result{
+            id
+            createdAt
+            generatedPdfUrl
+        }
+    }
+
+  }
+}
 `;

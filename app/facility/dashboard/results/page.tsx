@@ -10,11 +10,13 @@ import RoundedImage from '@/src/partials/RoundedImage'
 import RoundedNoImage from '@/src/partials/RoundedNoImage'
 import Image from 'next/image'
 import PDFImage from '@/public/assets/images/utilities/pdf.png'
-import { GetResults } from '@/src/graphql/queries'
 import { getResults } from '@/src/hooks/useGetResultTemplateById'
 import { toast } from 'react-toastify'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import Link from 'next/link'
+import { useMutation } from '@apollo/client'
+import { SendResult } from '@/src/graphql/mutations'
+import client from '@/lib/apolloClient';
 
 const sampleCompletedData: TableData[] = [
     {
@@ -101,17 +103,33 @@ const Requests = () => {
 
                     const {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        id,
+                        __typename,
                         patient,
+                        id,
+                        testRequest,
+                        requisitionNumber,
+                        resultFields,
                         generatedPdfUrl,
+                        deletedAt,
+                        createdAt,
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         ...rest
                     } = singleResult;
 
                     const newResultData = {
-                        id,
+
+
+                        resultId: id,
+                        id: testRequest.request.id,
+                        ...rest,
+                        requisition_number: requisitionNumber,
+                        pdf: generatedPdfUrl,
+                        result_date: createdAt,
                         generatedPdfUrl,
-                        patients: [null, `${patient.firstName} ${patient.lastName}`, patient.email],   
+                        test_name: testRequest.test.name,
+                        package_name: testRequest.package ? testRequest.package.packageName : "single",
+                        test_description: testRequest.test.description,
+                        patients: [null, `${patient.firstName} ${patient.lastName}`, patient.email], 
                     };
 
                     return newResultData
@@ -124,19 +142,28 @@ const Requests = () => {
                         [...result.current, ...allTestResults].map(item => [item.id, item]) // Use `id` to ensure uniqueness
                     ).values()
                 );
-                dataCount.current = data.getUserByUserType.usersCount;
+                dataCount.current = data.getResultTests.resultsCount;
                 setOffsets(offset + limit)
                 // offsets = limit + offsets;
             }
 
         } catch (err) {
             toast.error('Error fetching tests');
-            console.log('error fetching tests catch error', err);
+            // console.log('error fetching tests catch error', err);
         } finally {
             setResultLoading(false)
         }
     }, []);
 
+    function ensureAbsoluteUrl(url: string): string {
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            return `https://${url}`;
+        }
+        return url;
+    }
+    function getRandomInt(min: number, max: number): number {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
     const handleShowResult = (data: TableData) => {
         setShowResultDetail(true)
         setActiveDataRow(data)
@@ -182,6 +209,60 @@ const Requests = () => {
         
     }
 
+
+    const [SendTestResult] = useMutation(SendResult, {
+        client,
+    });
+    
+    const handleSendResult = async (e: React.FormEvent) => {
+    
+            e.preventDefault();
+            setResultLoading(true);
+            try {
+                await SendTestResult({
+                    variables: {
+                        resultId: activeDataRow!.resultId
+                    },
+                    onCompleted(data) {
+                        if (data.SendResult.error) {
+                            toast.error('An error occured could not send test result');
+                        } else {
+                            toast.success('Test result sent successfully');  
+                        }
+                    },
+                    onError(error) {
+                        toast.error(error.message);
+                    },
+                });
+            } catch (err) {
+                console.error('Error creating user:', err);
+            } finally {
+                setResultLoading(false);
+            }
+    };
+
+    function formatISODate(isoString: string): { date: string, time: string } {
+        const date = new Date(isoString);
+
+        const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+
+        const formattedDate = dateFormatter.format(date);
+        const formattedTime = timeFormatter.format(date);
+
+        return { date: formattedDate, time: formattedTime };
+    }
+
+
     useEffect(() => {
         fetchResults(limit, 0);
     }, [fetchResults, limit]);
@@ -211,15 +292,15 @@ const Requests = () => {
                                 </div> */}
 
                             </div>
-                            <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
-                                {resultLoading ? <TablePreloader /> :
-                                   (
-                                        result.current.map((row, index) => (
-                                            <Link href='' key={row.id}> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
-                                        ))
-                                    )
-                                }
-                            </div>
+                            {resultLoading ? <TablePreloader /> : (
+                                <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
+                                    {result.current.map((row, index) => (
+                                        <Link href='' key={row.id}> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
+                                    ))
+                                    }
+
+                                </div>)
+                            }
                             {/* Pagination Controls */}
                             <div className="flex justify-between mt-4 w-full">
                                 <button
@@ -278,54 +359,40 @@ const Requests = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-6">
-                                            <p className="text-[#525C76] text-[16px] font-semibold">COVID 19 Qualitative Prc throat swab</p>
-                                            <p className="font-semibold bg-[#E2E4E8] border-2 border-[#7584aa54] text-[#8C93A3] w-[150px] text-center mt-2 py-1 rounded">Single, 3 persons</p>
-                                        <div className="mt-5 ">
-                                            <h2 className="font-bold text-[#525C76] text-lg">Date uploaded</h2>
-                                            <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2">
-                                                <span>18 September 2024</span>
-                                                <span>09:45 AM</span>
+                                        <div className="mt-6">
+                                            <p className="text-[#525C76] text-[16px] font-semibold">{activeDataRow.test_name}</p>
+                                            <p className="font-semibold bg-[#E2E4E8] border-2 border-[#7584aa54] text-[#8C93A3] w-[150px] text-center mt-2 py-1 rounded">{activeDataRow.package_name}</p>
+                                            <div className="mt-5 ">
+                                                <h2 className="font-bold text-[#525C76] text-lg">Date uploaded</h2>
+                                                <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2">
+                                                    <span>{formatISODate(activeDataRow.result_date).date}</span>
+                                                    <span>{formatISODate(activeDataRow.result_date).time}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-14">
+                                            <h2 className="text-[#0F1D40] font-bold">Description</h2>
+                                            <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2 tracking-wider">{activeDataRow.restest_description}
                                             </p>
                                         </div>
-                                    </div>
-                                    <div className="mt-14">
-                                        <h2 className="text-[#0F1D40] font-bold">Description</h2>
-                                        <p className="text-[#8C93A3] flex justify-between text-[14px] mt-2 tracking-wider">Lorem ipsum dolor sit amet,
-                                            consectetur adipiscing elit.
-                                            Vestibulum libero risus, consectetur
-                                            non erat vitae, iaculis vulputate sem.
-                                            Interdum et malesuada.
-                                        </p>
-                                    </div>
-                                    <div className="mt-10">
-                                        <h2 className='text-[#0F1D40] font-bold'>File</h2>
-                                        <div className="mt-4">
-                                            <div className="flex justify-between mt-4 ">
-                                                <div className="flex gap-4">
-                                                    <Image src={PDFImage} alt='' width={35}/>
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
-                                                </div> 
-                                                    <p className="text-[#8C93A3]">256kb</p>
-                                            </div>
-                                            <div className="flex justify-between mt-4">
-                                                <div className="flex gap-4">
-                                                    <Image src={PDFImage} alt='' width={35}/>
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
-                                                </div> 
-                                                    <p className="text-[#8C93A3]">256kb</p>
-                                            </div>
-                                            <div className="flex justify-between mt-4">
-                                                <div className="flex gap-4">
-                                                    <Image src={PDFImage} alt='' width={35}/>
-                                                        <p className='mt-1 text-[#08AC85] font-medium'>file123.pdf</p>
-                                                </div> 
-                                                    <p className="text-[#8C93A3]">256kb</p>
+                                        <div className="mt-10">
+                                            <h2 className='text-[#0F1D40] font-bold'>File</h2>
+                                            <div className="mt-4">
+                                                <Link href={ensureAbsoluteUrl(activeDataRow.generatedPdfUrl)} rel="noopener noreferrer" target="_blank">
+                                                    <div className="flex justify-between mt-4 ">
+                                                        <div className="flex gap-4">
+                                                            <Image src={PDFImage} alt='' width={35} />
+                                                            <p className='mt-1 text-[#08AC85] font-medium'>{activeDataRow.requisition_number}.pdf</p>
+                                                        </div>
+                                                        <p className="text-[#8C93A3]">{getRandomInt(200, 300)}kb</p>
+                                                    </div>
+                                                </Link>
+
+
                                             </div>
                                         </div>
-                                    </div>
                                     <div className="my-8">
-                                        <button className="bg-[#08AC85] text-white text-center w-full py-4 font-bold text-lgrounded">Send result</button>
+                                        <button className="bg-[#08AC85] text-white text-center w-full py-4 font-bold text-lgrounded" onClick={handleSendResult}>Send result</button>
                                     </div>
                                 </div>
                                 )
