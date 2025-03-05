@@ -12,23 +12,94 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useGetResultTemplateById } from '@/src/hooks/useGetResultTemplateById'
 import { SectionWithRows } from '@/src/interface'
 import Loading from '../../loading'
-// import { PlusIcon } from '@radix-ui/react-icons'
-// import { RiDeleteBinFill } from "react-icons/ri";
-// import { SectionWithRows } from '@/src/interface'
-// import jsPDF from "jspdf";
-// import html2canvas from "html2canvas";
+import client from '@/lib/apolloClient';
+import { useMutation } from '@apollo/client'
+import { toast } from 'react-toastify'
+import { DeleteResultTemplate, UpdateResultTemplate } from '@/src/graphql/mutations'
+
 const NewTemplate = ({ params }: { params: { ID: string } }) => {
     const { ID } = params;
     const { data, error, loading: templatesDataLoading } = useGetResultTemplateById(ID)
     const [showRename, setShowRename] = useState(false)
-    // const template = data?.getResultTemplateById;
-    // const { __typename, id, name, templateFields, ...rest } = template
-    // const updatedtemplate = JSON.parse(templateFields)
-    // const parsedTempate: SectionWithRows[] = JSON.parse(updatedtemplate) 
-    // if (templatesDataLoading || !template) {
-    //     return <Loading />;
-    // }
-    
+    const [templateName, setTemplateName] = useState<string>('');
+    const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
+    const [updateResultTemplate] = useMutation(UpdateResultTemplate, {
+        client,
+        variables: {
+            id: ID,
+            name: templateName
+
+        },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleUpdateResultTemplate = async () => {
+        setPageLoadingFromClick(true)
+        try {
+            const { data } = await updateResultTemplate({
+                async onCompleted(data) {
+                    if (data.UpdateResultTemplate.template) {
+                        toast.success("you successsfully updated a result Template");
+                        window.location.reload();
+                    } else {
+
+                        toast.error(data?.UpdateResultTemplate?.error?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error update result template:', err);
+        } finally {
+            setPageLoadingFromClick(false)
+
+        }
+
+    }
+
+    const [deleteResultTemplate, { loading: DeleteFacilityPackageLoading }] = useMutation(DeleteResultTemplate, {
+        client,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleDeleteFacilityPackage = async () => {
+        setPageLoadingFromClick(true)
+        try {
+            const { data } = await deleteResultTemplate({
+                variables: {
+                    id: ID,
+
+                },
+                async onCompleted(data) {
+                    if (data.DeleteResultTemplate.resultTemplate.deletedStatus) {
+                        toast.success("you successsfully deleted a result Template");
+                        window.location.href = '/admin/dashboard/templates';
+                    } else if (!data.DeleteResultTemplate.resultTemplate.deletedStatus) {
+                        toast.success(data.DeleteResultTemplate.resultTemplate.message);
+                    } else {
+                        toast.error(data?.DeleteResultTemplate?.error?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error editing Facility package:', err);
+        } finally {
+            setPageLoadingFromClick(false)
+
+        }
+
+    }
     if (templatesDataLoading) {
         return <Loading />;
     }
@@ -50,6 +121,8 @@ const NewTemplate = ({ params }: { params: { ID: string } }) => {
     } catch (error) {
         console.error("Error parsing templateFields JSON:", error);
     }
+
+
     return (
         <div>
             <AdminHeader />
@@ -194,15 +267,14 @@ const NewTemplate = ({ params }: { params: { ID: string } }) => {
                                 <div className="grid grid-cols-3 gap-x-2 h-[40px] text-white">
                                     {/* <div><button onClick={() => { }}>Download</button></div> */}
                                     <div className="bg-gray-500 flex justify-center text-center items-center rounded-sm"><button className="" onClick={() => setShowRename(true)}>Rename</button></div>
-                                    <div className="bg-blue-500 flex justify-center text-center items-center rounded-sm"><Link href='#'>Edit template</Link></div>
-                                    <div className="bg-red-500 flex justify-center text-center items-center rounded-sm"><button>Delete</button></div>
+                                    <div className="bg-red-500 flex justify-center text-center items-center rounded-sm" onClick={handleDeleteFacilityPackage}><button>Delete</button></div>
 
 
                                 </div>
                                 {
                                     showRename &&
                                     <div className="mt-6 bg-white shadow-lg py-3 px-4">
-                                        <Form.Root className="w-full mx-auto " method='post' onSubmit={() => { }}>
+                                            <Form.Root className="w-full mx-auto " method='post' onSubmit={handleUpdateResultTemplate}>
                                             <div className="grid grid-cols-[80%_20%]">
                                                 <h3 className="text-black font-bold text-[20px] lg:text-[24px] text-center">Rename Template</h3>
                                                     <div className="text-gray-500 flex justify-end text-center items-center "><button className="" onClick={() => setShowRename(false)}><AiOutlineClose/></button></div>
@@ -214,7 +286,7 @@ const NewTemplate = ({ params }: { params: { ID: string } }) => {
                                             <Form.Field name="first_name" className="block my-4">
                                                 <Form.Label className="block font-semibold text-[14px] ">Rename Template</Form.Label>
                                                 <Form.Control
-                                                    onChange={() => { }}
+                                                    onChange={(e) => { setTemplateName(e.target.value) }}
                                                     required
                                                     type="text"
                                                     placeholder='template name'
@@ -229,9 +301,9 @@ const NewTemplate = ({ params }: { params: { ID: string } }) => {
 
                                             <Form.Submit
                                                 className="mt-2 w-full bg-[#08AC85] px-4 py-2 text-lg text-white rounded-sm disabled:bg-[#08ac865b]"
-                                                disabled={true}
+                                                disabled={templateName === '' ? true : false}
                                             >
-                                                {true ? "Renaming..." : "Rename"}
+                                                {pageLoadingFromClick ? "Renaming..." : "Rename"}
                                             </Form.Submit>
 
 

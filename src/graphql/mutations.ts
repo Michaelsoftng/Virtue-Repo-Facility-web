@@ -864,3 +864,41 @@ mutation DeleteFacilityTest(
   }
 }
 `;
+
+
+export const DeleteResultTemplate = gql`
+mutation DeleteResultTemplate(
+  $id: ID!
+) {
+  DeleteResultTemplate(
+    id: $id
+  ) {
+    resultTemplate {
+      deletedStatus
+      message
+    
+      
+    }
+  }
+}
+`;
+
+export const UpdateResultTemplate = gql`
+mutation UpdateResultTemplate(
+  $id: ID!
+  $name:String!
+) {
+  UpdateResultTemplate(
+    id: $id,
+    name: $name
+  ) {
+    template {
+          id
+          name
+          templateFields
+    
+      
+    }
+  }
+}
+`;
