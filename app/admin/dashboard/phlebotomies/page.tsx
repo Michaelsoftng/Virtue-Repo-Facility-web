@@ -370,16 +370,18 @@ const Phlebotomies = () => {
                         assignedBy,
                         assigned,
                         isAccepted,
+                        consultation,
                         createdAt,
                         ...rest
                     } = assignment;
 
                     const newAssignmentData = {
-                        id,
+                        id: taskObjectId,
                         ...rest,
                         
                         assigned_to: [null, `${assigned.firstName} ${assigned.lastName}`, assigned.email],
                         potential_Earning: potentialEarning,
+                        task_type: consultation ? "consultation" : "request",
                         assignment_Date: new Date(assignmentDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
                         last_assigned: new Date(lastAssignmentTime).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
                         status: isAccepted ? 'accepted' : 'pending',
@@ -570,7 +572,7 @@ const Phlebotomies = () => {
                                     showTableHeadDetails={true}
                                     showActions={true}
                                     showPagination={true}
-                                    testPage='phlebotomies'
+                                    testPage='assignment'
                                     marginTop='mt-4'
 
                                     dataCount={dataCount.current.assignments}

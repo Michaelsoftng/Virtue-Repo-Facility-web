@@ -604,6 +604,21 @@ const AdminFacilitiesTable: React.FC<AdminFacilitiesTableProps> = ({tableData, d
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(index, 'remove', row.id)}>Remove</button>
                                                 </div>
                                             }
+                                            {testPage === 'assignment' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    {
+                                                        row.task_type === 'consultation' ?
+                                                            <Link href={`consultations/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+
+                                                            :
+                                                            <Link href={`requests/${row.id}`} className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]">View</Link>
+
+                                                    }
+                                                </div>
+                                            }
+
+                                            
                                         </td>
                                     )}
                                 </tr>
