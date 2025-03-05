@@ -13,13 +13,14 @@ import client from '@/lib/apolloClient';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { decodeJwtEncodedId } from '@/src/utils/decode'
 import { IFacilityTest } from '@/src/interface'
-import { CreateFacilityTest, UpdateFacilityTest } from '@/src/graphql/mutations'
+import { CreateFacilityTest, DeleteFacilityTest, UpdateFacilityTest } from '@/src/graphql/mutations'
 import { useMutation } from '@apollo/client'
 import { toast } from 'react-toastify'
 import { getAllTests } from '@/src/hooks/useGetAllTest'
 import { FacilityTestData } from '@/src/reuseable/components/EditFacilityTestModal'
 
 const Requests = () => {
+    const [testWithId, setTestWithId] = useState<string | null>(null)
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
     const limit = 10;  
     const { user } = useAuth()
@@ -224,6 +225,7 @@ const Requests = () => {
 
         }
     };
+
     const [updateTestData, { loading: updateTestLoading }] = useMutation(UpdateFacilityTest, {
         client,
     });
@@ -263,6 +265,46 @@ const Requests = () => {
 
     }
 
+
+    const [deleteFacilityData, { loading: DeleteFacilityPackageLoading }] = useMutation(DeleteFacilityTest, {
+            client,
+        });
+    
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleDeleteFacilityTest = async () => {
+            setPageLoadingFromClick(true)
+            try {
+                const { data } = await deleteFacilityData({
+                    variables: {
+                        facilityTest: testWithId,
+                        
+                    },
+                    async onCompleted(data) {
+                        if (data.DeleteFacilityTest.test.deletedStatus) {
+                            toast.success("you successsfully deleted your facility test");
+                            window.location.reload();
+                        } else if (!data.DeleteFacilityTest.test.deletedStatus) {
+                            toast.success(data.DeleteFacilityTest.test.message);
+                        } else {
+                            toast.error(data?.DeleteFacilityTest?.error?.message);
+                        }
+    
+                    },
+                    onError(e) {
+                        toast.error(e.message);
+    
+                    },
+                });
+    
+            } catch (err) {
+                console.error('Error editing Facility test:', err);
+            } finally {
+                setPageLoadingFromClick(false)
+    
+            }
+    
+        }
+    
     useEffect(() => {
         if (user) {
             fetchFacilityTests(10, 0);
@@ -290,8 +332,12 @@ const Requests = () => {
                                     <TablePreloader />
                                 ) : (
                                     <NewRequestTable
+                                        handleSearchData={() => { }}
+                                        setItemToDelete={setTestWithId}
+                                        deleteAction={handleDeleteFacilityTest}
+                                        viewMoreAction={() => { }}
                                         tableHeadText={`Facility Tests (${dataCount.facilityTest})`}
-                                        approveAction={() => { }}
+                                        approveAction={handleUpdateTest}
                                         tableData={data.current.facilityTest}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
@@ -315,6 +361,10 @@ const Requests = () => {
                                     ) : (
 
                                         <NewRequestTable
+                                            handleSearchData={() => { }}
+                                            setItemToDelete={() => { }}
+                                            deleteAction={() => { }}
+                                            viewMoreAction={() => { }}
                                             tableHeadText={`Tests (${dataCount.test})`}
                                             approveAction={handleAddFacilityTest}
                                             facilityId={decodeJwtEncodedId(user?.id)}

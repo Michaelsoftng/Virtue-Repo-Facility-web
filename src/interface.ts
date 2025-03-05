@@ -71,6 +71,11 @@ export interface IFacilityTest {
 
 }
 
+export interface CreateNewFacilityPackage {
+    package: string,
+    facility: string,
+    facilityPrice: number,
+}
 
 export interface IResendVerification {
     email: string

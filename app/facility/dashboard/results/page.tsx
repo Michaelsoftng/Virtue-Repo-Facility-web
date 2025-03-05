@@ -295,7 +295,7 @@ const Requests = () => {
                             {resultLoading ? <TablePreloader /> : (
                                 <div className={`grid gap-y-6 justify-between mt-6 ${showResultDetails ? 'grid-cols-4' : 'grid-cols-5'}`}>
                                     {result.current.map((row, index) => (
-                                        <Link href='' key={row.id}> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
+                                        <Link href={ensureAbsoluteUrl(row.generatedPdfUrl)} key={row.id} rel="noopener noreferrer" target="_blank"> <ResultComponent key={index} data={row} onClick={handleShowResult} /> </Link>
                                     ))
                                     }
 

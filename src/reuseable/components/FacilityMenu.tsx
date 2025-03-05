@@ -46,6 +46,15 @@ const FacilityMenu = () => {
                         </Link>
                     </li>
                     <li className="flex gap-4 mt-8">
+                        <Link href='/facility/dashboard/packages' className="flex gap-4 ">
+                            <ResultsIcon
+                                stroke={currentRoute === '/facility/dashboard/packages' ? '#08AD85' : '#4F475E'}
+                            />
+                            <span className={`${currentRoute === '/facility/dashboard/packages' ? 'text-[#08AD85]' : 'text-black'}`}>Packages</span>
+
+                        </Link>
+                    </li> 
+                    <li className="flex gap-4 mt-8">
                         <Link href='/facility/dashboard/results' className="flex gap-4 ">
                             <ResultsIcon
                                 stroke={currentRoute === '/facility/dashboard/results' ? '#08AD85' : '#4F475E'}

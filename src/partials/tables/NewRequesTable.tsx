@@ -13,6 +13,8 @@ import { formatWord } from './AdminFacilitiesTable';
 import AddTestToFacility from '@/src/reuseable/components/AddTestToFacility';
 import Link from 'next/link';
 import EditFacilityTestModal from '@/src/reuseable/components/EditFacilityTestModal';
+import AddPackageToFacility from '@/src/reuseable/components/AddPackageToFacility';
+import EditFacilityPackageModal from '@/src/reuseable/components/EditFacilityPackageModal';
 
 export interface TestModalProps{
     id?: string
@@ -31,6 +33,17 @@ export interface TestModalProps{
     minimum_increase?: number;
 }
 
+export interface PackageModalProps {
+    id?: string
+    facility?: string
+    amount?: string;
+    test_package?: string;
+    package_name?: string
+    description?: string | null
+    percentage_increase?: number | string;
+    minimum_increase?: number;
+}
+
 export interface FacilityTestProps {
     id?: string;
     test?: string;
@@ -40,6 +53,7 @@ export interface FacilityTestProps {
 
 }
 export type NewRequestTableProps = {
+    pageHeader?: string,
     tableData: TableData[];
     searchBoxPosition: string,
     tableHeadText: string,
@@ -53,6 +67,10 @@ export type NewRequestTableProps = {
     dataCount?: number,
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    viewMoreAction?: () => void,
+    deleteAction: () => void
+    setItemToDelete: (id: string) => void
+    handleSearchData: (searchTerm: string) => void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approveAction: (data?: any) => void,
 };
@@ -86,7 +104,8 @@ function formatDateTime(dateString: string): string {
 }
 
 const NewRequestTable: React.FC<NewRequestTableProps> = (
-    {   tableData,
+    { pageHeader,
+        tableData,
         searchBoxPosition,
         showTableHeadDetails,
         tableHeadText,
@@ -100,18 +119,27 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
         changePage,
         currentPage,
         setCurrentPage,
+        viewMoreAction,
+        deleteAction,
+        setItemToDelete,
+        handleSearchData,
+
+        // 
 
     }) => {
+    console.log({tableData})
     const [searchTerm, setSearchTerm] = useState<string>('');
     // const [currentPage, setCurrentPage] = useState<number>(1);
     const rowsPerPage = 10; 
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [showAddPackageModal, setShowAddPackageModal] = useState<boolean>(false);
+    const [showEditPackageModal, setShowEditPackageModal] = useState<boolean>(false);
     // const [activeDataId, setActiveDataId] = useState<string | null>(null);
     const [activeData, setActiveData] = useState<TestModalProps | null>(null)
     const [activeFacilityTestData, setActiveFacilityTestData] = useState<FacilityTestProps | null>(null)
-    // const [activePackageData, setActivePackageData] = useState<IpackageData | null>(null)
+    const [activePackageData, setActivePackageData] = useState<PackageModalProps | null>(null)
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1); // Reset to page 1 on search
@@ -123,6 +151,16 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
             String(value).toLowerCase().includes(searchTerm.toLowerCase())
         );
     });
+
+    const handleDelete = () => {
+        setShowDeleteModal(false)
+        deleteAction()
+
+    }
+
+    const handleSearch = () => {
+        handleSearchData(searchTerm)
+    }
 
     const totalPages = Math.ceil(dataCount as number / rowsPerPage);
     const currentData = filteredData.slice(
@@ -142,9 +180,8 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
     };
 
     const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
-    const showModalFunc = (dataIndex: number, modalType: string) => {
+    const showModalFunc = (dataIndex: number, modalType: string, id?: string) => {
         const dataToDisplay2 = tableData[dataIndex]
-        console.log({ dataToDisplay2 })
         const dataToDisplay = tableData.find(item => item.id === dataIndex);
         switch (modalType) {
             case 'edit':
@@ -155,14 +192,23 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                 setShowEditModal(true)
                 setActiveFacilityTestData(dataToDisplay2)
                 break;
+            case 'editFacilityPackage':
+                setShowEditPackageModal(true)
+                setActivePackageData(dataToDisplay2)
+                break;
             case 'remove':
+                setItemToDelete(id as string)
                 setShowDeleteModal(true)
                 break;
             case 'addTest':
                 setActiveData(dataToDisplay as unknown as TestModalProps)
                 setShowAddModal(true)
                 break;
-
+            case 'addPackage':
+                setActiveData(dataToDisplay as unknown as PackageModalProps)
+                setShowAddPackageModal(true)
+                break;
+                
             default:
                 break;
         }
@@ -174,14 +220,15 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                     <h2 className="text-lg font-bold">{tableHeadText }</h2>
                 </div>
                 
-                <div className={`flex  ${searchBoxPosition ? searchBoxPosition : "justify-end" } `}>
+                <div className={`flex  ${searchBoxPosition ? searchBoxPosition : "justify-end"} `}>
                     <input
-                        type="text"
+                        type="search"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
+                        className="w-[300px] px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-inset focus:ring-[#1b6d9c]"
                     />
+                    <button onClickCapture={handleSearch} className="bg-green-700 text-white px-4 py-1 rounded-r-lg">Go</button>
                 </div>
             </div>
 
@@ -203,7 +250,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                             </>
                             :
                             <>
-                                <h2 className="text-[#0F1D40] font-bold text-2xl">Facility test</h2>
+                                <h2 className="text-[#0F1D40] font-bold text-2xl">{pageHeader ? pageHeader : 'Facility test'}</h2>
 
                                 <button onClick={() => setActiveTab('availableTest')} className="bg-[#08AC85] text-white py-2 px-3 flex justify-around text-[14px] rounded">
                                     <PlusIcon />
@@ -348,10 +395,20 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                                
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'editFacilityTest')}>Edit</button>
-                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(row.id, 'remove')}>Remove</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(row.id, 'remove', row.id)}>Remove</button>
                                                 </div>
                                               
                                             }
+
+                                            {testPage === 'facilityPackage' &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#0F1D40]" onClick={() => showModalFunc(index, 'editFacilityPackage')}>Edit</button>
+                                                    <button className="px-4 py-1 border-2 border-[#B2B7C2] rounded text-[#B71938]" onClick={() => showModalFunc(row.id, 'remove', row.id)}>Remove</button>
+                                                </div>
+
+                                            }
+
 
                                             {(testPage === 'requests' || testPage === 'payments') &&
 
@@ -363,6 +420,13 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
 
                                                 <div className="flex justify-between gap-2 w-[150px]">
                                                     <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(row.id, 'addTest')}>Add test to facility</button>
+                                                </div>
+                                            }
+
+                                            {(testPage === 'availablePackage') &&
+
+                                                <div className="flex justify-between gap-2 w-[150px]">
+                                                    <button className="px-4 py-1 border-2 border-[#08AC85] rounded text-[#08AC85]" onClick={() => showModalFunc(row.id, 'addPackage')}>Add package to facility</button>
                                                 </div>
                                             }
                                             
@@ -401,11 +465,14 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
 
             
             <EditFacilityTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeFacilityTestData} handleEditTest={approveAction} />
+            
+            <EditFacilityPackageModal isOpen={showEditPackageModal} onClose={() => setShowEditPackageModal(false)} packages={activePackageData} handleEditTest={approveAction} />
 
             {/* <EditTestModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} test={activeFacilityTestData} handleEditTest={()=>{}} /> */}
             {/* <AddTestModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} modalDetails={activeData} /> */}
+            <AddPackageToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddPackageModal} onClose={() => setShowAddPackageModal(false)} packages={activeData} facilityId={facilityId as string} />
             <AddTestToFacility handleSubmitFacilityTest={approveAction} isOpen={showAddModal} onClose={() => setShowAddModal(false)} test={activeData} facilityId={facilityId as string} />
-            <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => console.log('cllosed')} />
+            <ConfirmDeleteModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />
         </div>
     );
 };

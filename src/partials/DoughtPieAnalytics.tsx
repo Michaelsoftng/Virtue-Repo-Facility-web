@@ -49,11 +49,11 @@ const chartConfig = {
 } satisfies ChartConfig
 
 const statusColors = {
-    completed: "#6CB9E3",
+    completed: "#08AC85",
     ongoing: "#08AC85",
-    pending: "#FF8C42",
+    pending: "#FFC152",
     cancelled: "#FFC152",
-    scheduled: "#A569BD",
+    scheduled: "#6CB9E3",
     unpaid: "#E74C3C"
 };
 
@@ -92,7 +92,7 @@ export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ clas
     return (
         <Card className={`flex flex-col ${className}`}>
             <CardHeader className="items-left pb-0">
-                <CardTitle>55 request Assigned</CardTitle>
+                <CardTitle>{totalVisitors} request Assigned</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
                 <ChartContainer
@@ -145,15 +145,32 @@ export const DoughnutPieAnalytics: React.FC<DoughnutPieAnalyticsProps> = ({ clas
                 </ChartContainer>
             </CardContent>
             <CardFooter className="">
-                <div className="flex justify-between gap-3 font-medium leading-none">
-                    <div className="flex gap-1">
-                        <span className="h-4 w-4 rounded-full bg-[#6CB9E3] inline-block"></span>
-                        <p className="text-[13px] text-[#8C93A3]"><strong className="text-black">35</strong> Request completed</p>
-                    </div>
+                <div className="grid grid-cols-2 gap-y-2 gap-3 font-medium leading-none">
+                    {
+                        formattedData.map((data, index) => {
+                            switch (data.status) {
+                                case "__typename":
+                                case "unpaid":
+                                    return
+                                    break;
+                            
+                                default:
+                                    return(
+                                    <div key={index} className="flex gap-1">
+                                        <span className={`h-4 w-4 rounded-full bg-[${data.fill}] inline-block`}></span>
+                                        <p className="text-[13px] text-[#8C93A3]"><strong className="text-black">{data.count}</strong> Request {data.status}</p>
+                                    </div>
+                                    )
+                                    break;
+                            }
+                            
+                        })
+                    }
+{/*                     
                     <div className="flex gap-1">
                         <span className="h-4 w-4 rounded-full bg-[#FFC152] inline-block"></span>
                         <p className="text-[13px] text-[#8C93A3]"><strong className="text-black">35</strong> Request cancelled</p>
-                    </div>
+                    </div> */}
                 </div>
                 
             </CardFooter>

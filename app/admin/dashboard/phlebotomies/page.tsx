@@ -7,10 +7,8 @@ import AdminFacilitiesTable from '@/src/partials/tables/AdminFacilitiesTable'
 import AdminHeader from '@/src/reuseable/components/AdminHeader'
 import AdminMenu from '@/src/reuseable/components/AdminMenu'
 import TotalPatients from '@/src/reuseable/components/TotalPatients'
-import { getUsersByType, SearchUsersByType, useGetUsersByType } from '@/src/hooks/useGetUsersByType'
+import { getUsersByType, SearchUsersByType } from '@/src/hooks/useGetUsersByType'
 import { getAllAssignments } from '@/src/hooks/useGetAllAssignments'
-import { PatientType } from '@/src/interface'
-import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { useMutation } from '@apollo/client'
 import { ApproveAccount, DeleteUser } from '@/src/graphql/mutations'
@@ -18,7 +16,6 @@ import client from '@/lib/apolloClient';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/src/context/AuthContext'
 import { decodeJwtEncodedId } from '@/src/utils/decode'
-import BarChartAnalytics from '@/src/partials/BarChartAnalytics'
 import BarChartYaxis from '@/src/partials/BarChartYaxis'
 
 
@@ -147,17 +144,16 @@ const Phlebotomies = () => {
                 
                 setOffsets((prevOffsets) => ({
                     ...prevOffsets,
-                    phlebotomies: prevOffsets.phlebotomies + limit, // Update the key you want
+                    phlebotomies: prevOffsets.phlebotomies + limit,
                 }));
 
-                // offsets = limit + offsets;
             }
 
         } catch (err) {
             console.log('error fetching tests catch error', err);
         } finally {
             setLoading(false)
-            // console.log("finally")
+
         }
     }, []);
 
@@ -264,7 +260,7 @@ const Phlebotomies = () => {
     const handleSearchData = (searchTerm: string) => {
         setOffsets((prevOffsets) => ({
             ...prevOffsets,
-            phlebotomies: 0, // Update the key you want
+            phlebotomies: 0, 
         }));
         setSearchActive(true)
         setSearchTerm(searchTerm)

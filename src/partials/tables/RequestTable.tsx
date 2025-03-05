@@ -26,6 +26,7 @@ function formatMoney(amount: number ) {
 }
 
 const RequestTable: React.FC<TableProps> = ({ tableData }) => {
+    console.log(tableData)
     const columns = tableData.length > 0 ? Object.keys(tableData[0]) : [];
     return (
         <div className="mt-6 container mx-auto rounded-lg  bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">

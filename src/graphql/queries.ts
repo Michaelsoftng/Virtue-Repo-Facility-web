@@ -420,6 +420,31 @@ export const GetPackageById = gql`
 
 `;
 
+export const GetFacilityPackages = gql`
+query getAllPackagesByFacility($facilityId: ID!,$limit: Int, $offset: Int) {
+  getAllPackagesByFacility(facilityId: $facilityId, limit: $limit, offset: $offset) {
+    packagesCount
+    packages{
+        id
+        facility{
+            id
+        }
+        package{
+              id
+            packageName
+        }
+        price
+        facilityPrice
+
+    }
+   
+  }
+}
+
+
+
+`;
+
 export const SearchPackages = gql`
   query SearchPackages($search: String!, $limit: Int, $offset: Int){
     SearchPackages(search: $search, limit: $limit, offset: $offset) {
@@ -485,6 +510,9 @@ export const GetRecentTestRequest = gql`
             id
             request{
                 id
+                
+                requestDate
+                sampleStatus
                 patient{
                     id
                     user{
@@ -495,6 +523,16 @@ export const GetRecentTestRequest = gql`
                         phoneNumber
                     }
                 } 
+                phlebotomist{
+                    id
+                    user{
+                        id
+                        firstName
+                        lastName
+                        email
+                        phoneNumber
+                    }
+                }
             }
             test{
                 id
@@ -1312,6 +1350,64 @@ export const GetTopRequestTest = gql`
   }
 `;
 
+
+export const GetFacilityRecentResults = gql`
+query getFacilityRecentResults($facilityId:ID!, $limit: Int!, $offset: Int!){
+  getFacilityRecentResults(facilityId: $facilityId, limit: $limit, offset: $offset) {
+        id
+        patient{
+        id
+        image
+        firstName
+        lastName
+        email
+        phoneNumber
+        patient{
+            id
+            gender
+
+        }
+        }
+        testRequest{
+        id
+        request{
+            sampleCollectionDate
+            samepleDropOffDate
+            sampleStatus
+            samplePickUpAddress
+        }
+        test{
+            id
+            name
+        }
+        patientName
+        patientAge
+        package{
+            id
+            packageName
+        }
+        }
+        requisitionNumber
+        resultFields
+        generatedPdfUrl
+        createdAt
+        deletedAt
+
+ }
+
+}
+
+
+`;
+
+export const GetFacilityTopRequestedTests = gql`
+  query getFacilityTopRequestedTests( $facilityId:ID!){
+    getFacilityTopRequestedTests(facilityId: $facilityId){
+        test_Name
+        requestCount
+}}
+`;
+
 export const GetMonthlyRequest = gql`
 query getMonthlyRequestCount($year:String!){
     getMonthlyRequestCount(year:$year){
@@ -1320,6 +1416,17 @@ query getMonthlyRequestCount($year:String!){
     }
 }
 `;
+
+export const GetFacilityMonthlyRequestCount = gql`
+query getFacilityMonthlyRequestCount($facilityId: ID!, $year:String!){
+    getFacilityMonthlyRequestCount(facilityId: $facilityId, year:$year){
+        month
+        count
+    }
+}
+`;
+
+
 
 export const GetRequestByPhlebotomist = gql`
 query getRequestByPhlebotomist($phlebotomistId: ID!, $limit: Int, $offset: Int,){

@@ -140,6 +140,10 @@ const Requests = () => {
                             ) 
                                     :(
                                     <NewRequestTable
+                                        handleSearchData={() => { }}
+                                        setItemToDelete={() => { }}
+                                        deleteAction={() => { }}
+                                        viewMoreAction={() => { }}
                                         tableHeadText={`Requests (${dataCount})` }
                                         approveAction={()=>{} }
                                         activeTab={activeTab}

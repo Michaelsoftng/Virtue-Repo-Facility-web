@@ -12,53 +12,58 @@ import { getFacilityTests } from '@/src/hooks/useGetAvailableTestByFacility'
 import client from '@/lib/apolloClient';
 import TablePreloader from '@/src/preLoaders/TablePreloader'
 import { decodeJwtEncodedId } from '@/src/utils/decode'
-import { IFacilityTest } from '@/src/interface'
-import { CreateFacilityTest } from '@/src/graphql/mutations'
+import { CreateNewFacilityPackage, IFacilityTest } from '@/src/interface'
+import { CreateFacilityPackage, CreateFacilityTest, DeleteFacilityPackage, UpdateFacilityPackage, UpdateFacilityTest } from '@/src/graphql/mutations'
 import { useMutation } from '@apollo/client'
 import { toast } from 'react-toastify'
 import { getAllTests } from '@/src/hooks/useGetAllTest'
+import { FacilityTestData } from '@/src/reuseable/components/EditFacilityTestModal'
+import { getAllPackages, getFacilityPackages, searchAllPackage } from '@/src/hooks/getAllPackages'
+import { FacilityPackageData } from '@/src/reuseable/components/EditFacilityPackageModal'
 
 const Requests = () => {
+    const [packageWithId, setPackageWithId] = useState<string | null>(null)
     const [pageLoadingFromClick, setPageLoadingFromClick] = useState(false)
-    const limit = 10;  
+    const limit = 10;
     const { user } = useAuth()
     const [currentFacilityTestPage, setFacilityTestCurrentPage] = useState<number>(1);
     const [currentAvailablePage, setAvailableCurrentPage] = useState<number>(1);
-    const [activeTab, setActiveTab] = useState<string>('facilityTest')
+    const [activeTab, setActiveTab] = useState<string>('facilityPackage')
     const [loading, setLoading] = useState(true)
     const [offsets, setOffsets] = useState<{ [key: string]: number }>({
-        test: 0,
-        facilityTest: 0,
+        packages: 0,
+        facilityPackages: 0,
     });
 
     const [dataCount, setDataCount] = useState<{ [key: string]: number }>({
-        test: 0,
-        facilityTest: 0
+        packages: 0,
+        facilityPackages: 0
     });
 
     const data = useRef<{ [key: string]: TableData[] }>({
-        test: [],
-        facilityTest: []
+        packages: [],
+        facilityPackages: []
     });
 
-    const fetchFacilityTests = useCallback(async (limit: number, offset: number) => {
+    const fetchFacilityPackages = useCallback(async (limit: number, offset: number) => {
         try {
             setLoading(true)
-            const { data: testData, error, loading: testsDataLoading } = await getFacilityTests(user?.facilityAdmin?.id as string, limit, offset);
+            const { data: testData, error, loading: testsDataLoading } = await getFacilityPackages(user?.facilityAdmin?.id as string, limit, offset);
             if (error) {
                 toast.error('Error fetching tests from api');
                 return;
             }
-            if (testData && testData.getAvailableTestByFacility?.facilityTests) {
+            
+            if (testData && testData.getAllPackagesByFacility?.packages) {
                 // Update the ref instead of state
-                const facilitytests = testData.getAvailableTestByFacility?.facilityTests as TableData[]
+                const facilitytests = testData.getAllPackagesByFacility?.packages as TableData[]
+                
                 const updateFacilityTestsData = facilitytests.map((facilitTest) => {
                     const {
                         id,
                         __typename,
-                        test,
+                        package: testPackage,
                         facility,
-                        duration,
                         price,
                         facilityPrice,
                         ...rest
@@ -66,31 +71,38 @@ const Requests = () => {
 
                     return {
                         id,
-                        test: test.name,
-                        duration: `up to ${duration ? duration : 5} days`,
+                        test_package: testPackage.packageName,
                         amount: facilityPrice,
                         ...rest,
                         status: 'published',
                     };
                 }) || [];
-                const allTests = [...updateFacilityTestsData];
-                data.current = {
-                    ...data.current,
-                    facilityTest: Array.from(
-                        new Map(
-                            [...data.current.facilityTest, ...allTests].map(item => [item.id, item])
-                        ).values()
-                    ),
-                };
-               
+
+                
+                const allPackages = [...updateFacilityTestsData];
+                if (data.current.facilityPackages.length === 0) {
+                    console.log({ allPackages: allPackages })
+                    data.current.facilityPackages = allPackages
+                } else {
+                    console.log({ facilityPackages: [...(data.current.facilityPackages || []), ...allPackages] })
+                    data.current = {
+                        ...data.current,
+                        facilityPackages: Array.from(
+                            new Map(
+                                [...(data.current.facilityPackages || []), ...allPackages] // Ensure facilityPackages isn't undefined
+                                    .map(item => [item.id, item]) // Deduplicate by id
+                            ).values()),
+                    };  
+                }
+                
                 setDataCount((prevData) => ({
                     ...prevData,
-                    facilityTest: testData.getAvailableTestByFacility.facilityTestCount,
+                    facilityPackages: testData.getAllPackagesByFacility.packagesCount,
                 }));
-                
+
                 setOffsets((prevOffsets) => ({
                     ...prevOffsets,
-                    facilityTest: prevOffsets.facilityTest + limit, // Update the key you want
+                    facilityPackages: offset + limit, // Update the key you want
                 }));
             }
 
@@ -100,85 +112,167 @@ const Requests = () => {
             setLoading(false)
         }
     }, [user]);
+    
 
-
-    const fetchAvailableTests = useCallback(async (limit: number, offset: number) => {
+    const fetchAvailablePackages = useCallback(async (limit: number, offset: number) => {
         try {
             setLoading(true)
-            const { data:testData, error, loading: testsDataLoading } = await getAllTests(limit, offset);
+            const { data:packageData, error, loading: testsDataLoading } = await getAllPackages(limit, offset);
             if (error) {
-                toast.error('Error fetching tests from api');
+                console.log('Error fetching packages from api:', error);
                 return;
             }
-            if (testData && testData.getAllTest?.tests) {
+            console.log({ current: data.current.packages })
+            if (!data.current.packages) {
+                console.log("invalid ref for data.current")
+            }
+
+            if (packageData && packageData.getAllPackages?.packages) {
                 // Update the ref instead of state
-                const tests = testData.getAllTest?.tests as TableData[] 
-                const updateTestsData = tests.map((test) => {
+                const packages = packageData.getAllPackages?.packages as TableData[]
+                const updateTestsData = packages.map((singlepackage) => {
                     const {
                         __typename,
                         id,
-                        description,
+                        packageName,
                         percentageIncrease,
                         minimumIncrease,
                         createdAt,
                         ...rest
-                    } = test;
+                    } = singlepackage;
 
                     const newTestData = {
                         id,
+                        package_name: packageName,
                         ...rest,
-                        
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
 
                     };
                     return newTestData
                 }) || [];
 
                 const allTests = [...updateTestsData];
+                
                 data.current = {
                     ...data.current,
-                    test: Array.from(
+                    packages: Array.from(
                         new Map(
-                            [...data.current.test, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                            [...data.current.packages, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
                         ).values()
                     ),
                 };
                 setDataCount((prevData) => ({
                     ...prevData,
-                    test: testData.getAllTest.testCount,
+                    packages: packageData.getAllPackages.packagesCount,
                 }));
                 setOffsets((prevOffsets) => ({
                     ...prevOffsets,
-                    test: prevOffsets.test + limit, // Update the key you want
+                    packages: offset + limit, // Update the key you want
                 }));
-                
-                console.log("available test", data.current.test)
-                
             }
 
         } catch (err) {
-            toast.error('A server error occurred! contact technical support')
+            console.log('error fetching packages catch error', err);
         } finally {
             setLoading(false)
         }
     }, []);
-    
+
+
+    const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
+        try {
+            setLoading(true)
+            const { data, error, loading: testsDataLoading } = await searchAllPackage(searchTerm, limit, offset);
+            if (error) {
+                console.log('Error fetching tests from api:', error);
+                return;
+            }
+            
+            if (data && data.SearchPackages?.packages) {
+                // Update the ref instead of state
+                const tests = data.SearchPackages?.packages as TableData[]
+                const updateTestsData = tests.map((testpackage) => {
+                    const {
+                        __typename,
+                        id,
+                        percentageIncrease,
+                        minimumIncrease,
+                        createdAt,
+                        ...rest
+                    } = testpackage;
+
+                    const newTestData = {
+                        id,
+                        ...rest,
+                        percentage_increase: `${percentageIncrease}%`,
+                        minimum_increase: minimumIncrease
+
+                    };
+                    return newTestData
+                }) || [];
+
+                const allTests = [...updateTestsData];
+                // reset test data to an empty array before filling it with search data
+                if (offsets.packages === 0) {
+                    data.current = {
+                        ...data.current,
+                        packages: [],
+                    };
+                }
+                data.current = {
+                    ...data.current,
+                    packages: Array.from(
+                        new Map(
+                            [...data.current.packages, ...allTests].map(item => [item.id, item]) // Use `id` to ensure uniqueness
+                        ).values()
+                    ),
+                };
+                setDataCount((prevData) => ({
+                    ...prevData,
+                    packages: data.getAllPackages.packagesCount,
+                }));
+                setOffsets((prevOffsets) => ({
+                    ...prevOffsets,
+                    packages: offset + limit, // Update the key you want
+                }));
+            }
+
+        } catch (err) {
+            console.log('error fetching tests catch error', err);
+        } finally {
+            setLoading(false)
+        }
+    }, [offsets]);
+
+    // const handleSearchData = (searchTerm: string) => {
+    //     offsets.current = 0
+    //     setSearchActive(true)
+    //     setSearchTerm(searchTerm)
+    //     handleSearch(searchTerm, limit, 0);
+    // }
+
+
+
     const handleFetchNextPage = () => {
         if (data.current.test.length < (limit * (currentAvailablePage + 1))) {
-            fetchAvailableTests(limit, offsets.test); 
+            fetchAvailablePackages(limit, offsets.packages);
         }
         return;
     }
+
+
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
-        if (tab === 'availableTest') {
-            if (data.current.test.length < (limit * (currentAvailablePage))) {
-                fetchAvailableTests(limit, offsets.test); 
+        if (tab === 'availablePackage') {
+            if (data.current.packages.length < (limit * (currentAvailablePage))) {
+                fetchAvailablePackages(limit, offsets.packages);
             }
             return;
-            
+
         } else {
-            if (data.current.facilityTest.length < (limit * (currentAvailablePage))) {
-                fetchFacilityTests(limit, offsets.facilityTest);
+            if (data.current.facilityPackages.length < (limit * (currentAvailablePage))) {
+                fetchFacilityPackages(limit, offsets.facilityPackages);
             }
             return;
         }
@@ -186,50 +280,132 @@ const Requests = () => {
     };
 
     const handleFetchNextPageFacilityTest = () => {
-        if (data.current.facilityTest.length < (limit * (currentAvailablePage + 1))) {
-            fetchFacilityTests(limit, offsets.facilityTest);
+        if (data.current.facilityPackages.length < (limit * (currentAvailablePage + 1))) {
+            fetchFacilityPackages(limit, offsets.facilityPackages);
         }
         return;
     }
 
 
-    const [addFacilityTest] = useMutation(CreateFacilityTest, {
+    const [addFacilityPackage] = useMutation(CreateFacilityPackage, {
         client,
     });
 
-    const handleAddFacilityTest = async (formData: IFacilityTest) => {
+    const handleAddFacilityPackage = async (formData: CreateNewFacilityPackage) => {
         setPageLoadingFromClick(true);
+        const { facility, facilityPrice, ...rest } = formData
         try {
-            await addFacilityTest({
+            await addFacilityPackage({
                 variables: {
-                    ...formData
+                    ...rest,
+                    price: facilityPrice,
+                    facility: user?.facilityAdmin?.id as string
                 },
                 onCompleted(data) {
-                if (data.CreateFacilityTestManual.error) {
-                    toast.error(data.CreateFacilityTestManual.error.message);   
-                } else {
-                    toast.success('Test added to facility successfully'); 
-                }
-    
+                    if (data.CreateFacilityPackageManual.error) {
+                        toast.error(data.CreateFacilityPackageManual.error.message);
+                    } else {
+                        toast.success('Package added to facility successfully');
+                    }
+
                 },
                 onError(error) {
                     toast.error(error.message);
                 },
             });
         } catch (err) {
-            console.error('Error adding test to facility:', err);
+            console.error('Error adding package to facility:', err);
         } finally {
             setPageLoadingFromClick(false);
 
         }
     };
 
+
+    const [updateTestData, { loading: updateTestLoading }] = useMutation(UpdateFacilityPackage, {
+        client,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleUpdatePackage = async (testdata: FacilityPackageData) => {
+        setPageLoadingFromClick(true)
+        try {
+            const { id, ...rest } = testdata;
+            const { data } = await updateTestData({
+                variables: {
+                    facilityPackageID: testdata.facilityTest,
+                    facility_price: testdata.facilityPrice
+                },
+                async onCompleted(data) {
+                    if (data.UpdateFacilityPackage.facilityPackage) {
+                        toast.success("you successsfully updated your facility Package");
+                        window.location.reload();
+                    } else {
+                        toast.error(data?.UpdateFacilityPackage?.error?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error editing Facility package:', err);
+        } finally {
+            setPageLoadingFromClick(false)
+
+        }
+
+    }
+
+
+    const [deleteFacilityData, { loading: DeleteFacilityPackageLoading }] = useMutation(DeleteFacilityPackage, {
+        client,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleDeleteFacilityPackage = async () => {
+        setPageLoadingFromClick(true)
+        try {
+            const { data } = await deleteFacilityData({
+                variables: {
+                    facilityPackage: packageWithId,
+                    
+                },
+                async onCompleted(data) {
+                    if (data.DeleteFacilityPackage.package.deletedStatus) {
+                        toast.success("you successsfully deleted your facility Package");
+                        window.location.reload();
+                    } else if (!data.DeleteFacilityPackage.package.deletedStatus) {
+                        toast.success(data.DeleteFacilityPackage.package.message);
+                    } else {
+                        toast.error(data?.DeleteFacilityPackage?.error?.message);
+                    }
+
+                },
+                onError(e) {
+                    toast.error(e.message);
+
+                },
+            });
+
+        } catch (err) {
+            console.error('Error editing Facility package:', err);
+        } finally {
+            setPageLoadingFromClick(false)
+
+        }
+
+    }
+
+
     useEffect(() => {
         if (user) {
-            fetchFacilityTests(10, 0);
+            fetchFacilityPackages(limit, 0);
         }
-        
-    }, [fetchFacilityTests, user]); // Empty dependency array ensures this runs only once
+    }, [fetchFacilityPackages, user]); // Empty dependency array ensures this runs only once
 
     return (
         <div>
@@ -241,31 +417,36 @@ const Requests = () => {
 
                     <div className="px-8 py-4">
                         <div className="mb-4">
-                            <button className={`px-4 py-2 ${activeTab === 'facilityTest' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('facilityTest')}>Facility Tests</button>
-                            <button className={`px-4 py-2 ${activeTab === 'availableTest' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('availableTest')}>Available Tests</button>
+                            <button className={`px-4 py-2 ${activeTab === 'facilityPackage' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('facilityPackage')}>Facility Packages</button>
+                            <button className={`px-4 py-2 ${activeTab === 'availablePackage' ? "bg-[#B2B7C2]" : "bg-[#b5b5b646] "}  w-[200px] mr-2 rounded`} onClick={() => handleTabClick('availablePackage')}>Available Packages</button>
 
                         </div>
                         <div>
-                            {activeTab === 'facilityTest' ? (
+                            {activeTab === 'facilityPackage' ? (
                                 loading ? (
                                     <TablePreloader />
                                 ) : (
                                     <NewRequestTable
-                                        tableHeadText={`Facility Tests (${dataCount.facilityTest})`}
-                                        approveAction={() => { }}
-                                        tableData={data.current.facilityTest}
+                                        tableHeadText={`Facility Packages (${dataCount.facilityPackages})`}
+                                        approveAction={handleUpdatePackage}
+                                        handleSearchData={() => { }}
+                                        setItemToDelete={setPackageWithId}
+                                        deleteAction={handleDeleteFacilityPackage}
+                                        viewMoreAction={() => { }}
+                                        pageHeader='Facility Packages '
+                                        tableData={data.current.facilityPackages}
                                         searchBoxPosition='justify-start'
                                         showTableHeadDetails={true}
                                         showActions={true}
                                         activeTab={activeTab}
                                         setActiveTab={setActiveTab}
-                                        testPage='facilityTest'
-                                        dataCount={dataCount.facilityTest}
+                                        testPage='facilityPackage'
+                                        dataCount={dataCount.facilityPackages}
                                         currentPage={currentFacilityTestPage}
                                         setCurrentPage={setFacilityTestCurrentPage}
-                                        changePage={handleFetchNextPageFacilityTest}    
-                                            
-                                         
+                                        changePage={handleFetchNextPageFacilityTest}
+
+
                                     />
                                 ))
 
@@ -276,20 +457,24 @@ const Requests = () => {
                                     ) : (
 
                                         <NewRequestTable
-                                            tableHeadText={`Tests (${dataCount.test})`}
-                                            approveAction={handleAddFacilityTest}
+                                            handleSearchData={() => { }}
+                                            setItemToDelete={() => { }}
+                                            deleteAction={() => { }}
+                                            viewMoreAction={() => { }}
+                                            tableHeadText={`Packages (${dataCount.packages})`}
+                                            approveAction={handleAddFacilityPackage}
                                             facilityId={decodeJwtEncodedId(user?.id)}
-                                            tableData={data.current.test}
+                                            tableData={data.current.packages}
                                             searchBoxPosition='justify-start mt-3'
                                             showTableHeadDetails={true}
                                             showActions={true}
                                             activeTab={activeTab}
                                             setActiveTab={setActiveTab}
-                                            testPage='availableTest'
-                                            dataCount={dataCount['test']}
+                                            testPage='availablePackage'
+                                            dataCount={dataCount['packages']}
                                             currentPage={currentAvailablePage}
                                             setCurrentPage={setAvailableCurrentPage}
-                                            changePage={handleFetchNextPage} 
+                                            changePage={handleFetchNextPage}
                                         />
                                     ))
                             }

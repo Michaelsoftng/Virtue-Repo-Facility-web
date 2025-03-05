@@ -20,6 +20,13 @@ import Image from 'next/image'
 import PDFImage from '@/public/assets/images/utilities/pdf.png'
 import { SendResult } from '@/src/graphql/mutations'
 
+export const ensureAbsoluteUrl = (url: string): string => {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        return `https://${url}`;
+    }
+    return url;
+}
+
 const Results = () => {
     const [pageLoading, setPageLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -99,12 +106,7 @@ const Results = () => {
         }
     }, []);
 
-    function ensureAbsoluteUrl(url: string): string {
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            return `https://${url}`;
-        }
-        return url;
-    }
+
 
     // const handleSearch = useCallback(async (searchTerm: string, limit: number, offset: number) => {
     //     try {

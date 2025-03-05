@@ -771,3 +771,96 @@ export const UpdateTestRequest = gql`
   }
 }
 `;
+
+export const CreateFacilityPackage = gql`
+mutation CreateFacilityPackageManual(
+		$package: String!, 
+		$facility: String!, 
+		$price: Int!
+		) {
+  CreateFacilityPackageManual(
+	package: $package, 
+    facility: $facility, 
+	price: $price, 
+  ) {
+    facilityPackage {
+      id
+      package{
+        id
+        packageName
+      }
+      facility{
+        id
+        facilityName
+        facilityType
+      }
+      price
+    }
+}
+}
+`;
+
+export const UpdateFacilityPackage = gql`
+mutation UpdateFacilityPackage(
+  $facilityPackageID: ID!,
+  $facility_price: Decimal!
+) {
+  UpdateFacilityPackage(
+    facilityPackageID: $facilityPackageID,
+    facilityPrice: $facility_price
+  ) {
+    facilityPackage {
+      package{
+        id
+      }
+    
+      price
+      facilityPrice
+      facility{
+        id
+        facilityName
+        facilityType
+        user{
+          id
+          email
+          phoneNumber
+        }
+      }
+    }
+  }
+}
+`;
+
+export const DeleteFacilityPackage = gql`
+mutation DeleteFacilityPackage(
+  $facilityPackage: ID!
+) {
+  DeleteFacilityPackage(
+    facilityPackage: $facilityPackage
+  ) {
+    package {
+      deletedStatus
+      message
+    
+      
+    }
+  }
+}
+`;
+
+export const DeleteFacilityTest = gql`
+mutation DeleteFacilityTest(
+  $facilityTest: ID!
+) {
+  DeleteFacilityTest(
+    facilityTest: $facilityTest
+  ) {
+    test {
+      deletedStatus
+      message
+    
+      
+    }
+  }
+}
+`;

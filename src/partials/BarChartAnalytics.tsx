@@ -6,20 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, } from "@/src/thirdParty/chart"
 
 
-const chartData = [
-    { month: "Jan", requests: 186},
-    { month: "Feb", requests: 305},
-    { month: "Mar", requests: 237},
-    { month: "Apr", requests: 73},
-    { month: "May", requests: 209},
-    { month: "Jun", requests: 214},
-    { month: "Jul", requests: 104},
-    { month: "Aug", requests: 14},
-    { month: "Sep", requests: 84},
-    { month: "Oct", requests: 104},
-    { month: "Nov", requests: 14},
-    { month: "Dec", requests: 354},
-];
+
 
 const chartConfig = {
     requests: {
