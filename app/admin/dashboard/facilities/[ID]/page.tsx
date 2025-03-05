@@ -13,7 +13,7 @@ import { PieChartAnalytics } from '@/src/partials/tables/PieChartAnalytics'
 import Link from 'next/link'
 import PlusIcon from '@/src/reuseable/icons/PlusIcon'
 import client from '@/lib/apolloClient';
-import { GetUserById } from '@/src/graphql/queries';
+import { GetFacilityTopRequestedTests, GetUserById } from '@/src/graphql/queries';
 import { getFacilityTests, useGetAvailableTestByFacility } from '@/src/hooks/useGetAvailableTestByFacility'
 import { useMutation, useQuery } from '@apollo/client'
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,9 @@ import NumberPreloader from '@/src/preLoaders/NumberPreloader'
 import { useGetRecentTests } from '@/src/hooks/useGetRecentTests'
 import { toast } from 'react-toastify';
 import { ToggleAccountStatus } from '@/src/graphql/mutations'
+import PieChartPreloader from '@/src/preLoaders/PiechartPreloader'
+import { chartColors, PieChartAnalytics2 } from '@/src/partials/tables/PieChartAnalytics2'
+import { chartEntry } from '../../home/page'
 
 
 const chartData = [
@@ -40,7 +43,8 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
     const updatedTestData = useRef<TableData[]>([]);
     const testCount = useRef<number>(0);
     const { ID } = params;
-    const { data: recentTestsData, loading: recentTestsLoading } = useGetRecentTests(ID, 5, 0);
+    const { data: recentTestsData, loading: recentTestsLoading } = useGetRecentTests(ID, 10, 0);
+    
     const recentTestData = recentTestsData?.getAllRequestsByFacility.testRequests as TableData[] 
     const { data: facilityData, loading: pageLoading } = useQuery(GetUserById, {
         variables: {
@@ -49,7 +53,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
         client,
     });
     const facilityId = facilityData?.getUserById?.facilityAdmin.id;
-   
+
     // Check if patientData is available before mapping
     const updatedrecentTestsData = recentTestData?.map((singleTest) => {
 
@@ -159,6 +163,14 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                 // setIsLoading(false);
             }
     };
+    const { data: topTestRequest, loading: topTestRequestLoading } = useQuery(
+        GetFacilityTopRequestedTests,
+        {
+            client,
+            variables:
+                { facilityId: facilityId },
+            skip: !facilityId
+        });
     
     useEffect(() => {
         if (facilityId) {
@@ -248,32 +260,34 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                             </AdminFacilitiesTable>
                             <div className="mt-2 px-6 py-2  rounded-md bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">
                                 <h2 className="text-[20px] font-bold text-black">Top Test</h2>
-                                <div className="">
+                                {topTestRequestLoading ? <PieChartPreloader /> : (
+                                    <div className="grid grid-cols-[65%_35%] gap-2">
+                                        <div>
+                                            <PieChartAnalytics2 chartData={topTestRequest.getFacilityTopRequestedTests} chartStyle='100' />
 
-                                    <div>
-                                        <PieChartAnalytics chartData={chartData} />
+                                        </div>
+                                        <div>
+
+                                            {topTestRequest.getFacilityTopRequestedTests.map((entry: chartEntry, index: number) => (
+                                                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                                    <span className="rounded-full p-[1.5]"
+                                                        style={{
+                                                            backgroundColor: chartColors[index % chartColors.length],
+                                                            display: 'inline-block',
+                                                            width: '12px',
+                                                            height: '12px',
+                                                            marginRight: '8px'
+                                                        }}
+                                                    ></span>
+                                                    <span className="text-[#555555] text-[10px] poppins leading-5">{entry.test_Name}</span>
+                                                </div>
+                                            ))}
+
+                                        </div>
+
+
                                     </div>
-
-
-                                    <div className="grid grid-cols-4">
-
-                                        {chartData.map((entry, index) => (
-                                            <div key={index} className="" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                                <span className="rounded-full p-[1.5]"
-                                                    style={{
-                                                        backgroundColor: entry.fill,
-                                                        display: 'inline-block',
-                                                        width: '12px',
-                                                        height: '12px',
-                                                        marginRight: '8px'
-                                                    }}
-                                                ></span>
-                                                <span className="text-[#555555] text-[10px] poppins leading-5">{entry.test}</span>
-                                            </div>
-                                        ))}
-
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                         {

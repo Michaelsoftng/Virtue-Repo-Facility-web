@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, {  useState } from 'react'
 import BreadCrump from '@/src/reuseable/components/BreadCrump'
@@ -20,6 +21,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import * as Form from '@radix-ui/react-form';
 import { ToggleAccountStatus } from '@/src/graphql/mutations'
 import { toast } from 'react-toastify';
+import { useGetConsultationStats } from '@/src/hooks/useGetConsultationStats'
 
 const sampleCompletedData: TableData[] = [
     {
@@ -104,6 +106,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
     const [phlebotomistLoading, setIsLoading] = useState<boolean>(false);
     const { ID } = params;
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const { data: requestStatsData, loading: requestStatsDataLoading } = useGetConsultationStats(undefined, ID )
     const { data: doctordData, loading: pageLoading } = useQuery(GetUserById, {
             variables: {
                 id: ID
@@ -157,7 +160,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     }
                     <div className="px-8 py-4 grid grid-cols-[30%_calc(35%-12px)_calc(35%-12px)] gap-6">
                         <div className="">
-                            <DoughnutPieAnalytics className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
+                            <DoughnutPieAnalytics chartData={requestStatsData.getConsultationStatsByUser} className=" h-[420px] rounded-xl border bg-card text-card-foreground shadow"/>
                         </div>
                         <div>
                             <div className="bg-white shadow-lg  px-4 py-4 rounded-lg ">

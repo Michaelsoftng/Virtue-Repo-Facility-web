@@ -20,7 +20,7 @@ import { chartEntry } from '@/app/admin/dashboard/home/page'
 import { chartColors, PieChartAnalytics2 } from '@/src/partials/tables/PieChartAnalytics2'
 import PieChartPreloader from '@/src/preLoaders/PiechartPreloader'
 import ResultComponent from '@/src/reuseable/components/ResultComponent'
-import { ensureAbsoluteUrl } from '@/app/admin/dashboard/results/page'
+
 
 
 const Home = () => {
@@ -36,7 +36,13 @@ const Home = () => {
 	const { data: facilityRecentResults, loading: facilityRecentResultsLoading } = useQuery(GetFacilityRecentResults, { client, variables: { facilityId: user?.facilityAdmin?.id as string, limit:8, offset:0 } });
 	const facilityRecentResultsData = facilityRecentResults?.getFacilityRecentResults as TableData[] 
 	
-	
+	const ensureAbsoluteUrl = (url: string): string => {
+		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+			return `https://${url}`;
+		}
+		return url;
+	}
+
 	// Check if patientData is available before mapping
 	const updatedrecentTestsData = recentTestData?.map((singleTest) => {
 

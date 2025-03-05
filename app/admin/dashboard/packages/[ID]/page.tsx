@@ -215,35 +215,7 @@ const Package = ({ params }: { params: { ID: string } }) => {
                                     </Link>
                                 </div>
                             </AdminFacilitiesTable>
-                            {/* <div className="mt-2 px-6 py-2  rounded-md bg-white shadow-md box-shadow: 0 4px 6px -1px rgb(34 0 0 / 0.1), 0 2px 4px -2px rgb(34 0 0 / 0.1);">
-                                <h2 className="text-[20px] font-bold text-black">Top Test</h2>
-                                <div className="">
-
-                                    <div>
-                                        <PieChartAnalytics chartData={chartData} />
-                                    </div>
-
-
-                                    <div className="grid grid-cols-4">
-
-                                        {chartData.map((entry, index) => (
-                                            <div key={index} className="" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                                <span className="rounded-full p-[1.5]"
-                                                    style={{
-                                                        backgroundColor: entry.fill,
-                                                        display: 'inline-block',
-                                                        width: '12px',
-                                                        height: '12px',
-                                                        marginRight: '8px'
-                                                    }}
-                                                ></span>
-                                                <span className="text-[#555555] text-[10px] poppins leading-5">{entry.test}</span>
-                                            </div>
-                                        ))}
-
-                                    </div>
-                                </div>
-                            </div> */}
+                            
                         </div>
                         {
                             pageLoading
