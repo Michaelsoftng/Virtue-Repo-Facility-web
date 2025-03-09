@@ -228,7 +228,7 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                                     <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Pick up date:  {formatDateTime(requestData.getRequest[0].sampleCollectionDate)}</span></p>
 
                                                     <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><MdPhoneIphone style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Contact line: {assignmentData.getAssignmentByTaskId.assigned.phoneNumber}</span></p>
-                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Drop Off date: {formatDateTime(requestData.getRequest[0].samepleDropOffDate)}</span></p>
+                                                    <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-green-600" /><span className="mt-1">Drop Off date: {requestData.getRequest[0].samepleDropOffDate ? formatDateTime(requestData.getRequest[0].samepleDropOffDate) : ""}</span></p>
                                         </>
                                         ) : (  <div></div> )
                                     )
@@ -243,9 +243,9 @@ const Facilities = ({ params }: { params: { ID: string } }) => {
                                 <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaMoneyCheckDollar style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Paid: {formatMoney(requestData.getRequest[0].total - requestData.getRequest[0].balance)}</span></p>
                                 
                                 <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><GrMoney style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Balance: {formatMoney(requestData.getRequest[0].balance)}</span></p>
-                                <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Collection Date: {formatDateTime('2024-11-27T12:02:18.743198+00:00')}</span></p>
+                                <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><FaCalendarCheck style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Collection Date: {requestData.getRequest[0].sampleCollectionDate ? formatDateTime(requestData.getRequest[0].sampleCollectionDate) : ""}</span></p>
                                 <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><TbStatusChange style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Sample Status: {requestData.getRequest[0].sampleStatus}</span></p>
-                                <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><TbStatusChange style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Status: {requestData.getRequest[0].requestStatus } {requestData.getRequest[0].resultDate}</span></p>
+                                <p className="flex gap-2 text-black text-[14px] mt-2 ml-2"><TbStatusChange style={{ width: '25px', height: '25px' }} className="text-red-500" /><span className="mt-1">Total Request Status: {requestData.getRequest[0].requestStatus }</span></p>
 
                             </div>
                         </div>

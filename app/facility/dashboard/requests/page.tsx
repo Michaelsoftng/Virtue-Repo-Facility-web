@@ -21,7 +21,8 @@ const Requests = () => {
     const [loading, setLoading] = useState(true)
     const [offsets, setOffset] = useState<number >(0);
     const cachedRequestData = useRef<TableData[]>([])
-    const [dataCount, setDataCount] = useState< number >(0);
+    const [dataCount, setDataCount] = useState<number>(0);
+    
     const fetchData = useCallback(async (offset: number) => {
         if (!user) return;
         setLoading(true);
@@ -75,8 +76,7 @@ const Requests = () => {
                 const requestData = {
                     id,
                     patient: [null, patientname, request.patient.user.email],
-                    // patient_name: patientName,
-                    // patient_age: patientAge,
+                    request_date: request.requestDate,
                     phlebotomist: request.phlebotomist ? [null, phlebotomistname, request.phlebotomist.user.email] : [null, phlebotomistname, "info@labtraca.com"],
                     package: testPackage ? testPackage.packageName : "single test",
                     test: test.name,
@@ -107,21 +107,19 @@ const Requests = () => {
     }, [user])
 
     
-    const handleFetchNextPage = () => {
-        
+    const handleFetchNextPage = () => { 
         const totalNeededData = limit * (currentPage + 1);
         const totalCachedData = cachedRequestData.current.length;
         if (totalCachedData >= totalNeededData) {
             return;
         }
-        console.log("offsets", offsets)
         fetchData(offsets);
         // check if cachedRequestData.current has the data before making an api call
     }
 
     useEffect(() => {
         if (user) {
-            fetchData(10);
+            fetchData(0);
         }
     }, [user, fetchData]); // Empty dependency array ensures this runs only once
 

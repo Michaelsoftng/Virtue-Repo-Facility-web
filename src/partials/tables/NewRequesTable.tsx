@@ -361,6 +361,7 @@ const NewRequestTable: React.FC<NewRequestTableProps> = (
                                                         </div>
                                                     </td>
                                                 );
+                                            case 'request_date':
                                             case 'date':
                                                 return (
                                                     <td key={column} className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-sm font-thin">

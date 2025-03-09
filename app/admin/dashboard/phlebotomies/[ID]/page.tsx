@@ -88,6 +88,7 @@ const Singlefacility = ({ params }: { params: { ID: string } }) => {
                     const newPatientData = {
                         id,
                         patients: [null, name, patient.user.email],
+                        request_date: requestDate,
                         logistics_estimate: logisticsEstimate,
                         phlebotomist_earning: phlebotomistEarning,
                         distance_charge: distanceCharge,

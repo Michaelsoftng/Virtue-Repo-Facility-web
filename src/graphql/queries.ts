@@ -909,6 +909,7 @@ export const getAllTestRequestsByFacility = gql`
           testRequests {
               id
               request{
+                requestDate
                 patient{
                   id
                   user{
